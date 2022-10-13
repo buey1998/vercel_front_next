@@ -16,9 +16,13 @@
     "baseUrl": ".",
     "paths": {
       "@components/*": ["components/*"],
-      "@styles/*": ["styles/*"],
+      "@constants/*": ["constants/*"],
+      "@contexts/*": ["contexts/*"],
+      "@hooks/*": ["hooks/*"],
       "@pages/*": ["pages/*"],
-      "@hooks/*": ["hooks/*"]
+      "@services/*": ["services/*"],
+      "@styles/*": ["styles/*"],
+      "@test/*": ["test/*"]
     },
     "types": ["jest"],
     "incremental": true
