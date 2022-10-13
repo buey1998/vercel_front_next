@@ -31,7 +31,7 @@
     "next-env.d.ts",
     "src/**/*.ts",
     "src/**/*.tsx",
-    "test/Home.test.tsx"
+    "src/test/**/*.tsx"
   ],
   "exclude": ["node_modules"]
 }
