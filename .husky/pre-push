@@ -38,7 +38,8 @@ yarn test ||
 )
 
 # If everything passes... Now we can commit
-echo '👍👍👍 Alright.... Your code is passed. I am building now please take waiting and relax... 👍👍👍'
+echo '👍👍👍 Your code is passed! I am building. 👍👍👍'
+echo 'Please waiting, take a sip of coffee and relax...'
 
 yarn build:dev ||
 (
