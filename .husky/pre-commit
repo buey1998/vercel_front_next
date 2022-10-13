@@ -29,5 +29,3 @@ yarn check-eslint ||
                 ESLint Check Failed. Make the required changes listed above, add changes and try to commit again.'
         false; 
 )
-
-# Check Tailwind CSS
