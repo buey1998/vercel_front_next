@@ -15,8 +15,7 @@ module.exports = {
         'Arial',
         ' sans-serif'
       ],
-      dogicapixel: ['dogica_pixelregular', 'Helvetica', 'Arial', ' sans-serif'],
-      roboto: ['Roboto', 'Helvetica', 'Arial', 'sans-serif']
+      dogicapixel: ['dogica_pixelregular', 'Helvetica', 'Arial', ' sans-serif']
     },
     extend: {}
   },
