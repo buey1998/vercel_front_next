@@ -37,20 +37,6 @@ yarn test ||
     false;
 )
 
-# Check Tailwind CSS
-yarn scss ||
-(
-        echo '🎨🎨🎨 Compling SCSS 🎨🎨🎨'
-        false; 
-)
-
-# Check Tailwind CSS
-yarn css ||
-(
-        echo '👩‍🎨👩‍🎨👩‍🎨 I am trying to build your 👩‍🎨👩‍🎨👩‍🎨'
-        false; 
-)
-
 # If everything passes... Now we can commit
 echo '👍👍👍 Your code is passed! I am building. 👍👍👍'
 echo 'Please waiting, take a sip of coffee and relax...'

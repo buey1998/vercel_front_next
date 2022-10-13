@@ -8,6 +8,20 @@
 echo "🧐 lint staged active..."
 yarn lint-staged
 
+# Watching SCSS
+yarn scss ||
+(
+        echo '🎨🎨🎨 Compling SCSS 🎨🎨🎨'
+        false; 
+)
+
+# Building Tailwind CSS
+yarn css ||
+(
+        echo '👩‍🎨👩‍🎨👩‍🎨 I am trying to build your 👩‍🎨👩‍🎨👩‍🎨'
+        false; 
+)
+
 # Format code.
 echo "🤓 Formating code ... "
 yarn format

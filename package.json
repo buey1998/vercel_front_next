@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "PORT=4002 scss css next dev",
+    "dev": "PORT=4002 next dev && scss && css",
     "build": "next build",
     "build:dev": "env-cmd -f .env.development yarn build",
     "build:prod": "env-cmd -f .env.production yarn build",
@@ -17,7 +17,7 @@
     "check-format": "prettier --check .",
     "check-eslint": "eslint . --ext ts --ext tsx --ext js",
     "check-eslint:dev": "eslint . --ext ts --ext tsx --ext js",
-    "css": "tailwindcss -i ./src/styles/globals.css -o ./src/styles/globals.css",
+    "css": "npx tailwindcss -i ./src/styles/globals.css -o ./src/styles/output.css",
     "scss": "sass --no-source-map ./src/styles/scss:./src/styles/css",
     "prepare": "husky install",
     "test": "jest",
