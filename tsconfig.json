@@ -1,7 +1,10 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "target": "es6",
     "lib": ["dom", "dom.iterable", "esnext"],
+    "noImplicitAny": false,
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -11,27 +14,26 @@
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "isolatedModules": true,
     "jsx": "preserve",
+    "incremental": false,
     "baseUrl": ".",
     "paths": {
-      "@components/*": ["components/*"],
-      "@constants/*": ["constants/*"],
-      "@contexts/*": ["contexts/*"],
-      "@hooks/*": ["hooks/*"],
+      "@components/*": ["src/components/*"],
+      "@configs/*": ["src/configs/*"],
+      "@constants/*": ["src/constants/*"],
+      "@feature/*": ["src/features/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@interfaces/*": ["src/interfaces/*"],
+      "@locales/*": ["src/locales/*"],
+      "@providers/*": ["src/providers/*"],
+      "@stores/*": ["src/stores/*"],
+      "@styles/*": ["src/styles/*"],
+      "@utils/*": ["src/utils/*"],
       "@pages/*": ["pages/*"],
-      "@services/*": ["services/*"],
-      "@styles/*": ["styles/*"],
-      "@test/*": ["test/*"]
-    },
-    "types": ["jest"],
-    "incremental": true
+      "@src/*": ["src/*"],
+      "@public/*": ["public/*"]
+    }
   },
-  "include": [
-    "next-env.d.ts",
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/test/**/*.tsx"
-  ],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "environment.d.ts"],
   "exclude": ["node_modules"]
 }

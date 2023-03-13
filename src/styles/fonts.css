@@ -1,73 +1,46 @@
 @font-face {
-  font-family: 'dogica_pixelregular';
-  src: url('/fonts/dogicapixel-webfont.woff') format('woff2'),
-    url('/fonts/dogicapixel-webfont.woff') format('woff');
+  font-family: "neueMachina";
+  src: url("/assets/fonts/PPNeueMachina-InktrapRegular.woff2") format("woff2"),
+    url("/assets/fonts/PPNeueMachina-InktrapRegular.woff") format("woff");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'dogica_pixelbold';
-  src: url('/fonts/dogicapixelbold-webfont.woff2') format('woff2'),
-    url('/fonts/dogicapixelbold-webfont.woff') format('woff');
+  font-family: "neueMachinaSemiBold";
+  src: url("/assets/fonts/PPNeueMachina-InktrapSemibold.woff2") format("woff2"),
+    url("/assets/fonts/PPNeueMachina-InktrapSemibold.woff") format("woff");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'satoshiblack';
-  src: url('/fonts/satoshi-black-webfont.woff2') format('woff2'),
-    url('/fonts/satoshi-black-webfont.woff') format('woff');
+  font-family: "neueMachinaBold";
+  src: url("/assets/fonts/PPNeueMachina-InktrapBold.woff2") format("woff2"),
+    url("/assets/fonts/PPNeueMachina-InktrapBold.woff") format("woff");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'satoshibold';
-  src: url('/fonts/satoshi-bold-webfont.woff2') format('woff2'),
-    url('/fonts/satoshi-bold-webfont.woff') format('woff');
+  font-family: "digital-7";
+  src: url("/assets/fonts/digital-7.ttf") format("woff2"),
+    url("/assets/fonts/digital-7.ttf") format("woff");
+}
+
+@font-face {
+  font-family: "mondwest";
+  src: url("/assets/fonts/PPMondwest-Regular.woff") format("woff"),
+    url("/assets/fonts/PPMondwest-Regular.woff2") format("woff2");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'satoshilight';
-  src: url('/fonts/satoshi-light-webfont.woff2') format('woff2'),
-    url('/fonts/satoshi-light-webfont.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
+  font-family: "Digital";
+  src: url("/assets/fonts/digital-7.ttf") format("TrueType");
 }
-
-@font-face {
-  font-family: 'satoshimedium';
-  src: url('/fonts/satoshi-medium-webfont.woff2') format('woff2'),
-    url('/fonts/satoshi-medium-webfont.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'satoshiregular';
-  src: url('/fonts/satoshi-regular-webfont.woff2') format('woff2'),
-    url('/fonts/satoshi-regular-webfont.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-  font-display: fallback;
-}
-
-@font-face {
-  font-family: 'Broken Console';
-  src: url('/fonts/BrokenConsole-Regular.woff2') format('woff2'),
-    url('/fonts/BrokenConsole-Regular.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-  font-display: fallback;
-}
-
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');

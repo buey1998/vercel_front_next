@@ -27,6 +27,9 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
+.env.development
+.env.production
 
 # vercel
 .vercel
@@ -37,3 +40,10 @@ next-env.d.ts
 
 # eslint
 .eslintcache
+
+# lock files
+package-lock.json
+yarn.lock
+
+*src/styles/output.css
+makefile
