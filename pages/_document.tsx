@@ -122,7 +122,7 @@ class MyDocument extends Document {
           {/* facebook */}
           <meta
             property="fb:app_id"
-            content="112275975248582"
+            content={`${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`}
           />
           <meta
             property="og:locale"
@@ -203,7 +203,7 @@ class MyDocument extends Document {
             onLoad={() => {
               window.fbAsyncInit = function () {
                 FB.init({
-                  appId: "",
+                  appId: `${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`,
                   xfbml: true,
                   version: "v17.0"
                 })

@@ -34,7 +34,7 @@ const MetaDataTag = (props) => {
       {/* facebook */}
       <meta
         property="fb:app_id"
-        content="112275975248582"
+        content={`${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`}
       />
       <meta
         property="og:locale"
