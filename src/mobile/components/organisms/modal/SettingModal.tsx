@@ -231,7 +231,7 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
           <>
             <TelegramWidget
               dataOnAuth={handleSyncTelegramId}
-              botName="NakaGameMBot"
+              botName="NakaGameBot"
             />
             <Divider className="my-6 !block border-b border-[#35383F]" />
           </>

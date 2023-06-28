@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { TelegramUser } from "@components/atoms/TelegramWidget"
 import { MESSAGES } from "@constants/messages"
-// import useLinkToTelegram from "@feature/game/containers/hooks/useLinkToTelegram"
+import useLinkToTelegram from "@feature/game/containers/hooks/useLinkToTelegram"
 import useToast from "@feature/toast/containers/useToast"
 import { ELocalKey } from "@interfaces/ILocal"
 import useProfileStore from "@stores/profileStore"
@@ -10,9 +10,10 @@ import { useCallback } from "react"
 
 const useSyncProfile = () => {
   const profile = useProfileStore((state) => state.profile.data)
-  // const { mutateLinkToTelegram } = useLinkToTelegram()
-  const { errorToast } = useToast()
-  const telegramIdLocal = Helper.getLocalStorage(ELocalKey.telegramId)
+  const { mutateLinkToTelegram } = useLinkToTelegram()
+  const { errorToast, successToast } = useToast()
+  // Maybe not neccessary
+  // const telegramIdLocal = Helper.getLocalStorage(ELocalKey.telegramId)
 
   const handleSyncFacebookId = useCallback(() => {
     // get facebook id from local storage
@@ -24,44 +25,36 @@ const useSyncProfile = () => {
    */
   const handleSyncTelegramId = useCallback(
     (response: TelegramUser) => {
-      console.log("response", response)
-      // When url is from telegram, pick the telegram id from local storage url
-      if (!telegramIdLocal) return
+      Helper.setLocalStorage({
+        key: ELocalKey.telegramUser,
+        value: JSON.stringify(response)
+      })
+
       if (profile && profile.telegram_id) {
         errorToast(MESSAGES.sync_telegram_already)
         return
       }
+
       if (profile && !profile.telegram_id) {
         // If user not exist in website, then create new user in website
+        mutateLinkToTelegram({
+          player_id: profile.id,
+          telegram_id: response.id
+        }).then((res) => {
+          if (res?.data?.telegram_id) {
+            successToast(MESSAGES.sync_telegram_success)
+            Helper.removeLocalStorage(ELocalKey.telegramUser)
+            Helper.removeLocalStorage(ELocalKey.telegramId)
+          }
+        })
       }
     },
-    [profile, errorToast, telegramIdLocal]
+    [profile, errorToast, mutateLinkToTelegram, successToast]
   )
-  /* const handleSyncTelegramId = useCallback(() => {
-    // When url is from telegram, pick the telegram id from local storage url
-    if (!telegramIdLocal) return
-    if (profile && profile.telegram_id) {
-      errorToast(MESSAGES.sync_telegram_already)
-      return
-    }
-    if (profile && !profile.telegram_id) {
-      // If user not exist in website, then create new user in website
-      mutateLinkToTelegram({
-        player_id: profile.id,
-        telegram_id: telegramIdLocal
-      }).then((res) => {
-        if (res?.data?.telegram_id) {
-          successToast(MESSAGES.sync_telegram_success)
-          // Helper.removeLocalStorage(ELocalKey.telegramId)
-        }
-      })
-    }
-  }, [profile, errorToast, mutateLinkToTelegram, successToast, telegramIdLocal]) */
 
   return {
     handleSyncFacebookId,
-    handleSyncTelegramId,
-    telegramIdLocal
+    handleSyncTelegramId
   }
 }
 

@@ -86,19 +86,7 @@ export const TelegramWidget: React.FC<TelegramButtonPropArg> = ({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    botName,
-    buttonSize,
-    className,
-    cornerRadius,
-    dataAuthUrl,
-    dataOnAuth,
-    lang,
-    requestAccess,
-    usePic,
-    widgetVersion,
-    telegramRef
-  ])
+  }, [])
 
   return (
     <>
