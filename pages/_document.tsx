@@ -5,6 +5,7 @@ import { getSeoByPath } from "@feature/metaData/containers/services/seoMetaData.
 import { ISeoResponse } from "@feature/metaData/interfaces/ISeoData"
 import { metaData } from "@src/meta/meta"
 import Document, { Html, Head, Main, NextScript } from "next/document"
+import Script from "next/script"
 
 interface IMetaData {
   meta_title: string
@@ -16,6 +17,14 @@ interface IMeta {
   meta: IMetaData
   url: string
 }
+
+declare global {
+  interface Window {
+    fbAsyncInit: () => void
+  }
+}
+
+declare const FB: any
 
 class MyDocument extends Document {
   static async getInitialProps(ctx) {
@@ -188,6 +197,20 @@ class MyDocument extends Document {
           />
         </Head>
         <body>
+          <Script
+            id="facebook-sdk"
+            src="https://connect.facebook.net/en_US/sdk.js"
+            onLoad={() => {
+              window.fbAsyncInit = function () {
+                FB.init({
+                  appId: "",
+                  xfbml: true,
+                  version: "v17.0"
+                })
+                FB.AppEvents.logPageView()
+              }
+            }}
+          />
           <Main />
           <NextScript />
         </body>
