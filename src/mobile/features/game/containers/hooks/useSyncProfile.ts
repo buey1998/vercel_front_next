@@ -1,6 +1,7 @@
+/* eslint-disable no-console */
 import { TelegramUser } from "@components/atoms/TelegramWidget"
 import { MESSAGES } from "@constants/messages"
-import useLinkToTelegram from "@feature/game/containers/hooks/useLinkToTelegram"
+// import useLinkToTelegram from "@feature/game/containers/hooks/useLinkToTelegram"
 import useToast from "@feature/toast/containers/useToast"
 import { ELocalKey } from "@interfaces/ILocal"
 import useProfileStore from "@stores/profileStore"
@@ -9,29 +10,9 @@ import { useCallback } from "react"
 
 const useSyncProfile = () => {
   const profile = useProfileStore((state) => state.profile.data)
-  const { mutateLinkToTelegram } = useLinkToTelegram()
-  const { successToast, errorToast } = useToast()
+  // const { mutateLinkToTelegram } = useLinkToTelegram()
+  const { errorToast } = useToast()
   const telegramIdLocal = Helper.getLocalStorage(ELocalKey.telegramId)
-
-  /**
-   * @description Handle sync data telegram using authorization data from Telegram
-   * Tiger's function
-   */
-  // const handleSyncTelegramId = async () => {
-  //   if (!profile) return
-  //   const telegramParams: any = await localStorage.getItem("telegram-params")
-  //   const telegramParse: any = JSON.parse(telegramParams)
-  //   if (telegramParse) {
-  //     const telegramId = String(telegramParse.id)
-  //     if (telegramId) {
-  //       mutateLinkToTelegram({
-  //         player_id: profile.id,
-  //         telegram_id: telegramId
-  //       })
-  //       localStorage.removeItem("telegram-params")
-  //     }
-  //   }
-  // }
 
   const handleSyncFacebookId = useCallback(() => {
     // get facebook id from local storage
@@ -54,9 +35,9 @@ const useSyncProfile = () => {
         // If user not exist in website, then create new user in website
       }
     },
-    [profile]
+    [profile, errorToast, telegramIdLocal]
   )
-  /*const handleSyncTelegramId = useCallback(() => {
+  /* const handleSyncTelegramId = useCallback(() => {
     // When url is from telegram, pick the telegram id from local storage url
     if (!telegramIdLocal) return
     if (profile && profile.telegram_id) {
@@ -75,7 +56,7 @@ const useSyncProfile = () => {
         }
       })
     }
-  }, [profile, errorToast, mutateLinkToTelegram, successToast, telegramIdLocal])*/
+  }, [profile, errorToast, mutateLinkToTelegram, successToast, telegramIdLocal]) */
 
   return {
     handleSyncFacebookId,

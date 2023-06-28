@@ -19,11 +19,11 @@ import { ImageCustom } from "@components/atoms/image/Image"
 import { StyledAvatar } from "@mobile/components/atoms/headerMenu/HeadProfileMobile"
 import ArrowBackIcon from "@mobile/components/atoms/icons/ArrowBackIcon"
 import useDrawerControllerMobile from "@mobile/features/game/containers/hooks/useDrawerControllerMobile"
-import { TelegramUser, TelegramWidget } from "@components/atoms/TelegramWidget"
+import { TelegramWidget } from "@components/atoms/TelegramWidget"
+import useSyncProfile from "@mobile/features/game/containers/hooks/useSyncProfile"
 import LogoutModal from "./LogoutModal"
 import ProfileSettingModal from "./ProfileSettingModal"
 import PlayedHistoryModal from "./PlayedHistoryModal"
-import useSyncProfile from "@mobile/features/game/containers/hooks/useSyncProfile"
 
 interface ISettingModalProps {
   open: boolean
