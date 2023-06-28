@@ -1,3 +1,4 @@
+import { TelegramUser } from "@components/atoms/TelegramWidget"
 import { MESSAGES } from "@constants/messages"
 import useLinkToTelegram from "@feature/game/containers/hooks/useLinkToTelegram"
 import useToast from "@feature/toast/containers/useToast"
@@ -40,7 +41,22 @@ const useSyncProfile = () => {
   /**
    * @description Handle check user already exist in website, then sync data telegram
    */
-  const handleSyncTelegramId = useCallback(() => {
+  const handleSyncTelegramId = useCallback(
+    (response: TelegramUser) => {
+      console.log("response", response)
+      // When url is from telegram, pick the telegram id from local storage url
+      if (!telegramIdLocal) return
+      if (profile && profile.telegram_id) {
+        errorToast(MESSAGES.sync_telegram_already)
+        return
+      }
+      if (profile && !profile.telegram_id) {
+        // If user not exist in website, then create new user in website
+      }
+    },
+    [profile]
+  )
+  /*const handleSyncTelegramId = useCallback(() => {
     // When url is from telegram, pick the telegram id from local storage url
     if (!telegramIdLocal) return
     if (profile && profile.telegram_id) {
@@ -59,7 +75,7 @@ const useSyncProfile = () => {
         }
       })
     }
-  }, [profile, errorToast, mutateLinkToTelegram, successToast, telegramIdLocal])
+  }, [profile, errorToast, mutateLinkToTelegram, successToast, telegramIdLocal])*/
 
   return {
     handleSyncFacebookId,

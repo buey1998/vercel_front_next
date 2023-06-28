@@ -19,10 +19,11 @@ import { ImageCustom } from "@components/atoms/image/Image"
 import { StyledAvatar } from "@mobile/components/atoms/headerMenu/HeadProfileMobile"
 import ArrowBackIcon from "@mobile/components/atoms/icons/ArrowBackIcon"
 import useDrawerControllerMobile from "@mobile/features/game/containers/hooks/useDrawerControllerMobile"
-import TelegramWidget from "@components/atoms/TelegramWidget"
+import { TelegramUser, TelegramWidget } from "@components/atoms/TelegramWidget"
 import LogoutModal from "./LogoutModal"
 import ProfileSettingModal from "./ProfileSettingModal"
 import PlayedHistoryModal from "./PlayedHistoryModal"
+import useSyncProfile from "@mobile/features/game/containers/hooks/useSyncProfile"
 
 interface ISettingModalProps {
   open: boolean
@@ -38,6 +39,7 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
 
   const { t } = useTranslation()
   const { clearAllDrawer } = useDrawerControllerMobile()
+  const { handleSyncTelegramId } = useSyncProfile()
 
   return (
     <SwipeableDrawer
@@ -228,7 +230,10 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
         {profile && !profile.telegram_id && (
           <>
             {/* <ButtonTelegram /> */}
-            <TelegramWidget />
+            <TelegramWidget
+              dataOnAuth={handleSyncTelegramId}
+              botName="NakaGameBot"
+            />
             <Divider className="my-6 !block border-b border-[#35383F]" />
           </>
         )}
