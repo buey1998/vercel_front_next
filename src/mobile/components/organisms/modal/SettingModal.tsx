@@ -229,7 +229,6 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
         </Box>
         {profile && !profile.telegram_id && (
           <>
-            {/* <ButtonTelegram /> */}
             <TelegramWidget
               dataOnAuth={handleSyncTelegramId}
               botName="NakaGameBot"
