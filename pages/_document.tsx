@@ -195,6 +195,13 @@ class MyDocument extends Document {
             name="keywords"
             content={meta_keyword}
           />
+
+          <script
+            async
+            defer
+            crossOrigin="anonymous"
+            src="https://connect.facebook.net/en_US/sdk.js"
+          />
         </Head>
         <body>
           <Script
