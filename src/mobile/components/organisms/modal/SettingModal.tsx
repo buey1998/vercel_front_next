@@ -23,6 +23,7 @@ import ButtonTelegram from "@components/atoms/button/ButtonTelegram"
 import LogoutModal from "./LogoutModal"
 import ProfileSettingModal from "./ProfileSettingModal"
 import PlayedHistoryModal from "./PlayedHistoryModal"
+import TelegramWidget from "@components/atoms/TelegramWidget"
 
 interface ISettingModalProps {
   open: boolean
@@ -227,7 +228,8 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
         </Box>
         {profile && !profile.telegram_id && (
           <>
-            <ButtonTelegram />
+            {/* <ButtonTelegram /> */}
+            <TelegramWidget />
             <Divider className="my-6 !block border-b border-[#35383F]" />
           </>
         )}
