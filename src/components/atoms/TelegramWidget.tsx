@@ -2,7 +2,7 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import React from "react"
+import React, { useEffect, useRef } from "react"
 
 export interface TelegramUser {
   id: number
@@ -41,10 +41,10 @@ export const TelegramWidget: React.FC<TelegramButtonPropArg> = ({
   usePic = false,
   children
 }) => {
-  const telegramRef = React.useRef<any>(null)
+  const telegramRef = useRef<any>(null)
   const _window = window as any
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!!dataAuthUrl === !!dataOnAuth) {
       throw new Error(
         "One of this props should be defined: dataAuthUrl (Redirect URL), dataOnAuth (callback fn) should be defined."
@@ -86,7 +86,19 @@ export const TelegramWidget: React.FC<TelegramButtonPropArg> = ({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [
+    botName,
+    buttonSize,
+    className,
+    cornerRadius,
+    dataAuthUrl,
+    dataOnAuth,
+    lang,
+    requestAccess,
+    usePic,
+    widgetVersion,
+    telegramRef
+  ])
 
   return (
     <>
