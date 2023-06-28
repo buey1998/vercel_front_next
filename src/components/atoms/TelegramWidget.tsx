@@ -10,15 +10,11 @@ interface User {
 
 const TelegramWidget = () => {
   const onTelegramAuth = useCallback((user: User) => {
+    // eslint-disable-next-line no-console
     console.log(
-      "Logged in as " +
-        user.first_name +
-        " " +
-        user.last_name +
-        " (" +
-        user.id +
-        (user.username ? ", @" + user.username : "") +
-        ")"
+      `Logged in as ${user.first_name} ${user.last_name} (${user.id}${
+        user.username ? `, @${user.username}` : ""
+      })`
     )
   }, [])
 
@@ -30,7 +26,8 @@ const TelegramWidget = () => {
     return () => {
       delete _window.onTelegramAuth
     }
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onTelegramAuth])
 
   return (
     <>
@@ -45,7 +42,7 @@ const TelegramWidget = () => {
         data-size="large"
         data-onauth="onTelegramAuth(user)"
         data-request-access="write"
-      ></div>
+      />
     </>
   )
 }

@@ -3,13 +3,6 @@ import React, { ReactElement } from "react"
 import dynamic from "next/dynamic"
 import { GetServerSideProps } from "next"
 
-// const ProfileContent = dynamic(
-//   () => import("@components/molecules/profile/ProfileContent"),
-//   {
-//     suspense: true,
-//     ssr: false
-//   }
-// )
 const ProfileLayout = dynamic(
   () => import("@components/templates/ProfileLayout"),
   {
@@ -18,7 +11,7 @@ const ProfileLayout = dynamic(
   }
 )
 
-const SettingPage = () => <article className="h-full w-full"></article>
+const SettingPage = () => <article className="h-full w-full" />
 
 SettingPage.getLayout = function getLayout(page: ReactElement) {
   return <ProfileLayout>{page}</ProfileLayout>
