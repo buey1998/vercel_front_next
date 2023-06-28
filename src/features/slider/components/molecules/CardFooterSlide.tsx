@@ -1,14 +1,13 @@
 import React from "react"
-import SportsEsportsOutlinedIcon from "@mui/icons-material/SportsEsportsOutlined"
 import ButtonLink from "@components/atoms/button/ButtonLink"
 import ButtonFavourite from "@components/atoms/button/ButtonFavourite"
 import { IGame } from "@feature/game/interfaces/IGameService"
-import { useRouter } from "next/router"
-import useGameStore from "@stores/game"
-import useProfileStore from "@stores/profileStore"
-import { useToast } from "@feature/toast/containers"
-import { MESSAGES } from "@constants/messages"
 import { Box } from "@mui/material"
+import useGlobal from "@hooks/useGlobal"
+import useFavoriteGameContoller from "@feature/favourite/containers/hooks/useFavoriteGameContoller"
+import { useTranslation } from "react-i18next"
+import { useRouter } from "next/router"
+import JoinStickIcon from "@components/icons/JoinStickIcon"
 
 interface IContentFooterBannerSlide {
   gameData: IGame
@@ -17,25 +16,25 @@ interface IContentFooterBannerSlide {
 
 const CardFooterSlide = ({
   gameData,
-  text = "Play Now"
+  text = "play_now"
 }: IContentFooterBannerSlide) => {
-  const profile = useProfileStore((state) => state.profile.data)
-  const { onSetGameData } = useGameStore()
   const router = useRouter()
-  const { errorToast } = useToast()
-
-  const onHandleClick = (_gameUrl: string, _gameData: IGame) => {
-    if (profile) {
-      router.push(`/${_gameUrl}`)
-      onSetGameData(_gameData)
-    } else {
-      errorToast(MESSAGES.please_login)
-    }
-  }
+  const { t } = useTranslation()
+  const {
+    onHandleSetGameStore,
+    getGameMode,
+    stateProfile,
+    isRedirectRoomlist
+  } = useGlobal()
+  const { onClickFavouriteButton, favouriteStatus } = useFavoriteGameContoller({
+    playerId: stateProfile?.id ?? "",
+    gameId: gameData.id
+  })
 
   return (
     <footer className="slide-item--footer relative mt-4 flex items-center justify-between md:mt-auto">
       <Box
+        component="div"
         sx={{
           "button": {
             maxHeight: "50px",
@@ -45,17 +44,30 @@ const CardFooterSlide = ({
         className="w-[calc(100%-80px)]"
       >
         <ButtonLink
-          text={text}
-          href={gameData.path}
-          icon={<SportsEsportsOutlinedIcon />}
+          text={t(text)}
+          icon={<JoinStickIcon />}
           size="large"
           color="secondary"
           variant="contained"
           className="w-full"
-          onClick={() => onHandleClick(gameData.path, gameData)}
+          // href={`/${getGameMode(gameData)}/${
+          //   gameData.path
+          // }${isRedirectRoomlist(gameData).toString()}`}
+          onClick={() => {
+            onHandleSetGameStore(getGameMode(gameData), gameData)
+            router.push(
+              `/${getGameMode(gameData)}/${gameData.path}${isRedirectRoomlist(
+                gameData
+              ).toString()}`
+            )
+          }}
         />
       </Box>
-      <ButtonFavourite className="absolute right-0 top-0" />
+      <ButtonFavourite
+        handleClick={onClickFavouriteButton}
+        favouriteStatus={favouriteStatus}
+        className="absolute right-0 top-0"
+      />
     </footer>
   )
 }

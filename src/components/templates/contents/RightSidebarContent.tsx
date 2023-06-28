@@ -1,16 +1,18 @@
-import { IContentTemplateProps } from "@interfaces/IContentTemplate"
 import React from "react"
+import { IContentTemplateProps } from "@interfaces/IContentTemplate"
 
 const RightSidebarContent = ({
   content,
   aside,
   className
 }: IContentTemplateProps) => (
-  <div className={`flex-row gap-3 md:flex ${className?.toString()}`}>
-    <div className="relative mb-3 min-h-[400px] w-full rounded-md border-[1px] border-neutral-700 border-opacity-80 bg-neutral-780 p-4 md:w-4/6">
+  <div
+    className={`right-sidebar__wrapper flex-row gap-3 md:flex ${className?.toString()}`}
+  >
+    <div className="mb-2 min-h-[400px] w-full flex-auto overflow-hidden rounded-md bg-primary-main sm:mb-0 md:w-4/6">
       {content}
     </div>
-    <div className="mb-3 rounded-md border-[1px] border-neutral-700 border-opacity-80 bg-neutral-780 p-4 md:w-2/6">
+    <div className="right-sidebar-content__sidebar h-full flex-auto rounded-md md:w-2/6 md:max-w-[333px]">
       {aside}
     </div>
   </div>

@@ -1,5 +1,4 @@
 import ShineIcon from "@components/icons/ShineIcon"
-import LikeNoLobby from "@components/molecules/LikeNoLobby"
 import StatisticGameDetail from "@components/molecules/statistic/StatisticGameDetail"
 import Tagline from "@components/molecules/tagline/Tagline"
 import TopPlayer from "@feature/ranking/components/template/TopPlayer"
@@ -13,8 +12,11 @@ import { unstable_batchedUpdates } from "react-dom"
 import Howto from "@components/molecules/HowToPlay"
 import { IGame } from "@feature/game/interfaces/IGameService"
 import Banners from "@components/molecules/Banners"
-// import { useRouter } from "next/router"
-// import { baseUrl } from "@constants/sites"
+import { Box } from "@mui/material"
+import useGlobal from "@hooks/useGlobal"
+import { TabProvider } from "@feature/tab/contexts/TabProvider"
+import GameTabsVertical from "@feature/game/components/templates/lobby/GameTabsVertical"
+import FullWidthContent from "./contents/FullWidthContent"
 
 const GameRoomLayout = ({
   children
@@ -24,27 +26,81 @@ const GameRoomLayout = ({
   const [gameData, setGameData] = useState<IGame>()
   const { topPlayerGameId, fetchTopPlayersByGameId } = useTopPlayerByGameId()
   const { statsGameById, fetchStatsGameById } = useGetStatisticsGameById()
+  const { getGameMode } = useGlobal()
 
-  // const location = useRouter()
-  // const searchParams = new URLSearchParams(location.pathname)
-  // const lang = searchParams.get("lang")
+  const renderStatistic = () => {
+    if (!gameData) return null
+    switch (getGameMode(gameData as IGame)) {
+      case "story-mode":
+      case "free-to-play":
+      case "free-to-earn":
+        return null
+      default:
+        return (
+          <Box component="section">
+            <Tagline
+              bgColor="bg-neutral-800"
+              textColor="text-neutral-500 font-bold"
+              text="Don't miss the information analysis about this game"
+              icon={<ShineIcon />}
+              show={false}
+            />
+            <div className="flex flex-wrap gap-3 xl:flex-row xl:flex-nowrap">
+              {/* <LikeNoLobby
+                imgSrc={
+                  gameData && "image_category_list" in gameData
+                    ? gameData.image_category_list
+                    : ""
+                }
+                value={78.34}
+              /> */}
+              {statsGameById && (
+                <StatisticGameDetail statsGameById={statsGameById} />
+              )}
+              <TopPlayer
+                element="select"
+                subtitle
+                background="neutral"
+                note
+                elevation={0}
+                className="lg:max-w-auto max-w-full border border-neutral-900 border-opacity-80 !bg-warning-contrastText lg:!h-[424px] xl:!w-[550px]"
+                rank
+                topPlayerGameId={topPlayerGameId && topPlayerGameId}
+              />
+            </div>
+          </Box>
+        )
+    }
+  }
 
   useEffect(() => {
-    if (data) {
-      setGameData(data as IGame)
+    let load = false
+
+    if (!load) {
+      if (data) {
+        setGameData(data as IGame)
+      }
+    }
+
+    return () => {
+      load = true
     }
   }, [data])
 
   useEffect(() => {
-    if (data) setGameData(data as IGame)
-  }, [data])
+    let load = false
 
-  useEffect(() => {
-    if (gameData && fetchStatsGameById && fetchTopPlayersByGameId) {
-      unstable_batchedUpdates(() => {
-        fetchStatsGameById(gameData._id)
-        fetchTopPlayersByGameId(gameData._id)
-      })
+    if (!load) {
+      if (gameData && fetchStatsGameById && fetchTopPlayersByGameId) {
+        unstable_batchedUpdates(() => {
+          fetchStatsGameById(gameData._id)
+          fetchTopPlayersByGameId(gameData._id)
+        })
+      }
+    }
+
+    return () => {
+      load = true
     }
   }, [gameData, fetchStatsGameById, fetchTopPlayersByGameId])
 
@@ -64,26 +120,31 @@ const GameRoomLayout = ({
       <Banners />
       {gameData && <Howto data={gameData} />}
       {children}
-      <Tagline
-        bgColor="bg-neutral-800"
-        textColor="text-neutral-500 font-bold"
-        text="Don't miss the information analysis about this game"
-        icon={<ShineIcon />}
-      />
-      <div className="flex flex-wrap gap-3 xl:flex-row xl:flex-nowrap">
-        <LikeNoLobby value={78.34} />
-        {statsGameById && <StatisticGameDetail statsGameById={statsGameById} />}
-        <TopPlayer
-          element="select"
-          subtitle
-          background="neutral"
-          note
-          elevation={0}
-          className="lg:max-w-auto max-w-full border border-neutral-900 border-opacity-80 !bg-warning-contrastText lg:!h-[424px] xl:!w-[550px]"
-          rank
-          topPlayerGameId={topPlayerGameId && topPlayerGameId}
-        />
-      </div>
+      <FullWidthContent
+        sxCustomStyled={{
+          "&.container": {
+            maxWidth: "100%!important",
+            marginTop: "90px!important",
+            "&.container-fullWidth": {
+              padding: "49px"
+            }
+          }
+        }}
+      >
+        {gameData ? (
+          <TabProvider>
+            <GameTabsVertical
+              gameId={gameData.id}
+              gameType={getGameMode(gameData)}
+            />
+            {/* <GameTabs
+              gameId={gameData.id}
+              gameType={getGameMode(gameData)}
+            /> */}
+          </TabProvider>
+        ) : null}
+      </FullWidthContent>
+      {renderStatistic()}
       <Footer />
     </div>
   )

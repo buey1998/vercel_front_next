@@ -1,21 +1,31 @@
+import React, { ReactNode } from "react"
 import { Typography } from "@mui/material"
 import Link from "next/link"
-import { ReactNode } from "react"
+import { useTranslation } from "react-i18next"
 
 interface IProps {
   icon: ReactNode
   text: string
   className?: string
-  link: string
+  link?: string
   selected?: boolean
-  /* in case use for future */
-  // action: () => void
+  handleClick?: () => void
 }
 
-const TabMenu = ({ icon, text, className, link, selected = false }: IProps) => (
-  <Link href={link}>
-    <div
-      className={`flex h-[50px] cursor-pointer items-center rounded-lg bg-neutral-800 pl-5 ${className} ${
+const TabMenu = ({
+  icon,
+  text,
+  className,
+  link,
+  selected = false,
+  handleClick
+}: IProps) => {
+  const { t } = useTranslation()
+  const renderButton = () => (
+    <button
+      type="button"
+      onClick={handleClick}
+      className={`flex h-[50px] w-full cursor-pointer items-center rounded-lg bg-neutral-800 pl-5 ${className} ${
         selected ? "border-[1px] border-purple-primary" : ""
       }`}
     >
@@ -26,12 +36,17 @@ const TabMenu = ({ icon, text, className, link, selected = false }: IProps) => (
         </Typography>
         {selected && (
           <Typography className="absolute right-2 text-xs uppercase text-purple-primary">
-            selected
+            {t("selected")}
           </Typography>
         )}
       </div>
-    </div>
-  </Link>
-)
+    </button>
+  )
+  return link ? (
+    <Link href={link}>{renderButton()}</Link>
+  ) : (
+    <>{renderButton()}</>
+  )
+}
 
 export default TabMenu

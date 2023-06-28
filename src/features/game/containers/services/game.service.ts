@@ -16,7 +16,10 @@ import {
   IClaimEarnedRewardByPlayerId,
   IGetGameByTypesProps,
   IGetGameByTypes,
-  IFilterGamesByKey
+  IPayloadGameFilter,
+  IResponseGameUpdatedPlaying,
+  IOwnerCommission,
+  IResponseOwnerCommissionData
 } from "@feature/game/interfaces/IGameService"
 
 export const getAllGames = () =>
@@ -161,7 +164,8 @@ export const claimEarnedRewardByPlayerId = ({
 export const getAllCategory = () =>
   new Promise<IGameCategoryService>((resolve, reject) => {
     services
-      .get<IGameCategoryService>(`/game-category/all`)
+      // .get<IGameCategoryService>(`/game-category/all`)
+      .get<IGameCategoryService>(`/game-category/all/new`)
       .then((response) => resolve(response.data))
       .catch((error) => reject(error))
   })
@@ -198,11 +202,50 @@ export const getGameByTypes = ({
       .catch((error) => reject(error))
   })
 
-export const getGamesByKey = (data: IFilterGamesByKey) =>
+export const getGameAllFilter = (data: IPayloadGameFilter) =>
   new Promise<IGameAllResponse>((resolve, reject) => {
     services
       .post<IGameAllResponse>(
-        `${CONFIGS.BASE_URL.API}/game/filter/game-all`,
+        `${CONFIGS.BASE_URL.API}/game/filter/game-all-new`,
+        data
+      )
+      // .post<IGameAllResponse>(
+      //   `${CONFIGS.BASE_URL.API}/game/filter/game-all`,
+      //   data
+      // )
+      .then((res) => {
+        resolve(res.data)
+      })
+      .catch((error: Error) => {
+        reject(error)
+      })
+  })
+
+export const getMyGameNFT = (data: IPayloadGameFilter) =>
+  new Promise<IGameService>((resolve, reject) => {
+    services
+      .post<IGameService>(`${CONFIGS.BASE_URL.API}/game/NFT/my-game`, {
+        ...data
+      })
+      .then((response) => resolve(response.data))
+      .catch((error) => reject(error))
+  })
+
+export const updatePlayCounting = (gameId: string) =>
+  new Promise<IResponseGameUpdatedPlaying>((resolve, reject) => {
+    services
+      .put<IResponseGameUpdatedPlaying>(
+        `${CONFIGS.BASE_URL.API}/game/stat-play-data/${gameId}`
+      )
+      .then((response) => resolve(response.data))
+      .catch((error) => reject(error))
+  })
+
+export const checkGameOwner = (data: IOwnerCommission) =>
+  new Promise<IResponseOwnerCommissionData>((resolve, reject) => {
+    services
+      .post<IResponseOwnerCommissionData>(
+        `${CONFIGS.BASE_URL.API}/game/NFT/game-owner/commission`,
         data
       )
       .then((res) => {
@@ -213,12 +256,14 @@ export const getGamesByKey = (data: IFilterGamesByKey) =>
       })
   })
 
-export const getMyGameNFT = (data: IFilterGamesByKey) =>
-  new Promise<IGameService>((resolve, reject) => {
+export const linkToTelegram = (data: any) =>
+  new Promise<any>((resolve, reject) => {
     services
-      .post<IGameService>(`${CONFIGS.BASE_URL.API}/game/NFT/my-game`, {
-        ...data
+      .put<any>(`${CONFIGS.BASE_URL.API}/profile/link-profile-telegram/`, data)
+      .then((res) => {
+        resolve(res.data)
       })
-      .then((response) => resolve(response.data))
-      .catch((error) => reject(error))
+      .catch((error: Error) => {
+        reject(error)
+      })
   })

@@ -1,11 +1,10 @@
 import services from "@configs/axiosGlobalConfig"
 import {
-  IGetWeeklyReward,
   IRewardWeekly,
-  IWeeklyRewardObject
+  IWeeklyPoolByGameIdResponse
 } from "@feature/rewardWeekly/interfaces/IRewardWeeklyService"
 
-export const getWeeklyPoolPlayer = (weekly_pool_id: string) =>
+export const getRewardByWeeklyPoolId = (weekly_pool_id: string) =>
   new Promise<IRewardWeekly>((resolve, reject) => {
     services
       .get<IRewardWeekly>(
@@ -17,22 +16,28 @@ export const getWeeklyPoolPlayer = (weekly_pool_id: string) =>
       .catch((error) => reject(error))
   })
 
-export const getWeeklyReward = ({ game_id, weeklyId }: IGetWeeklyReward) =>
-  new Promise<IWeeklyRewardObject>((resolve, reject) => {
+export const getGamePoolRewardByPoolId = (pool_id: string) =>
+  new Promise<IRewardWeekly>((resolve, reject) => {
     services
-      .post(`/weekly-pool/get_player_reward_weekly/${game_id}`, {
-        pool_id: weeklyId
-      })
+      .get<IRewardWeekly>(`/game-pool/get_player_reward_game_pool/${pool_id}`)
       .then((response) => {
         resolve(response.data)
       })
       .catch((error) => reject(error))
   })
 
-export const getRewardGamePool = (pool_id: string) =>
-  new Promise((resolve, reject) => {
+export const getWeeklyPoolByGameId = (_gameId: string, _weekyId: string) =>
+  new Promise<IWeeklyPoolByGameIdResponse>((resolve, reject) => {
+    const body = _weekyId
+      ? {
+          pool_id: _weekyId
+        }
+      : {}
     services
-      .get<IRewardWeekly>(`/weekly-pool/get_player_reward_game_pool/${pool_id}`)
+      .post<IWeeklyPoolByGameIdResponse>(
+        `/weekly-pool/get_player_reward_weekly/game/${_gameId}`,
+        body
+      )
       .then((response) => {
         resolve(response.data)
       })

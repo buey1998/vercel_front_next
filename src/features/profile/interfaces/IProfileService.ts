@@ -1,3 +1,6 @@
+/* eslint-disable no-use-before-define */
+
+import { TGameType } from "@feature/game/interfaces/IGameService"
 import { IInfo } from "@interfaces/IHelper"
 
 export interface IProfileRank {
@@ -43,6 +46,26 @@ export interface IProfile extends IProfileMain {
   exp: number
   level: number
   message?: string
+  gold?: number
+  telegram_id?: string
+  facebook_id?: string
+  discord_id?: string
+}
+
+export interface IProfileSubmit {
+  name: string
+  player_type: string
+  categories: Array<string>
+  description: string
+  short_detail: IProfileSubmitShort
+  game_play_url: string
+  how_to_play: string
+}
+
+export interface IProfileSubmitShort {
+  developer_name: string
+  developer_email: string
+  publisher: string
 }
 
 export interface IGetProfileResponse extends IProfileMain {
@@ -72,6 +95,11 @@ export interface IProfileResponse {
   status: boolean
   data: IProfile | undefined
   message: string | null
+  level?: number
+  exp?: number
+  max_exp?: number
+  stamina_point?: number
+  total_stamina?: number
 }
 
 export interface IGetUserById {
@@ -203,7 +231,7 @@ export interface IPlayerInfoGameData {
   name: string
   story: string
   image: string
-  game_type: string
+  game_type: TGameType
   winrate: string
   played: number
   rank: string
@@ -255,7 +283,7 @@ export interface IDataPlayerStatistic {
   info?: IPlayerPageInfo
   data: IDataPlayerStatisticData
   story: string
-  game_type: string
+  game_type: TGameType
   gamename: string
   image_game: string
   tournament?: boolean

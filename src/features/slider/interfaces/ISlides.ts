@@ -1,15 +1,16 @@
+import { IImageProps } from "@constants/images"
 import { TMediaType } from "@feature/game/interfaces/IPartnerGame"
 
 export interface IGameDownloadSlide {
   id: string
-  image: string
+  image: IImageProps
   name: string
   description: string
   download_link: string
 }
 
 export interface IVerticalThumbSlide {
-  id: string
+  id: string | number
   type: TMediaType
   src: string
 }

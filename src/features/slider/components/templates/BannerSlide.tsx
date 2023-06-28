@@ -1,9 +1,12 @@
+/* eslint-disable no-nested-ternary */
+import React, { useRef } from "react"
 import SkeletonBanner from "@components/atoms/skeleton/SkeletonBanner"
 import { TagCircle } from "@components/atoms/tagCircle"
 import NewGameIcon from "@components/icons/NewGameIcon"
 import useGetGames from "@feature/home/containers/hook/useGetGames"
-import React, { useRef } from "react"
 import Slider, { Settings } from "react-slick"
+import { Box } from "@mui/material"
+import { isMobile } from "@hooks/useGlobal"
 import BannerCardSlide from "../organisms/BannerCardSlide"
 
 const BannerSlide = () => {
@@ -27,7 +30,7 @@ const BannerSlide = () => {
     slidesToShow: 1,
     slidesToScroll: 1,
     arrows: true,
-    autoplay: false,
+    autoplay: true,
     autoplaySpeed: 5000,
     draggable: true,
     fade: true,
@@ -36,41 +39,66 @@ const BannerSlide = () => {
   }
 
   return (
-    <section className="relative w-full overflow-hidden">
-      <div className="absolute left-4 top-4 z-10">
-        <TagCircle
-          color="secondary"
-          icon={<NewGameIcon />}
-        />
-      </div>
+    <section
+      className={`relative w-full overflow-hidden ${!isMobile && "mb-10"}`}
+    >
+      {!isMobile && (
+        <div className="absolute left-4 top-4 z-10">
+          <TagCircle
+            color="secondary"
+            icon={<NewGameIcon />}
+          />
+        </div>
+      )}
       {isLoading ? (
         <SkeletonBanner />
       ) : (
-        <Slider
-          ref={sliderRef}
-          {...settings}
+        <Box
+          component="div"
+          className={`${isMobile && "slick-slider-dot-right"}`}
         >
-          {slideGames &&
-            slideGames.slice(0, 5).map((slide, index) => (
-              <div key={slide.id}>
-                {slide[index] !== undefined ? (
-                  <BannerCardSlide
+          <Slider
+            ref={sliderRef}
+            {...settings}
+          >
+            {slideGames &&
+              slideGames.slice(0, 5).map((slide, index) => (
+                <div key={slide.id}>
+                  {/* {slide[index] !== undefined ? (
+                    <BannerCardSlide
+                      slide={slide}
+                      slideNext={
+                        index === 4 ? slideGames[0] : slideGames[index + 1]
+                      }
+                      gotoNext={gotoNext}
+                    />
+                  ) : (
+                    <BannerCardSlide
+                      slide={slide}
+                      slideNext={slideGames[index + 1]}
+                      gotoNext={gotoNext}
+                    />
+                  )} */}
+                  {/* <BannerCardSlide
                     slide={slide}
                     slideNext={
-                      index === 4 ? slideGames[0] : slideGames[index + 1]
+                      slide[index + 1] !== undefined
+                        ? slideGames[0]
+                        : index >= slideGames.length - 1
+                        ? slideGames[0]
+                        : slideGames[index + 1]
                     }
                     gotoNext={gotoNext}
-                  />
-                ) : (
+                  /> */}
                   <BannerCardSlide
                     slide={slide}
-                    slideNext={slideGames[index + 1]}
+                    slideNext={slideGames[index + 1] || slideGames[0]}
                     gotoNext={gotoNext}
                   />
-                )}
-              </div>
-            ))}
-        </Slider>
+                </div>
+              ))}
+          </Slider>
+        </Box>
       )}
     </section>
   )

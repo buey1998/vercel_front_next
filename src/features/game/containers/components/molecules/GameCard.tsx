@@ -7,15 +7,16 @@ import { motion } from "framer-motion"
 import React, { memo, useEffect, useState } from "react"
 import { Image } from "@components/atoms/image"
 import IconHourglass from "@components/icons/hourglassIcon"
-import SportsEsportsOutlinedIcon from "@mui/icons-material/SportsEsportsOutlined"
 import TimerStamina from "@components/atoms/timer/TimerStamina"
-import { IGame, IGameFav } from "@feature/game/interfaces/IGameService"
+import { IGame } from "@feature/game/interfaces/IGameService"
 import { IPartnerGameData } from "@feature/game/interfaces/IPartnerGame"
 import { IMAGES } from "@constants/images"
+import { useTranslation } from "react-i18next"
+import JoinStickIcon from "@components/icons/JoinStickIcon"
 
 interface IProps {
   menu: IHeaderSlide
-  data?: IGame | IGameFav
+  data?: IGame
   partnerdata?: IPartnerGameData
   imgPartner?: string | undefined
   showNo?: boolean
@@ -44,6 +45,7 @@ const GameCard = ({
   const [chipLable, setChipLable] = useState<string>("")
   const [theme, setTheme] = useState<string>("")
   const [lableButton, setLableButton] = useState<string>("play now")
+  const { t } = useTranslation()
   const btnCard = {
     init: {
       y: 40,
@@ -78,26 +80,42 @@ const GameCard = ({
   }
 
   useEffect(() => {
-    if (imgPartner && imgPartner !== undefined) {
-      setImageSrc(imgPartner)
-    } else if (
-      !imgPartner &&
-      imgPartner === undefined &&
-      data &&
-      data.image_category_list
-    ) {
-      setImageSrc(data.image_category_list)
+    let load = false
+
+    if (!load) {
+      if (imgPartner && imgPartner !== undefined) {
+        setImageSrc(imgPartner)
+      } else if (
+        !imgPartner &&
+        imgPartner === undefined &&
+        data &&
+        data.image_category_list
+      ) {
+        setImageSrc(data.image_category_list)
+      }
+    }
+
+    return () => {
+      load = true
     }
   }, [imgPartner, data])
 
   useEffect(() => {
-    if (partnerdata) {
-      setChipLable("partner")
-      setTheme("warning")
-      setLableButton("view detail")
-    } else if (!partnerdata && menu.title && menu.theme) {
-      setChipLable(menu.title)
-      setTheme(menu.theme)
+    let load = false
+
+    if (!load) {
+      if (partnerdata) {
+        setChipLable("partner")
+        setTheme("warning")
+        setLableButton("view detail")
+      } else if (!partnerdata && menu.title && menu.theme) {
+        setChipLable(menu.title)
+        setTheme(menu.theme)
+      }
+    }
+
+    return () => {
+      load = true
     }
   }, [menu, partnerdata, data])
 
@@ -113,7 +131,7 @@ const GameCard = ({
           <NumberRank
             index={no - 1}
             fixColor={false}
-            className="slick-card-number absolute top-2 right-1 z-[3] m-[10px] h-10 w-10 text-default text-white-primary"
+            className="slick-card-number absolute right-1 top-2 z-[3] m-[10px] h-10 w-10 text-default text-white-primary"
           />
         ) : null}
         <Image
@@ -121,19 +139,18 @@ const GameCard = ({
           alt="home-slide"
           width={218}
           height={218}
-          className={`slick-card-content rounded-md ${
+          className={`slick-card-content cursor-pointer rounded-md ${
             partnerdata ? " sm:h-2/4 lg:h-4/6 xl:h-full" : ""
           }`}
+          onClick={onHandleClick}
         />
         <motion.div
           variants={btnCard}
           className="absolute bottom-0 flex w-full justify-center text-white-primary"
         >
           <ButtonToggleIcon
-            startIcon={
-              cooldown ? <IconHourglass /> : <SportsEsportsOutlinedIcon />
-            }
-            text={cooldown ? "cooldown..." : lableButton}
+            startIcon={cooldown ? <IconHourglass /> : <JoinStickIcon />}
+            text={cooldown ? `${t("cooldown")}...` : t(lableButton)}
             handleClick={onHandleClick}
             className={`btn-rainbow-theme z-[2] w-[198px] ${
               cooldown ? "bg-error-main" : "bg-secondary-main "

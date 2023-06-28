@@ -11,6 +11,9 @@ import { IBalance } from "@interfaces/IHelper"
 import BinanceBalanceVaultAbi from "@configs/abi/BinanceBalanceVault.json"
 import Helper from "@utils/helper"
 import { IBalanceDisplay } from "@hooks/useAllBalances"
+import useLoadingStore from "@stores/loading"
+import { MESSAGES } from "@constants/messages"
+import { DEFAULT_TOKEN_INFO } from "@constants/defaultValues"
 import { getBalanceVaultBinanceContract } from "../contractHelpers"
 
 export interface ITokenContract {
@@ -23,29 +26,19 @@ export interface ITokenContract {
   decimals?: number
 }
 
-export const DEFAULT_TOKEN_INFO: ITokenContract = {
-  symbol: "",
-  tokenName: "",
-  address: "",
-  balanceWallet: {
-    digit: 0,
-    text: ""
-  },
-  balanceVault: {
-    digit: 0,
-    text: ""
-  }
-}
-
 const useContractVaultBinance = () => {
   const { signer, address: account } = useWeb3Provider()
   const [isLoading, setIsLoading] = useState(false)
-  const bep20Contract = useBEP20(signer, CONFIGS.CONTRACT_ADDRESS.BEP20)
+  const bep20Contract = useBEP20(
+    signer,
+    CONFIGS.CONTRACT_ADDRESS && (CONFIGS.CONTRACT_ADDRESS.BEP20 as string)
+  )
   const balanceVaultContract = useBalanceVaultBinance(
     signer,
     CONFIGS.CONTRACT_ADDRESS.BALANCE_VAULT_BINANCE
   )
   const { WeiToNumber } = Helper
+  const { setOpen, setClose } = useLoadingStore()
 
   const checkAllowToken = (_contract: Contract, _tokenAddress: string) =>
     new Promise((resolve, reject) => {
@@ -63,23 +56,31 @@ const useContractVaultBinance = () => {
     })
 
   const allowToken = (_contract: Contract, _amount: string) =>
-    // eslint-disable-next-line no-async-promise-executor
     new Promise((resolve, reject) => {
       if (signer && account) {
+        setOpen(MESSAGES.approve_processing)
         setIsLoading(true)
         _contract
           .approve(CONFIGS.CONTRACT_ADDRESS.BALANCE_VAULT_BINANCE, _amount)
-          .then((_res) => {
+          .then(async (_res) => {
             setIsLoading(false)
-            resolve("Contract Approved!")
+            const resData = await _res.wait()
+            if (resData) {
+              resolve("Contract Approved!")
+            }
+            setClose()
           })
           .catch(() => {
             setIsLoading(false)
             const errMsg =
               "Please try again, Confirm the transaction and make sure you are paying enough gas!"
             reject(errMsg)
+            setClose()
           })
-      } else reject()
+      } else {
+        reject()
+        setClose()
+      }
     })
 
   const depositToken = async (
@@ -193,8 +194,9 @@ const useContractVaultBinance = () => {
         const _signer = _provider.getSigner()
         const _network = await _provider.getNetwork()
         const _balance = await _signer.getBalance()
-        // const _address = await _signer.getAddress()
-        const _balanceVaultContract = new ethers.Contract(
+
+        // TODO: Open after binance smart chain is ready
+        /* const _balanceVaultContract = new ethers.Contract(
           CONFIGS.CONTRACT_ADDRESS.BALANCE_VAULT_BINANCE,
           BinanceBalanceVaultAbi.abi,
           _signer
@@ -202,8 +204,27 @@ const useContractVaultBinance = () => {
         const vaultBalancePromise = await _balanceVaultContract.getBalanceOf(
           _userAddress,
           _tokenAddress
-        )
+        ) */
+        // TODO: Delete this after binance smart chain is ready
+        const _balanceVaultTemporary =
+          process.env.NEXT_PUBLIC_MODE === "development"
+            ? new ethers.Contract(
+                CONFIGS.CONTRACT_ADDRESS.BALANCE_VAULT_BINANCE,
+                BinanceBalanceVaultAbi.abi,
+                _signer
+              )
+            : null
+
         if (_tokenAddress === CONFIGS.CONTRACT_ADDRESS.BNB_CONTRACT) {
+          const vaultBalancePromise =
+            process.env.NEXT_PUBLIC_MODE === "development" &&
+            _balanceVaultTemporary
+              ? await _balanceVaultTemporary.getBalanceOf(
+                  _userAddress,
+                  _tokenAddress
+                )
+              : ethers.BigNumber.from(0)
+
           resolve({
             symbol: _network.name.toLocaleUpperCase() || "BNB",
             tokenName: _network.name || "BNB",
@@ -214,11 +235,13 @@ const useContractVaultBinance = () => {
                 : 0,
               text: _balance
                 ? ethers.utils.formatEther(_balance as BigNumber).toString()
-                : "0"
+                : "0",
+              hex: _balance
             },
             balanceVault: {
               digit: Number(Helper.WeiToNumber(vaultBalancePromise).toFixed(4)),
-              text: ethers.utils.formatEther(vaultBalancePromise)
+              text: ethers.utils.formatEther(vaultBalancePromise),
+              hex: vaultBalancePromise
             }
           })
         } else {
@@ -229,6 +252,15 @@ const useContractVaultBinance = () => {
           const walletBalancePromise = await tokenContract.balanceOf(
             _userAddress
           )
+          // TODO: Delete this after binance smart chain is ready
+          const vaultBalancePromise =
+            process.env.NEXT_PUBLIC_MODE === "development" &&
+            _balanceVaultTemporary
+              ? await _balanceVaultTemporary.getBalanceOf(
+                  _userAddress,
+                  _tokenAddress
+                )
+              : walletBalancePromise
           const [tokenSymbol, totalSupply, tokenName] = await Promise.all([
             symbolPromise,
             totalSupplyPromise,
@@ -249,14 +281,13 @@ const useContractVaultBinance = () => {
               ),
               text: Helper.formatNumber(WeiToNumber(walletBalancePromise), {
                 maximumFractionDigits: 1
-              })
+              }),
+              hex: walletBalancePromise
             },
             balanceVault: {
               digit: Number(Helper.WeiToNumber(vaultBalancePromise).toFixed(4)),
-              text: ethers.utils.formatEther(vaultBalancePromise)
-              // text: Helper.formatNumber(WeiToNumber(vaultBalancePromise), {
-              //   maximumFractionDigits: 1
-              // })
+              text: ethers.utils.formatEther(vaultBalancePromise),
+              hex: vaultBalancePromise
             }
           })
         }

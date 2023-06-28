@@ -1,4 +1,5 @@
 import { ICrumb } from "@interfaces/IMenu"
+import useCrumbStore from "@stores/crumb"
 import useProfileStore from "@stores/profileStore"
 
 export const PROFILE_CRUMB = () => {
@@ -72,3 +73,58 @@ export const GAME_PLAY_HISTORY = () => {
     }
   ] as ICrumb[]
 }
+
+export const EVENT_CRUMB = ({ title, id }: { title: string; id: string }) =>
+  // const { crumb: eventCrumb } = useCrumbStore()
+
+  [
+    {
+      title: "Home",
+      href: "/"
+    },
+    {
+      title: "Events",
+      href: "/events"
+    },
+    {
+      title: `${title}`,
+      href: `/events/${title}`,
+      onClick: () => {
+        window.location.href = `/events/${id}`
+      }
+    }
+  ] as ICrumb[]
+
+export const BLOG_CRUMB = () => {
+  const { crumb: blogCrumb } = useCrumbStore()
+
+  return [
+    {
+      title: "Home",
+      href: "/"
+    },
+    {
+      title: "Blog",
+      href: "/blog"
+    },
+    {
+      title: `${blogCrumb?.title}`,
+      href: `/blog/${blogCrumb?.title}`,
+      onClick: () => {
+        window.location.href = `/blog/${blogCrumb._id}`
+      }
+    }
+  ] as ICrumb[]
+}
+
+export const COMMISSION_CRUMB = () =>
+  [
+    {
+      title: "Home",
+      href: "/"
+    },
+    {
+      title: "Commission",
+      href: "/commission"
+    }
+  ] as ICrumb[]

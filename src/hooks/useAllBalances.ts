@@ -5,26 +5,29 @@ import useWalletContoller from "@feature/wallet/containers/hooks/useWalletContol
 import useGetBalanceVault from "@feature/contract/containers/hooks/useQuery/useQueryBalanceVault"
 import { useEffect, useState } from "react"
 import { chainIdConfig } from "@configs/sites"
-import useChainSupport from "@stores/chainSupport"
-import useGlobal from "./useGlobal"
+import useChainSupportStore from "@stores/chainSupport"
+import { BigNumber } from "ethers"
+import useSupportedChain from "./useSupportedChain"
 
 export interface IBalanceDisplay {
   digit: number
   text: string | "N/A"
+  hex: BigNumber
 }
 
 export const defaultVaule: IBalanceDisplay = {
   digit: 0,
-  text: "N/A"
+  text: "N/A",
+  hex: BigNumber.from(0)
 }
 
 const useAllBalances = () => {
   const { address, chainId, signer } = useWeb3Provider()
-  const { getTokenAddress } = useGlobal()
+  const { getTokenAddress } = useSupportedChain()
   const [balanceValutNaka, setbalanceValutNaka] = useState<IBalanceDisplay>()
   const [balanceValutBusd, setbalanceValutBusd] = useState<IBalanceDisplay>()
   const { isConnected } = useWalletContoller()
-  const { chainSupport } = useChainSupport()
+  const { chainSupport } = useChainSupportStore()
   const {
     balanceVaultBSC,
     balanceVaultNaka,
@@ -114,25 +117,41 @@ const useAllBalances = () => {
   }
 
   useEffect(() => {
+    let load = false
+
     if (window.ethereum === undefined) return
-    if (signer?.provider?._network?.chainId === chainIdConfig.binance) {
-      handleBalanceVaults(CONFIGS.CONTRACT_ADDRESS.BEP20)
+    if (!load) {
+      if (signer?.provider?._network?.chainId === chainIdConfig.binance) {
+        handleBalanceVaults(CONFIGS.CONTRACT_ADDRESS.BEP20)
+      }
+      if (signer?.provider?._network?.chainId === chainIdConfig.polygon) {
+        handleBalanceVaults(CONFIGS.CONTRACT_ADDRESS.ERC20)
+      }
     }
-    if (signer?.provider?._network?.chainId === chainIdConfig.polygon) {
-      handleBalanceVaults(CONFIGS.CONTRACT_ADDRESS.ERC20)
+
+    return () => {
+      load = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signer, chainId, isLoadingBalanceVaultBSC, isLoadingNakaBalanceVault])
 
   useEffect(() => {
-    if (chainSupport) {
-      chainSupport.forEach((_chain) => {
-        if (_chain.symbol === "BUSD") {
-          setbalanceValutBusd(_chain.balanceVault)
-        } else if (_chain.symbol === "NAKA") {
-          setbalanceValutNaka(_chain.balanceVault)
-        }
-      })
+    let load = false
+
+    if (!load) {
+      if (chainSupport) {
+        chainSupport.forEach((_chain) => {
+          if (_chain.symbol === "BUSD") {
+            setbalanceValutBusd(_chain.balanceVault)
+          } else if (_chain.symbol === "NAKA") {
+            setbalanceValutNaka(_chain.balanceVault)
+          }
+        })
+      }
+    }
+
+    return () => {
+      load = true
     }
   }, [chainSupport, signer])
 

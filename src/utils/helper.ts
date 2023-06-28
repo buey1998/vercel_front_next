@@ -6,9 +6,21 @@ import { IPropsFormatNumberOption } from "@interfaces/IHelper"
 import { IGetEventLog } from "@interfaces/ITransaction"
 import { ILocal, TLocalKey, ELocalKey } from "@interfaces/ILocal"
 import { ICurrentNakaData } from "@feature/inventory/interfaces/IInventoryService"
-import { getCurrentNaka } from "@feature/inventory/containers/services/inventory.service"
 import { IResGetIp } from "@interfaces/IGetIP"
 import { trickerPriceBNBExternal } from "@feature/buyItem/containers/services/currency.services"
+import { getCurrentNaka } from "@feature/balance/containers/services/balance.services"
+import {
+  AddEthereumChainParameter,
+  WatchAssetParams
+} from "@interfaces/IMetamask"
+import {
+  TNFTType,
+  TSellerType,
+  TType,
+  TUrlNFT
+} from "@feature/marketplace/interfaces/IMarketService"
+import dayjs from "dayjs"
+import { TKey } from "@stores/marketFilter"
 
 const names = ["wei", "kwei", "mwei", "gwei", "szabo", "finney", "ether"]
 
@@ -48,6 +60,11 @@ const Helper = {
     const originalText = bytes.toString(CryptoJS.enc.Utf8)
     return originalText
   },
+  decryptWithBuffer(_cipherText: string) {
+    const bytes = Buffer.from(_cipherText, "base64")
+    const originalText = bytes.toString("utf-8")
+    return originalText
+  },
   decryptSocketWithAES<T>(_cipherText: string): T | undefined {
     if (_cipherText) {
       const removeDoubleQuotes = _cipherText.replace(/["']/g, "")
@@ -85,7 +102,7 @@ const Helper = {
     // Check number length is not negative
     // Check number length is not zero
     // Check if address contain with space
-    return `${_string.substring(0, _length)}...${_string.substring(
+    return `${_string?.substring(0, _length)}...${_string?.substring(
       _string.length - _length,
       _string.length
     )}`
@@ -127,7 +144,7 @@ const Helper = {
       const response = await fetch("https://api.ipify.org/?format=json")
       const data: IResGetIp = await response.json()
       resolve(data)
-    })
+    }).catch(() => {})
   },
   stringToColor(_str: string) {
     let hash = 0
@@ -277,6 +294,155 @@ const Helper = {
   removeComma(text: string) {
     // eslint-disable-next-line no-useless-escape
     return Number(text.replace(/\,/g, ""))
+  },
+  /**
+   * @description Handle network setting for metamask
+   * @param _chainId
+   * @returns
+   */
+  getNetwork(_chainId: string): AddEthereumChainParameter {
+    switch (_chainId) {
+      case CONFIGS.CHAIN.CHAIN_ID_HEX_BNB:
+        return {
+          chainId: `0x${Number(CONFIGS.CHAIN.BNB_CHAIN_ID).toString(16)}`,
+          chainName: `${CONFIGS.CHAIN.BNB_CHAIN_NAME}`,
+          rpcUrls: [`${CONFIGS.CHAIN.BNB_RPC_URL}/`],
+          blockExplorerUrls: [`${CONFIGS.CHAIN.BNB_SCAN}/`],
+          nativeCurrency: {
+            name: CONFIGS.CHAIN.TOKEN_NAME_BUSD,
+            symbol: CONFIGS.CHAIN.TOKEN_SYMBOL_BNB,
+            decimals: 18
+          }
+        }
+
+      default:
+        return {
+          chainId: `0x${Number(CONFIGS.CHAIN.CHAIN_ID).toString(16)}`,
+          chainName: `${CONFIGS.CHAIN.CHAIN_NAME}`,
+          rpcUrls: [`${CONFIGS.CHAIN.POLYGON_RPC_URL}`],
+          blockExplorerUrls: [`${CONFIGS.CHAIN.POLYGON_SCAN}`],
+          nativeCurrency: {
+            name: CONFIGS.CHAIN.TOKEN_NAME,
+            symbol: CONFIGS.CHAIN.TOKEN_SYMBOL,
+            decimals: 18
+          }
+        }
+    }
+  },
+  getParams(): WatchAssetParams {
+    return {
+      type: "ERC20",
+      options: {
+        address: CONFIGS.CONTRACT_ADDRESS.ERC20,
+        symbol: CONFIGS.CHAIN.TOKEN_NAME,
+        decimals: 18,
+        image: CONFIGS.CHAIN.ICON_NAKA
+      }
+    }
+  },
+  convertAvatar(avatar: string): string {
+    if (avatar.search("https") > -1 || avatar.search("/") === 0) {
+      return avatar
+    }
+    return `/${avatar}`
+  },
+  convertNFTTypeToUrl(_NFTtype: TNFTType): TUrlNFT {
+    switch (_NFTtype) {
+      case "nft_land":
+        return "NFT-Land"
+      case "nft_building":
+        return "NFT-Building"
+      case "nft_naka_punk":
+        return "NFT-NakaPunk"
+      case "nft_material":
+        return "NFT-Material"
+      case "game_item":
+        return "NFT-Game-Item"
+      case "nft_game":
+        return "NFT-As-Game"
+      case "nft_avatar":
+        return "NFT-Avatar"
+      default:
+        return "NFT-Land"
+    }
+  },
+  convertNFTTypeToTType(
+    _nftType: TNFTType,
+    sellerTypes?: TSellerType
+  ): TType | undefined {
+    switch (_nftType) {
+      case "game_item":
+        return sellerTypes && sellerTypes === "system" ? undefined : "game-item"
+      case "nft_material":
+        return sellerTypes && sellerTypes === "system" ? undefined : "material"
+      case "nft_land":
+        return "land"
+      case "nft_building":
+        return "building"
+      case "nft_game":
+        return sellerTypes && sellerTypes === "system"
+          ? undefined
+          : "arcade-game"
+      case "nft_naka_punk":
+        return "naka-punk"
+      case "nft_avatar":
+        return "avatar-reef"
+      default:
+        return undefined
+    }
+  },
+  convertTTypeToNFTType(_nftType: TType): TNFTType {
+    switch (_nftType) {
+      case "game-item":
+        return "game_item"
+      case "material":
+        return "nft_material"
+      case "land":
+        return "nft_land"
+      case "building":
+        return "nft_building"
+      case "arcade-game":
+        return "nft_game"
+      case "naka-punk":
+        return "nft_naka_punk"
+      case "avatar-reef":
+        return "nft_avatar"
+      default:
+        return "nft_land"
+    }
+  },
+  convertMarketTypeToTType(_marketType?: TNFTType): TType {
+    switch (_marketType) {
+      case "game_item":
+        return "game-item"
+      case "nft_building":
+        return "building"
+      case "nft_naka_punk":
+        return "naka-punk"
+      case "nft_material":
+        return "material"
+      case "nft_game":
+        return "arcade-game"
+      case "nft_avatar":
+        return "arcade-game"
+      case "nft_land":
+        return "land"
+      default:
+        return "land"
+    }
+  },
+  handleDateTimeFormat(_date: Date, _type: "date" | "time"): string {
+    if (_type === "date") {
+      return dayjs(_date).format("DD MMM YYYY")
+    }
+    return dayjs(_date).format("HH:mm A")
+  },
+  getValueFromTKey(_search: TKey[], _field: string) {
+    const _value = _search.find((s) => _field in s)
+    if (_value) {
+      return _value[_field]
+    }
+    return undefined
   }
 }
 

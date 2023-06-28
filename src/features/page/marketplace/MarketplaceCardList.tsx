@@ -1,82 +1,99 @@
-import {
-  IMarketplaceInfoData,
-  MOCK_BUILDING,
-  MOCK_LAND
-} from "@constants/mockupMarketplace"
-import { useRouter } from "next/router"
-import React, { useEffect, useState } from "react"
+import React from "react"
 import { v4 as uuidv4 } from "uuid"
 import dynamic from "next/dynamic"
-import { getCurrentNaka } from "@feature/inventory/containers/services/inventory.service"
+import { useNakaPriceProvider } from "@providers/NakaPriceProvider"
+import SkeletonItem from "@feature/marketplace/components/molecules/SkeletonItem"
+import useMarketInfo from "@feature/marketplace/containers/hooks/useMarketInfo"
+import { useRouter } from "next/router"
+import NoData from "@components/molecules/NoData"
+import SkeletonItemMobile from "./mobilescreen/SkeletonItemMobile"
+import CardListContainer from "./CardListContainer"
 
 const CardItemMarketPlace = dynamic(
   () => import("@components/molecules/cards/CardItemMarketPlace"),
   {
-    suspense: true
+    suspense: true,
+    ssr: false
   }
 )
 
 const MarketplaceCardList = () => {
-  const [gameItemData, setGameItemData] = useState<IMarketplaceInfoData[]>([])
-  const [nakaUsdPrice, setNakaUsdPrice] = useState<number>(0)
-  const [type, setType] = useState<"game" | "land" | "building" | "material">(
-    "land"
-  )
-  const { pathname } = useRouter()
+  const { price } = useNakaPriceProvider()
+  const {
+    orderData,
+    isLoading,
+    currentPage,
+    totalCount,
+    type,
+    limit,
+    setCurrentPage
+  } = useMarketInfo()
+  const router = useRouter()
 
-  const getPrice = async () => {
-    const prices = await getCurrentNaka()
-    if (prices) {
-      setNakaUsdPrice(parseFloat(prices.data.last))
-    }
+  if (orderData && orderData.data.length > 0 && !isLoading) {
+    return (
+      <div className="grid justify-items-center">
+        <CardListContainer
+          totalCount={totalCount}
+          limit={limit}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          className="xl:grid-cols-5"
+        >
+          {orderData &&
+            orderData.data.length !== 0 &&
+            !isLoading &&
+            orderData.data.map((_data, _index) => (
+              <CardItemMarketPlace
+                key={uuidv4()}
+                cardType={type}
+                id={_data.land_data?.land_id}
+                itemAmount={_data.building_data ? _data.item_amount : undefined}
+                itemTotal={_data.building_data ? _data.item_total : undefined}
+                itemImage={
+                  _data.building_data && {
+                    src: _data.building_data.NFT_image,
+                    alt: _data.building_data.name,
+                    width: 300,
+                    height: 300
+                  }
+                }
+                itemVideo={
+                  _data.land_data && {
+                    src: _data.land_data.NFT_video,
+                    poster: _data.land_data.NFT_image
+                  }
+                }
+                itemName={_data.land_data?.name || _data.building_data?.name}
+                itemLevel={_data.building_data?.level}
+                price={
+                  (_data.price / (price ? parseFloat(price.last) : 0)) as number
+                }
+                href={`/${router.locale}/marketplace/${type}/${_data._id}`}
+              />
+            ))}
+        </CardListContainer>
+      </div>
+    )
   }
-
-  useEffect(() => {
-    getPrice()
-  }, [])
-
-  useEffect(() => {
-    const handleRouteChange = () => {
-      if (pathname.includes("building")) {
-        setType("building")
-        setGameItemData(MOCK_BUILDING.data)
-      } else {
-        setType("land")
-        setGameItemData(MOCK_LAND.data)
-      }
-    }
-
-    handleRouteChange()
-  }, [pathname])
-
-  return (
-    <div className="grid w-full grid-cols-1 gap-x-3 gap-y-7 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-      {gameItemData.map((_data, _index) => (
-        <CardItemMarketPlace
-          key={uuidv4()}
-          cardType={type}
-          id={_data.land_data?.land_id}
-          itemAmount={_data.item_amount}
-          itemTotal={_data.item_total}
-          itemImage={
-            _data.building_data && {
-              src: _data.building_data.image,
-              alt: _data.building_data.name,
-              width: 250,
-              height: 250
-            }
-          }
-          itemVideo={
-            _data.land_data && {
-              src: _data.land_data.NFT_video,
-              poster: _data.land_data.NFT_image
-            }
-          }
-          itemName={_data.land_data?.name || _data.building_data?.name}
-          itemLevel={_data.building_data?.level}
-          price={_data.price / nakaUsdPrice}
-        />
-      ))}
+  return orderData?.data.length === 0 && !isLoading ? (
+    <div className="flex w-full justify-center">
+      <NoData />
+    </div>
+  ) : (
+    <div className="flex w-full justify-center">
+      <div className="grid w-fit grid-cols-2 gap-4 sm:w-full sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        {[...Array(limit)].map(() => (
+          <div key={uuidv4()}>
+            <div className="hidden sm:block">
+              <SkeletonItem />
+            </div>
+            <div className="block sm:hidden">
+              <SkeletonItemMobile />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

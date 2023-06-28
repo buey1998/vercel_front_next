@@ -1,4 +1,5 @@
-import React, { memo, useEffect, useState } from "react"
+/* eslint-disable max-len */
+import React, { memo } from "react"
 import {
   Box,
   InputAdornment,
@@ -6,17 +7,12 @@ import {
   Typography,
   Grid,
   Link,
-  Divider,
   Alert,
   Button,
   FormControlLabel,
   Checkbox,
   IconButton
 } from "@mui/material"
-import _ from "lodash"
-import { useForm } from "react-hook-form"
-import * as yup from "yup"
-import { yupResolver } from "@hookform/resolvers/yup"
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined"
 import ButtonClose from "@components/atoms/button/ButtonClose"
 import { motion } from "framer-motion"
@@ -27,325 +23,79 @@ import Beenhere from "@components/icons/Beenhere"
 import ILock from "@components/icons/Lock"
 import IEdit from "@components/icons/Edit"
 import ButtonIcon from "@components/atoms/button/ButtonIcon"
-import { MESSAGES } from "@constants/messages"
-import { useToast } from "@feature/toast/containers"
-import { useGoogleReCaptcha } from "react-google-recaptcha-v3"
-import useVerifyCode from "@feature/authentication/containers/hooks/useVerifyCode"
-import useSignUp from "@feature/authentication/containers/hooks/useSignUp"
 import ButtonLink from "@components/atoms/button/ButtonLink"
 import FacebookIcon from "@components/icons/SocialIcon/FacebookIcon"
 import TwitterIcon from "@components/icons/SocialIcon/TwitterIcon"
 import GoogleIcon from "@components/icons/SocialIcon/GoogleIcon"
-import MetaMarkIcon from "@components/icons/SocialIcon/Metamask"
+// import MetaMarkIcon from "@components/icons/SocialIcon/Metamask"
 import CheckBoxOutlineBlankOutlinedIcon from "@mui/icons-material/CheckBoxOutlineBlankOutlined"
 import ICheckMark from "@components/icons/CheckMark"
 import FacebookLogin from "react-facebook-login"
-import {
-  TwitterAuthProvider,
-  GoogleAuthProvider,
-  getAuth,
-  signInWithPopup
-} from "firebase/auth"
-import { initializeApp, getApps } from "@firebase/app"
-import { useRouter } from "next/router"
-import useLoginProvider from "@feature/authentication/containers/hooks/useLoginProvider"
 import useRegisterAvatarStore from "@stores/registerAvater"
-import { IProfileFaceBook } from "@src/types/profile"
-
-interface TFormData {
-  email: string
-  password: string
-  confirmPassword: string
-  code: number
-  subscription: boolean
-  referralId: string | string[]
-}
-
-const SignUpSchema = yup
-  .object({
-    email: yup.string().required(),
-    password: yup.string().required(),
-    confirmPassword: yup.string().required(),
-    code: yup.number().required().positive().integer(),
-    subscription: yup.boolean().defined(),
-    referralId: yup.string().defined()
-  })
-  .required()
+import { useTranslation } from "react-i18next"
+import { isMobile } from "@hooks/useGlobal"
+import useFormRegisterController from "../containers/hooks/useFormRegisterController"
+import useFormController from "../containers/hooks/useFormController"
 
 const FormRegister = () => {
-  const router = useRouter()
-  const { referral } = router.query
-
   const {
+    verifiCode,
+    showPassword,
+    characterPasswordLength,
+    characterUppercase,
+    formSubmitErrors,
     register,
     handleSubmit,
+    onSubmitRegister,
+    onClickGetCode,
+    isNumber,
+    isCharacters,
+    facebookLogin,
+    twitterLogin,
+    googleRegister,
+    // metaMarkLogin,
+    passwordCorrect,
+    errors,
     watch,
-    formState: { errors }
-  } = useForm<TFormData>({
-    resolver: yupResolver(SignUpSchema),
-    defaultValues: {
-      referralId: referral || ""
-    }
-  })
+    handleClickShowPassword,
+    handleMouseDownPassword,
+    showConfirmPassword,
+    handleClickShowConfirmPassword,
+    handleMouseDownConfirmPassword
+  } = useFormRegisterController()
+  const { isEmail, patternCode, emailCorrect } = useFormController()
 
-  const patternCode = "[0-9]{1,6}"
-  const patternPasswordUppercase = /[A-Z]/
-  const patternEmail =
-    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
-
-  const { executeRecaptcha } = useGoogleReCaptcha()
-  const { mutateVerifyCode } = useVerifyCode()
-  const { mutateSignUp } = useSignUp()
-  const { mutateLoginProvider } = useLoginProvider()
-  const { errorToast, successToast } = useToast()
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyAszETPfcbQt0gd2Ifpep83_C05zOt_k1c",
-    authDomain: "able-study-326414.firebaseapp.com",
-    projectId: "able-study-326414",
-    storageBucket: "able-study-326414.appspot.com",
-    messagingSenderId: "104862138123",
-    appId: "1:104862138123:web:2e7578e0d8a80277052c0e",
-    measurementId: "G-4NN0JPG9X4"
-  }
-
-  if (!getApps().length) {
-    initializeApp(firebaseConfig)
-  }
-
-  const auth = getAuth()
   const {
     setSubmitClickRegister: onSubmitRegisterForm,
     getClickRegisterFacebook: toggleFacebookRegister,
     setClickRegisterFacebook: setToggleFacebookRegister
   } = useRegisterAvatarStore()
 
-  const [verifiCode, setVerifiCode] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [emailCorrect, setEmailCorrect] = useState(true)
-  const [passwordCorrect, setPasswordCorrect] = useState(false)
-  const [characterPasswordLength, setCharacterPasswordLength] = useState(true)
-  const [characterUppercase, setCharacterUppercase] = useState(true)
-  const [formSubmitErrors, setFormSubmitErrors] = useState(false)
-
-  const handleClickShowPassword = () => setShowPassword((show) => !show)
-  const handleMouseDownPassword = (
-    event: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    event.preventDefault()
-  }
-
-  const handleClickShowConfirmPassword = () =>
-    setShowConfirmPassword((show) => !show)
-  const handleMouseDownConfirmPassword = (
-    event: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    event.preventDefault()
-  }
-
-  const isEmail = (_email: string) => {
-    if (patternEmail.test(_email)) {
-      setEmailCorrect(true)
-    } else {
-      setEmailCorrect(false)
-    }
-  }
-
-  const isNumber = (_keyCode: string) => {
-    if (_keyCode.includes(".")) {
-      setVerifiCode(_keyCode.split(".").join(""))
-    } else {
-      setVerifiCode(_keyCode)
-    }
-  }
-
-  const isConfirmPassword = (_password: string, _confirmPassword: string) => {
-    if (_password === _confirmPassword) {
-      setPasswordCorrect(true)
-    } else {
-      setPasswordCorrect(false)
-    }
-  }
-
-  const isCharacters = (_characters: string) => {
-    if (_characters.length >= 6) {
-      setCharacterPasswordLength(true)
-      if (patternPasswordUppercase.test(_characters)) {
-        setCharacterUppercase(true)
-      } else {
-        setCharacterUppercase(false)
-      }
-    } else {
-      setCharacterPasswordLength(false)
-    }
-  }
-
-  const onClickGetCode = async (_email: string) => {
-    if (!executeRecaptcha) {
-      return
-    }
-    let _recaptcha = ""
-
-    ;(async () => {
-      try {
-        _recaptcha = await executeRecaptcha("getCodeVerify")
-        await mutateVerifyCode({ _email, _recaptcha })
-          .then((_profile) => {
-            if (_profile) {
-              successToast(MESSAGES.success_get_code)
-            }
-          })
-          .catch(() => {
-            errorToast(MESSAGES.code_number_not_expired)
-          })
-      } catch (error) {
-        errorToast("Verify Error")
-      }
-    })()
-  }
-
-  const facebookLogin = async (
-    response: IProfileFaceBook,
-    referralId: string | string[]
-  ) => {
+  const checkSizeFormRegister = () => {
     if (
-      response.email !== null &&
-      response.email !== undefined &&
-      response.userID !== null &&
-      response.userID !== undefined
+      errors.email === undefined ||
+      errors.password === undefined ||
+      errors.confirmPassword === undefined ||
+      errors.code === undefined
     ) {
-      mutateLoginProvider({
-        _email: response.email,
-        _provider: "facebook",
-        _prevPath: "/",
-        _providerUUID: response.userID,
-        _referral: referralId
-      })
-        .then((_res) => {
-          if (_res) {
-            successToast(MESSAGES.create_successful_user)
-          }
-        })
-        .catch((_error) => {
-          errorToast(MESSAGES.create_not_successful_user)
-        })
-    }
-  }
-
-  const twitterLogin = async (referralId: string | string[]) => {
-    const provider = new TwitterAuthProvider()
-    provider.addScope("email")
-    await signInWithPopup(auth, provider)
-      .then((result) => {
-        const { user } = result
-        if (
-          user.providerData[0].email !== null &&
-          user.providerData[0].email !== undefined &&
-          result.providerId !== null &&
-          result.providerId !== undefined
-        ) {
-          mutateLoginProvider({
-            _email: user.providerData[0].email,
-            _provider: "twitter",
-            _prevPath: "/",
-            _providerUUID: user.uid,
-            _referral: referralId
-          })
-            .then((_res) => {
-              if (_res) {
-                successToast(MESSAGES.create_successful_user)
-              }
-            })
-            .catch((_error) => {
-              errorToast(MESSAGES.create_not_successful_user)
-            })
-        } else {
-          errorToast(MESSAGES.create_not_successful_user)
-        }
-      })
-      .catch((error) => {
-        if (error.code) {
-          errorToast(MESSAGES.auth_popup_closed_by_user)
-        }
-      })
-  }
-
-  const googleRegister = async (referralId: string | string[]) => {
-    const provider = new GoogleAuthProvider()
-    provider.addScope("email")
-    await signInWithPopup(auth, provider)
-      .then((result) => {
-        const { user } = result
-        if (
-          user.providerData[0].email !== null &&
-          user.providerData[0].email !== undefined &&
-          result.providerId !== null &&
-          result.providerId !== undefined
-        ) {
-          mutateLoginProvider({
-            _email: user.providerData[0].email,
-            _provider: "google",
-            _prevPath: "/",
-            _providerUUID: user.uid,
-            _referral: referralId
-          })
-            .then((_res) => {
-              if (_res) {
-                successToast(MESSAGES.create_successful_user)
-              }
-            })
-            .catch((_error) => {
-              errorToast(MESSAGES.create_not_successful_user)
-            })
-        } else {
-          errorToast(MESSAGES.create_not_successful_user)
-        }
-      })
-      .catch((error) => {
-        if (error.code) {
-          errorToast(MESSAGES.auth_popup_closed_by_user)
-        }
-      })
-  }
-
-  const metaMarkLogin = async () => {
-    errorToast("This feature is unavailable.")
-  }
-
-  const onSubmitRegister = (values: TFormData) => {
-    const { email, code, password, subscription, referralId } = values
-    if (emailCorrect && characterPasswordLength && characterUppercase) {
-      setFormSubmitErrors(false)
-      mutateSignUp({
-        _email: email,
-        _password: password,
-        _referral: referralId,
-        _verifycode: code,
-        _subscription: subscription
-      })
-        .then((_res) => {
-          if (_res) {
-            successToast(MESSAGES.create_successful_user)
-          }
-        })
-        .catch(() => {
-          errorToast(MESSAGES.please_fill)
-        })
+      onSubmitRegisterForm(true)
     } else {
-      setFormSubmitErrors(true)
+      onSubmitRegisterForm(false)
     }
   }
-
-  useEffect(() => {
-    isConfirmPassword(watch("password"), watch("confirmPassword"))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [watch("password"), watch("confirmPassword")])
+  const { t } = useTranslation()
 
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmitRegister)}>
-        <Box style={{ width: 333, height: 638 }}>
+      <form
+        className="flex w-full justify-center"
+        onSubmit={handleSubmit(onSubmitRegister)}
+      >
+        <Box
+          component="div"
+          className="w-full xl:w-[353px]"
+          style={{ height: 638 }}
+        >
           <Grid
             container
             spacing={2.25}
@@ -354,20 +104,29 @@ const FormRegister = () => {
               item
               xs={12}
             >
-              <Box
-                className="flex items-center rounded-lg"
-                sx={{ height: "54px" }}
-              >
-                <div className="flex flex-1 flex-row items-center">
-                  <Typography className="text-lg uppercase text-neutral-300">
-                    Register
+              {!isMobile ? (
+                <Box
+                  component="div"
+                  className="flex w-full items-center rounded-lg md:w-auto"
+                  sx={{ height: "54px" }}
+                >
+                  <div className="flex flex-1 flex-row items-center">
+                    <Typography className="text-lg uppercase text-neutral-300">
+                      {t("register")}
+                    </Typography>
+                  </div>
+                  <Link href="/">
+                    <ButtonClose onClick={() => {}} />
+                  </Link>
+                </Box>
+              ) : (
+                <Box component="div">
+                  <Typography className="text-[14px] font-bold uppercase text-neutral-300">
+                    {t("sign_up_with_email")}
                   </Typography>
-                </div>
-                <Link href="/">
-                  <ButtonClose onClick={() => {}} />
-                </Link>
-              </Box>
-              <Divider className="mx-0 mt-5 mb-8" />
+                </Box>
+              )}
+              <hr className="mx-0 mb-8 mt-5 text-neutral-800" />
               {formSubmitErrors && (
                 <motion.div
                   animate={{
@@ -384,11 +143,12 @@ const FormRegister = () => {
                   </Alert>
                 </motion.div>
               )}
+
               <TextField
                 className="w-full"
                 type="email"
-                placeholder="Email"
-                label="Email Address"
+                placeholder={String(t("email"))}
+                label={t("email_address")}
                 onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
                   isEmail(e.target.value.toString())
                 }}
@@ -453,14 +213,18 @@ const FormRegister = () => {
             <Grid
               item
               xs={12}
+              className=" grid w-full grid-cols-3 "
               container
               direction="row"
             >
-              <Grid item>
+              <Grid
+                className="col-span-2 w-full md:pr-[5px]  xl:w-auto"
+                item
+              >
                 <TextField
-                  className="hidden-arrow-number Mui-error mr-2 w-[235px]"
+                  className="hidden-arrow-number Mui-error w-full pr-2 xl:w-[235px] xl:pb-0"
                   type="number"
-                  placeholder="Verification code"
+                  placeholder={String(t("verification_code"))}
                   onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
                     e.target.value = e.target.value.slice(0, 6)
                     isNumber(e.target.value.toString())
@@ -486,13 +250,16 @@ const FormRegister = () => {
                   size="medium"
                 />
               </Grid>
-              <Grid item>
+              <Grid
+                className="w-full "
+                item
+              >
                 <Button
                   disabled={!emailCorrect || watch("email") === ""}
                   onClick={() => onClickGetCode(watch("email"))}
-                  className="btn-rainbow-theme h-[40px] !min-w-[90px] rounded-lg bg-error-main text-sm text-neutral-300"
+                  className="btn-rainbow-theme h-[40px] w-full !min-w-[90px] rounded-lg bg-error-main text-sm text-neutral-300 "
                 >
-                  Get Code
+                  {t("get_code")}
                 </Button>
               </Grid>
             </Grid>
@@ -512,7 +279,7 @@ const FormRegister = () => {
                     severity="warning"
                     className="rounded-lg"
                   >
-                    Code is a required field
+                    {t("code_is_a_required_field")}
                   </Alert>
                 </motion.div>
               </Grid>
@@ -524,8 +291,8 @@ const FormRegister = () => {
               <TextField
                 className="w-full pt-3.5"
                 type={showPassword ? "text" : "password"}
-                placeholder="Password"
-                label="Password"
+                placeholder={`${t("password")}`}
+                label={t("password")}
                 autoComplete="new-password'"
                 onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
                   e.target.value = e.target.value.slice(0, 128)
@@ -600,7 +367,7 @@ const FormRegister = () => {
                     severity="warning"
                     className="rounded-lg"
                   >
-                    The password must contain at least 6 characters.
+                    {t("warning_6_characters")}
                   </Alert>
                 </motion.div>
               )}
@@ -616,15 +383,15 @@ const FormRegister = () => {
                     severity="warning"
                     className="rounded-lg"
                   >
-                    The password must contain at least one uppercase letter.
+                    {t("warning_uppercase_letter")}
                   </Alert>
                 </motion.div>
               )}
               <TextField
                 className="mt-[5px] w-full"
                 type={showConfirmPassword ? "text" : "password"}
-                placeholder="Confirm Password"
-                label="A Number or Symbol, Atleast 6 Characters"
+                placeholder={`${t("confirm_password")}`}
+                label={t("helperText_login")}
                 autoComplete="new-password'"
                 onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
                   e.target.value = e.target.value.slice(0, 128)
@@ -702,7 +469,7 @@ const FormRegister = () => {
                     severity="warning"
                     className="rounded-lg"
                   >
-                    Password is incorrect
+                    {t("password_is_incorrect")}
                   </Alert>
                 </motion.div>
               )}
@@ -742,7 +509,7 @@ const FormRegister = () => {
                     {...register("subscription")}
                   />
                 }
-                label="Would you like to subscribe to Nakamoto Games Newsletter?"
+                label={t("would_you_like_to_subscribe")}
                 sx={{
                   "& .MuiTypography-root": {
                     fontSize: 10,
@@ -758,23 +525,29 @@ const FormRegister = () => {
               direction="row"
               justifyContent="space-between"
             >
-              <Grid item>
+              <Grid
+                className="w-full md:w-auto"
+                item
+              >
                 <ButtonLink
                   href="/"
-                  text="Login"
+                  text={t("login")}
                   icon={null}
                   size="medium"
                   disabledEndIcon
-                  className="h-[40px] !min-w-[108px] border border-solid border-neutral-700 text-sm hover:h-[45px]"
+                  className="h-[40px] w-full !min-w-[108px] border border-solid border-neutral-700 text-sm hover:h-[45px] md:w-auto"
                 />
               </Grid>
-              <Grid item>
+              <Grid
+                className="mt-[10px] w-full md:mt-[0px] md:w-auto"
+                item
+              >
                 <ButtonToggleIcon
-                  handleClick={() => onSubmitRegisterForm(true)}
+                  handleClick={checkSizeFormRegister}
                   type="submit"
                   startIcon={<IEdit />}
-                  text="Regiter"
-                  className="btn-rainbow-theme h-[40px] !w-[209px] bg-secondary-main font-bold capitalize text-white-default"
+                  text={t("register")}
+                  className="btn-rainbow-theme h-[40px] w-full bg-secondary-main font-bold capitalize text-white-default md:!w-[209px] "
                 />
               </Grid>
             </Grid>
@@ -783,10 +556,10 @@ const FormRegister = () => {
               container
               justifyContent="space-between"
               alignItems="center"
-              className="mt-8 mb-8"
+              className={`${!isMobile && "mb-8 mt-8"}`}
             >
               <Grid item>
-                <p className="text-xs uppercase">OR join us with</p>
+                <p className="text-xs uppercase">{t("or_join_us_with")}</p>
               </Grid>
               <Grid item>
                 <hr className="w-[208px] border border-solid border-neutral-800" />
@@ -795,8 +568,9 @@ const FormRegister = () => {
             <Grid
               item
               container
+              justifyContent="center"
             >
-              <div className="flex flex-wrap">
+              <div className={`flex flex-wrap ${isMobile && "mb-[-0.75rem]"}}`}>
                 <ButtonIcon
                   whileHover="hover"
                   transition={{
@@ -846,7 +620,7 @@ const FormRegister = () => {
                   icon={<GoogleIcon />}
                   className="m-1 flex h-[40px] w-[75px] items-center justify-center rounded-lg border border-neutral-700 bg-neutral-800"
                 />
-                <ButtonIcon
+                {/* <ButtonIcon
                   whileHover="hover"
                   transition={{
                     type: "spring",
@@ -856,9 +630,26 @@ const FormRegister = () => {
                   onClick={metaMarkLogin}
                   icon={<MetaMarkIcon />}
                   className="m-1 flex h-[40px] w-[75px] items-center justify-center rounded-lg border border-neutral-700 bg-neutral-800"
-                />
+                /> */}
+                {isMobile && (
+                  <div className="absolute pt-14">
+                    <Typography className="text-sm uppercase text-neutral-700">
+                      COPYRIGHT 2023 © NAKAMOTO GAMES
+                    </Typography>
+                  </div>
+                )}
               </div>
             </Grid>
+            {!isMobile && (
+              <Box
+                component="div"
+                className="mx-auto my-0 pt-4"
+              >
+                <Typography className="text-sm uppercase text-neutral-700">
+                  COPYRIGHT 2023 © NAKAMOTO GAMES
+                </Typography>
+              </Box>
+            )}
           </Grid>
         </Box>
       </form>

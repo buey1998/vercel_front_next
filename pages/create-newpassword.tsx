@@ -6,14 +6,14 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations"
 const FromCreatePassword = dynamic(
   () => import("@feature/authentication/components/FromCreatePassword"),
   {
-    suspense: true
+    suspense: true,
+    ssr: false
   }
 )
 
 export default function CreatePassword() {
   const router = useRouter()
   const { email, token } = router.query
-  // console.log("router", email, token)
 
   return (
     <>

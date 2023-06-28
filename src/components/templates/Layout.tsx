@@ -1,15 +1,25 @@
+import React from "react"
 import Footer from "@components/organisms/Footer"
 import Header from "@components/organisms/Header"
-import React from "react"
+import { Box } from "@mui/material"
+import { isMobile } from "@hooks/useGlobal"
 
 export default function Layout({
   children
 }: React.PropsWithChildren<React.ComponentPropsWithoutRef<"div">>) {
   return (
-    <div className="main-container mx-auto px-2 lg:px-0">
+    <Box
+      component="div"
+      sx={{
+        ".footer-divider": {
+          display: "none"
+        }
+      }}
+      className="main-container mx-auto w-full lg:px-2"
+    >
       <Header />
       {children}
-      <Footer />
-    </div>
+      {!isMobile && <Footer />}
+    </Box>
   )
 }

@@ -1,21 +1,29 @@
 import React from "react"
 import { Image } from "@components/atoms/image"
+import { Box } from "@mui/material"
 
 interface IProp {
   src: string
   alt: string
 }
 const BannerSingle = ({ src, alt }: IProp) => (
-  <div className="relative mb-2 flex h-[180px] flex-row overflow-hidden rounded-sm border-[1px] border-neutral-800 bg-primary-main uppercase sm:rounded-[24px] md:mb-12">
-    <div className="absolute">
-      <Image
-        src={src}
-        alt={alt}
-        width={1368}
-        height={180}
-        className="h-[180px] rounded-[24px] object-fill object-center"
-      />
-    </div>
-  </div>
+  <Box
+    component="div"
+    className="relative mb-3 flex h-[100px] flex-row items-center overflow-hidden rounded-sm border-[1px] border-neutral-800 bg-primary-main uppercase sm:h-[180px] sm:rounded-[24px] lg:h-[180px]"
+    sx={{
+      "picture": {
+        width: "100%",
+        height: "100%"
+      }
+    }}
+  >
+    <Image
+      src={src}
+      alt={alt}
+      width={1368}
+      height={180}
+      className="h-full w-full rounded-sm object-cover object-center sm:rounded-[24px]"
+    />
+  </Box>
 )
 export default BannerSingle

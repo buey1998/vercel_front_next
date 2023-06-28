@@ -20,13 +20,21 @@ import Link from "next/link"
 import TooltipsCustom from "@components/atoms/TooltipsCustom"
 import { useWeb3Provider } from "@providers/Web3Provider"
 import useGlobal from "@hooks/useGlobal"
+import { useToast } from "@feature/toast/containers"
+import useNotiStore from "@stores/notification"
+import PlugIcon from "@components/icons/MenunIcon/PlugIcon"
+import { useTranslation } from "react-i18next"
+import ButtonToggleIcon from "../gameSlide/ButtonToggleIcon"
 
 const RightMenuLogIn = () => {
+  const { count } = useNotiStore()
   const profile = useProfileStore((state) => state.profile.data)
-  const { address } = useWeb3Provider()
   const [expanded, setExpanded] = useState<boolean>(false)
   const [hoverExpand, setHoverExpand] = useState<boolean>(false)
-  const { isMarketplace } = useGlobal()
+  const { isMarketplace, isDeveloperPage, onClickLogout } = useGlobal()
+  const { isConnected, address } = useWeb3Provider()
+  const { successToast } = useToast()
+  const { t } = useTranslation()
 
   const iconmotion = {
     hover: {
@@ -41,16 +49,22 @@ const RightMenuLogIn = () => {
     }
   }
 
+  const themeColor = (): string => {
+    if (isMarketplace) {
+      return "secondary-main"
+    }
+    if (isDeveloperPage) {
+      return "green-lemon"
+    }
+    return "error-main"
+  }
+
   const handleOnExpandClick = () => {
     setExpanded((prev) => !prev)
   }
 
   const handleOnClickOutside = () => {
     setExpanded(false)
-  }
-
-  const handleOnNotiClick = () => {
-    /* do someing wth notification */
   }
 
   return (
@@ -62,16 +76,14 @@ const RightMenuLogIn = () => {
         <div>
           <TooltipsCustom
             title={
-              <p className="text-primary-main">
-                Please approve your wallet first.
-              </p>
+              <p className="text-primary-main">{t("please_approve_wallet")}</p>
             }
             color="warning"
-            open={!address && !expanded}
+            open={!address && !expanded && !isConnected}
           >
             <Card
               className={`${
-                expanded ? "rounded-t-[13px] rounded-b-none" : "rounded-[13px]"
+                expanded ? "rounded-b-none rounded-t-[13px]" : "rounded-[13px]"
               } relative m-auto flex items-center justify-center`}
               sx={{
                 maxWidth: 277,
@@ -87,26 +99,34 @@ const RightMenuLogIn = () => {
                 disableSpacing
               >
                 {/* notification */}
-
                 {!isMarketplace && (
-                  <ButtonIcon
-                    onClick={handleOnNotiClick}
-                    variants={iconmotion}
-                    whileHover="hover"
-                    transition={{
-                      type: "spring",
-                      stiffness: 400,
-                      damping: 4
-                    }}
-                    icon={
-                      <NotificationsOutlinedIcon className="text-white-primary" />
-                    }
-                    className="ml-1 mr-5 flex h-[40px] w-[40px] cursor-pointer items-center justify-center rounded-lg border border-neutral-700 bg-transparent"
-                    aria-label="notification-button"
-                  />
+                  <Link href="/notification">
+                    <ButtonIcon
+                      variants={iconmotion}
+                      whileHover="hover"
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 4
+                      }}
+                      icon={
+                        <NotificationsOutlinedIcon className="text-white-primary" />
+                      }
+                      className={`relative ml-1 mr-5 flex h-[40px] w-[40px] cursor-pointer items-center justify-center rounded-lg border border-neutral-700 bg-transparent before:absolute before:right-[6px] before:top-[5px] before:h-[6px] before:w-[6px] before:rounded-full ${
+                        (count > 0 &&
+                          "before:bg-error-main before:opacity-100") ||
+                        "before:bg-transparent before:opacity-0"
+                      }`}
+                      aria-label="notification-button"
+                    />
+                  </Link>
                 )}
 
-                <div className="flex-1 flex-col items-center">
+                <div
+                  className={`${
+                    isMarketplace ? "ml-4" : "ml-0"
+                  } flex-1 flex-col items-center`}
+                >
                   <Typography className="text-sm font-bold">
                     {profile?.username}
                   </Typography>
@@ -115,8 +135,11 @@ const RightMenuLogIn = () => {
                       paragraph
                       component="span"
                       variant="body1"
-                      onClick={() => Helper.copyClipboard(profile?.address)}
-                      className="cursor-pointer text-xs font-bold text-secondary-main"
+                      onClick={() => {
+                        Helper.copyClipboard(profile?.address)
+                        successToast("Copy Success")
+                      }}
+                      className={`cursor-pointer text-xs font-bold text-${themeColor().toString()}`}
                     >
                       {Helper.shortenString(profile?.address)}
                     </Typography>
@@ -137,17 +160,21 @@ const RightMenuLogIn = () => {
                   onClick={handleOnExpandClick}
                   aria-expanded={Boolean(expanded)}
                   aria-label="expanded-menu-profile"
-                  className={`mr-[2px] h-10 w-10 rounded-[13px] border-[2px] border-neutral-700 duration-100 ease-bounce  ${
+                  className={`mr-[2px] h-10 w-10 rounded-[13px] border-[2px] border-neutral-700 duration-100 ease-bounce ${
                     !expanded
-                      ? "bg-secondary-main hover:scale-[85%]"
+                      ? `bg-${themeColor().toString()} hover:scale-[85%]`
                       : "bg-error-main"
                   }
-            ${!expanded ? "rotate-0" : "rotate-180"} ${
+                  ${!expanded ? "rotate-0" : "rotate-180"} ${
                     expanded && !hoverExpand
                       ? "rotate-[-45deg] scale-[75%]"
                       : "scale-1 rotate-0"
                   }
-            ${!expanded ? "hover:bg-secondary-main" : "hover:bg-error-main"}`}
+                  ${
+                    !expanded
+                      ? `hover:bg-${themeColor().toString()}`
+                      : `hover:bg-error-main`
+                  }`}
                   onMouseOver={() => {
                     setHoverExpand(true)
                   }}
@@ -172,23 +199,13 @@ const RightMenuLogIn = () => {
               backgroundColor: "#010101D9",
               maxWidth: 277,
               width: 277,
-              zIndex: 99999
+              zIndex: 9998
             }}
           >
-            <Balance
-              variant="naka"
-              token="NAKA"
-              tokenUnit="NAKA"
-              sx={{
-                maxWidth: 265,
-                minWidth: 265,
-                height: "auto"
-              }}
-            />
-
+            <Balance widthBalance="w-[calc(100%-70px)]" />
             <StatProfile
               exp={{
-                level: profile?.level,
+                level: profile?.level ?? 0,
                 expAmount: profile?.exp,
                 maxExp: profile?.max_exp
               }}
@@ -204,14 +221,18 @@ const RightMenuLogIn = () => {
               type="row"
             />
             <MenuProfile />
+            <ButtonToggleIcon
+              startIcon={<PlugIcon />}
+              text={t("logout")}
+              handleClick={async () => {
+                onClickLogout()
+              }}
+              className="btn-rainbow-theme my-4 bg-error-main px-14 text-sm text-white-default"
+              type="button"
+            />
           </Collapse>
         </div>
       </ClickAwayListener>
-      {/* {profile && (
-        <>
-          
-        </>
-      )} */}
     </div>
   )
 }

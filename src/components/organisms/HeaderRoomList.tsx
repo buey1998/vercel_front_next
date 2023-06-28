@@ -8,6 +8,7 @@ import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 import ModalCreateRoom from "@feature/rooms/components/molecules/ModalCreateRoom"
 import { useSocketProviderRoom } from "@providers/SocketProviderRoom"
+import { useTranslation } from "react-i18next"
 
 export interface IHeaderRoomList {
   lobby: string
@@ -18,12 +19,21 @@ const HeaderRoomList = ({ lobby }: IHeaderRoomList) => {
   const { data, itemSelected } = useGameStore()
   const { searchRoom } = useSocketProviderRoom()
   const [gameData, setGameData] = useState<IGame>()
+  const { t } = useTranslation()
 
   useEffect(() => {
-    if (data) {
-      setGameData(data)
+    let load = false
+
+    if (!load) {
+      if (data) {
+        setGameData(data)
+      }
     }
-  }, [data])
+
+    return () => {
+      load = true
+    }
+  }, [data, itemSelected])
 
   return (
     <>
@@ -37,14 +47,12 @@ const HeaderRoomList = ({ lobby }: IHeaderRoomList) => {
             />
           </div>
           <h1 className="text-white-defzault self-center uppercase">
-            Lobby :{lobby}
+            {t("lobby")}: {lobby}
             {gameData?.play_to_earn || gameData?.tournament ? (
               ""
             ) : (
               <Typography className="uppercase text-secondary-main">
-                {`${itemSelected && itemSelected.name} ${
-                  itemSelected && itemSelected.item_size
-                }`}
+                {`${itemSelected?.name ?? ""} ${itemSelected?.item_size ?? ""}`}
               </Typography>
             )}
           </h1>
@@ -55,15 +63,14 @@ const HeaderRoomList = ({ lobby }: IHeaderRoomList) => {
             className="w-[174px] rounded-lg"
           /> */}
           {gameData && gameData.game_type === "multiplayer" && (
-            <>
+            <div className="flex flex-col sm:flex-row">
               <TextField
-                className="md:px-2"
-                placeholder="Search Room"
+                className="w-full md:px-2"
+                placeholder={String(t("search_room"))}
                 InputProps={{
                   style: {
                     fontSize: "14px",
-                    fontFamily: "neueMachina",
-                    width: "174px"
+                    fontFamily: "neueMachina"
                   },
                   startAdornment: <SearchIcon className="mr-4" />
                 }}
@@ -73,7 +80,7 @@ const HeaderRoomList = ({ lobby }: IHeaderRoomList) => {
                 }}
               />
               <ModalCreateRoom gameData={gameData} />
-            </>
+            </div>
           )}
         </div>
       </div>

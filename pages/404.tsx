@@ -8,13 +8,15 @@ import dynamic from "next/dynamic"
 const IconArrowRight = dynamic(
   () => import("@components/icons/arrowRightIcon"),
   {
-    suspense: true
+    suspense: true,
+    ssr: false
   }
 )
 const ButtonToggleIcon = dynamic(
   () => import("@components/molecules/gameSlide/ButtonToggleIcon"),
   {
-    suspense: true
+    suspense: true,
+    ssr: false
   }
 )
 
@@ -35,7 +37,7 @@ const CustomPage404 = () => {
               alt="404-logo"
             />
           </div>
-          <div className="mt-6 mb-4">
+          <div className="mb-4 mt-6">
             <Typography
               variant="h1"
               className="font-extrabold "

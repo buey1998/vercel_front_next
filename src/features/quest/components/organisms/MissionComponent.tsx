@@ -8,6 +8,7 @@ import useProfileStore from "@stores/profileStore"
 import useQuestStore from "@stores/quest"
 import useClaimQuestById from "@feature/quest/containers/hook/useClaimQuestById"
 import { useToast } from "@feature/toast/containers"
+import { useTranslation } from "react-i18next"
 import MissionList from "./MissionList"
 import MissionDetails from "./MissionDetails"
 
@@ -20,6 +21,7 @@ const useStyles = makeStyles({
     backgroundColor: "transparent",
     backgroundImage: "none",
     padding: "10px",
+    maxWidth: "564px",
     width: "564px",
     border: "none",
     boxShadow: "none"
@@ -35,6 +37,7 @@ const MissionComponent = ({ open }: IProp) => {
   } = useQuestStore()
   const { profile } = useProfileStore()
   const { warnToast } = useToast()
+  const { t } = useTranslation()
 
   const { dataAllQuest, refetchAllQuest } = useGetAllQuest(
     profile.data ? profile.data.id : ""
@@ -42,8 +45,16 @@ const MissionComponent = ({ open }: IProp) => {
   const { claimRespondData } = useClaimQuestById()
 
   useEffect(() => {
-    if (claimRespondData) {
-      refetchAllQuest()
+    let load = false
+
+    if (!load) {
+      if (claimRespondData) {
+        refetchAllQuest()
+      }
+    }
+
+    return () => {
+      load = true
     }
   }, [claimRespondData, refetchAllQuest])
 
@@ -58,14 +69,22 @@ const MissionComponent = ({ open }: IProp) => {
   const handleClaimAll = () => warnToast("Claim all is not available yet")
 
   useEffect(() => {
-    const checkIfHasClaimableQuest = dataAllQuest?.data.filter(
-      (filter) =>
-        filter.status === "done" &&
-        filter.claim_reward_status === false &&
-        filter.claim_reward_progress !== "claimed"
-    )
-    if (checkIfHasClaimableQuest && checkIfHasClaimableQuest.length > 0) {
-      setHasCompleted(true)
+    let load = false
+
+    if (!load) {
+      const checkIfHasClaimableQuest = dataAllQuest?.data.filter(
+        (filter) =>
+          filter.status === "done" &&
+          filter.claim_reward_status === false &&
+          filter.claim_reward_progress !== "claimed"
+      )
+      if (checkIfHasClaimableQuest && checkIfHasClaimableQuest.length > 0) {
+        setHasCompleted(true)
+      }
+    }
+
+    return () => {
+      load = true
     }
   }, [dataAllQuest?.data, setHasCompleted])
 
@@ -85,18 +104,20 @@ const MissionComponent = ({ open }: IProp) => {
   return (
     <Drawer
       open={open}
+      onClose={setClose}
       anchor="right"
       classes={{
         paper: classes.paper
       }}
+      className="!min-w-[564px]"
     >
-      <div className="flex h-full flex-col gap-5 rounded-md border-[3px] border-neutral-800 bg-neutral-900 p-4">
+      <div className="z-[999991] flex h-full flex-col gap-5 rounded-md border-[3px] border-neutral-800 bg-neutral-900 p-4">
         {/* header */}
         <div className="flex min-h-[54px] items-center rounded-lg bg-neutral-800 pl-5">
           <div className="flex flex-1 flex-row items-center">
             <RocketIcon />
             <Typography className="pl-[15px] uppercase text-neutral-300">
-              mission to the mars
+              {t("mission")}
             </Typography>
           </div>
           <ButtonClose onClick={setClose} />

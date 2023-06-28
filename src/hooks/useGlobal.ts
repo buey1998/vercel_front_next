@@ -2,25 +2,28 @@ import { IProfile } from "@feature/profile/interfaces/IProfileService"
 import useGameStore from "@stores/game"
 import useProfileStore from "@stores/profileStore"
 import { useRouter } from "next/router"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
-  IFilterGamesByKey,
+  IPayloadGameFilter,
   IGame,
-  IGetType
+  IGetType,
+  TGameType
 } from "@feature/game/interfaces/IGameService"
 import { IPartnerGameData } from "@feature/game/interfaces/IPartnerGame"
+import { TNFTType } from "@feature/marketplace/interfaces/IMarketService"
 import CONFIGS from "@configs/index"
-import useContractVaultBinance, {
-  ITokenContract
-} from "@feature/contract/containers/hooks/useContractVaultBinance"
+import { IGameItemListData } from "@feature/gameItem/interfaces/IGameItemService"
+import useChainSupportStore from "@stores/chainSupport"
+import useNotiStore from "@stores/notification"
+import Helper from "@utils/helper"
+import { isMobile as detectMobile } from "react-device-detect"
+import useMarketFilterStore from "@stores/marketFilter"
+import useSupportedChain from "./useSupportedChain"
+import useGameGlobal from "./useGameGlobal"
 
-import { Contract, ethers } from "ethers"
-import BEP20Abi from "@configs/abi/BEP20.json"
-import ERC20Abi from "@configs/abi/ERC20.json"
-import useChainSupport from "@stores/chainSupport"
-import useContractVault from "@feature/contract/containers/hooks/useContractVault"
-import { DEFAULT_CURRENCY_BNB, DEFAULT_CURRENCY_NAKA } from "@configs/currency"
-import useSwitchNetwork from "./useSwitchNetwork"
+export const isMobile = !!(
+  detectMobile && CONFIGS.DISPLAY_MOBILE_MODE === "true"
+)
 
 const useGlobal = (
   _limit?: number,
@@ -29,20 +32,22 @@ const useGlobal = (
   _search?: string,
   _item?: string | string[],
   _device?: string,
-  _gameType?: IGetType,
+  _gameMode?: IGetType,
+  _gameType?: TGameType,
   _tournament?: boolean,
   _category?: string,
   _nftgame?: boolean
 ) => {
   const router = useRouter()
 
-  const defaultBody: IFilterGamesByKey = {
-    limit: _limit ?? 20,
+  const defaultBody: IPayloadGameFilter = {
+    limit: _limit ?? 30,
     skip: _skip ?? 1,
     sort: _sort ?? "_id",
     search: _search ?? "",
     item: _item ?? "all",
     device: _device ?? "all",
+    game_mode: _gameMode ?? "all",
     game_type: _gameType ?? "all",
     tournament: _tournament ?? false,
     category: _category ?? "all",
@@ -50,19 +55,27 @@ const useGlobal = (
   }
 
   // hook
-  const { onSetGameData, onSetGamePartnersData } = useGameStore()
-  const { getAllTokenAddressInContract, getBNBContract } =
-    useContractVaultBinance()
-  const { getAllTokenInfoByContractAddress } = useContractVaultBinance()
-  const { setChainSupport, setContractBNB } = useChainSupport()
-  const { getNAKATokenInfo } = useContractVault()
-  const { chainId, signer, accounts, statusWalletConnected } =
-    useSwitchNetwork()
-
+  const { onResetChainStore, currentChainSelected } = useChainSupportStore()
+  const { onResetNotification } = useNotiStore()
+  const {
+    onSetGameData,
+    onSetGamePartnersData,
+    onSetGameItemSelectd,
+    setQtyItemOfRoom
+  } = useGameStore()
   const profile = useProfileStore((state) => state.profile.data)
+  const { isLogin, onReset } = useProfileStore()
+  const { fetchNAKAToken, fetchAllTokenSupported } = useSupportedChain()
+  const { onAllReset } = useMarketFilterStore()
+
+  const { conditionPlayToEarn } = useGameGlobal()
+
   // States
   const [stateProfile, setStateProfile] = useState<IProfile | null>()
   const [hydrated, setHydrated] = useState(false)
+  const [marketType, setMarketType] = useState<TNFTType>()
+  /** This is only temporary code for hide marketplace in production */
+  const [isShowMarket, setIsShowMarket] = useState<boolean>(false)
 
   /**
    * @description check if url is in marketplace
@@ -70,26 +83,52 @@ const useGlobal = (
   const isMarketplace = router.asPath.includes("marketplace")
 
   /**
+   * @description check if url is in marketplace
+   */
+  const isDeveloperPage =
+    router.asPath.includes("become-developer") ||
+    router.asPath.includes("developer")
+
+  /**
    * @description Set profile
    */
   useEffect(() => {
-    setStateProfile(profile)
+    let load = false
+
+    if (!load) {
+      setStateProfile(profile)
+    }
+
+    return () => {
+      load = true
+    }
   }, [profile])
 
   /**
    * @description Set hydrate to fix error "Text content does not match server-rendered HTML"
    */
   useEffect(() => {
-    setHydrated(true)
+    let load = false
+
+    if (!load) {
+      setHydrated(true)
+    }
+
+    return () => {
+      load = true
+    }
   }, [])
 
   /**
    * @description Global values for pagination
    */
-  const limit = _limit || 20
+  const [limit, setLimit] = useState<number>(30)
   const [page, setPage] = useState<number>(1)
   const [totalCount, setTotalCount] = useState<number>(0)
-  const pager: number[] = [6, 12, 24, 48, 64]
+  const pager: number[] = [30, 60, 90, 120, 150]
+  const handleLimit = (limitItem: number) => {
+    setLimit(limitItem)
+  }
 
   /**
    * @description Handle click on game card
@@ -101,199 +140,398 @@ const useGlobal = (
     _gameUrl: string,
     _gameData: IGame | IPartnerGameData
   ) => {
-    // eslint-disable-next-line no-console
-    console.log("game", _gameData)
     switch (_type) {
       case "partner-publisher":
         onSetGamePartnersData(_gameData as IPartnerGameData)
-        await router.push(`/publishers/${_gameData.name}`)
+        // await router.push(`/publishers/${_gameData.name}`)
         break
 
       case "partner-game":
         onSetGamePartnersData(_gameData as IPartnerGameData)
-        await router.push(`/partner-games/${_gameUrl}?id=${_gameData.id}`)
+        // await router.push(`/partner/${_gameUrl}?id=${_gameData.id}`)
         break
 
       case "arcade-emporium":
         onSetGameData(_gameData as IGame)
-        await router.push(`/arcade-emporium/${_gameUrl}?id=${_gameData.id}`)
+        // await router.push(`/arcade-emporium/${_gameUrl}?id=${_gameData.id}`)
         break
 
       default:
         onSetGameData(_gameData as IGame)
-        await router.push(`/${_type}-games/${_gameUrl}`)
+        // await router.push(`/${_type}/${_gameUrl}`)
         break
     }
     // NOTE: No need this code
     // await router.push(`/${_gameUrl}`)
   }
 
-  const getTokenAddress = (_chainId: string) => {
-    switch (_chainId) {
-      case CONFIGS.CHAIN.CHAIN_ID_HEX_BNB:
-        return CONFIGS.CONTRACT_ADDRESS.BEP20
+  const onHandleSetGameStore = async (
+    _type: IGetType,
+    _gameData: IGame | IPartnerGameData
+  ) => {
+    switch (_type) {
+      case "partner-publisher":
+        onSetGamePartnersData(_gameData as IPartnerGameData)
+        break
+
+      case "partner-game":
+        onSetGamePartnersData(_gameData as IPartnerGameData)
+        break
+
+      case "arcade-emporium":
+        onSetGameData(_gameData as IGame)
+        break
 
       default:
-        return CONFIGS.CONTRACT_ADDRESS.ERC20
+        onSetGameData(_gameData as IGame)
+        break
+    }
+  }
+
+  const onClickLink = async (
+    _type: IGetType,
+    _gameUrl: string,
+    _gameData: IGame | IPartnerGameData
+  ) => {
+    switch (_type) {
+      case "partner-publisher":
+        return `/publishers/${_gameData.name}`
+
+      case "partner-game":
+        return `/partner/${_gameUrl}?id=${_gameData.id}`
+
+      case "arcade-emporium":
+        return `/arcade-emporium/${_gameUrl}?id=${_gameData.id}`
+
+      default:
+        return `/${_type}/${_gameUrl}`
     }
   }
 
   /**
-   * @description Get tokens amount
-   * @param _chainId
-   * @returns {string}
+   * @description Open link in new tab
+   * @param url {string}
    */
-  const getTokenSupply = (_chainId: string): string => {
-    switch (_chainId) {
-      case CONFIGS.CHAIN.CHAIN_ID_HEX_BNB:
-        return "31000000000000000000000000"
-
-      default:
-        return "179999996000000000000000008"
-    }
-    // NOTE: No need this code
-    // await router.push(`/${_gameUrl}`)
+  const openInNewTab = (url: string) => {
+    window.open(url, "_blank", "noreferrer")
   }
 
   /**
-   * @description Fetch BNB token address from Smart Contract
+   * @description Get type game path by game_mode
+   * @returns {IGetType}
    */
-  const fetchContractBNB = useCallback(async () => {
-    const result = await getBNBContract()
-    if (result) {
-      setContractBNB(result)
+  const getGameMode = (_gameData: IGame): IGetType => {
+    if (_gameData.is_NFT) {
+      return "arcade-emporium"
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getBNBContract])
-  /**
-   * @description Fetch BNB token address
-   */
-  useMemo(() => {
-    if (!statusWalletConnected.responseStatus) return
-    if (signer === undefined || accounts === undefined) return
-    fetchContractBNB()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    return _gameData.game_mode
+  }
 
   /**
-   * @description Get all token supported
+   * @description Check if game is free to earn
    */
-  const fetchAllTokenSupported = useCallback(async () => {
-    const allContract: Contract[] = []
-    const allTokenSupported: ITokenContract[] = []
-    const tokens = await getAllTokenAddressInContract()
-    for (let index = 0; index < tokens.length; index += 1) {
-      const { ethereum }: any = window
-      const _web3 = new ethers.providers.Web3Provider(ethereum)
-      const contract = new ethers.Contract(tokens[index], BEP20Abi.abi, _web3)
-      allContract.push(contract)
-      // if (tokens[index] !== CONFIGS.CONTRACT_ADDRESS.BNB_CONTRACT) {
-      //   const contract = new ethers.Contract(tokens[index], BEP20Abi.abi, _web3)
-      //   allContract.push(contract)
-      // }
+  const isFreeToEarnGame = (_gameData: IGame): boolean => {
+    if (_gameData.game_mode === "free-to-earn" && !_gameData.is_NFT) {
+      return true
     }
-    await Promise.all(
-      allContract.map(async (contract) => {
-        const result = await getAllTokenInfoByContractAddress(
-          contract,
-          contract.address,
-          profile ? profile.address : ""
-        )
-        allTokenSupported.push(result)
-      })
-    )
-    const allTokenSupportedSorted = allTokenSupported.sort((a, b) => {
-      if (a.symbol < b.symbol) {
-        return -1
-      }
-      if (a.symbol > b.symbol) {
-        return 1
-      }
-      return 0
-    })
-    setChainSupport(allTokenSupportedSorted)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    return false
+  }
 
-  const fetchNAKAToken = useCallback(async () => {
-    const allContract: Contract[] = []
-    const allTokenSupported: ITokenContract[] = []
-    const tokens = [CONFIGS.CONTRACT_ADDRESS.ERC20]
-    for (let index = 0; index < tokens.length; index += 1) {
-      const { ethereum }: any = window
-      const _web3 = new ethers.providers.Web3Provider(ethereum)
-      const contract = new ethers.Contract(tokens[index], ERC20Abi, _web3)
-      allContract.push(contract)
+  /**
+   * @description Check if game is free to play
+   */
+  const isFreeToPlayGame = (_gameData: IGame): boolean => {
+    if (_gameData.game_mode === "free-to-play" && !_gameData.is_NFT) {
+      return true
     }
-    await Promise.all(
-      allContract.map(async (contract) => {
-        const result = await getNAKATokenInfo(
-          contract,
-          contract.address,
-          profile ? profile.address : ""
-        )
-        allTokenSupported.push(result)
-      })
-    )
-    const allTokenSupportedSorted = allTokenSupported.sort((a, b) => {
-      if (a.symbol < b.symbol) {
-        return -1
+    return false
+  }
+
+  /**
+   * @description Check if game is free to play
+   */
+  const isStoryModeGame = (_gameData: IGame): boolean => {
+    if (
+      _gameData.game_type === "storymode" ||
+      _gameData.game_mode === "story-mode"
+    ) {
+      return true
+    }
+    return false
+  }
+
+  const getTypeGamePartnerPathFolder = (
+    _gameData: IPartnerGameData
+  ): IGetType => "partner-game"
+
+  /**
+   * @description Get color chip by game type
+   * @param type
+   * @returns
+   */
+  const getColorChipByGameType = (type: IGetType): string => {
+    switch (type) {
+      case "partner-publisher":
+        return "!bg-green-lemon !text-neutral-900"
+
+      case "partner-game":
+        return "!bg-green-lemon !text-neutral-900"
+
+      case "arcade-emporium":
+        return "!bg-warning-dark !text-neutral-900"
+
+      case "story-mode":
+        return "!bg-info-main !text-neutral-900"
+
+      case "play-to-earn":
+        return "!bg-error-main !text-neutral-900"
+
+      case "free-to-play":
+        return "!bg-secondary-main !text-neutral-900"
+
+      case "free-to-earn":
+        return "!bg-purple-02 !text-purple-primary"
+
+      default:
+        return "!bg-neutral-800 !text-neutral-900"
+    }
+  }
+
+  /**
+   * @description Get game url by game type
+   * @param gameData
+   * @returns
+   */
+  const getGameStoryModeURL = (gameData: IGame): string => {
+    if (!profile) return ""
+
+    const room_id = null
+    const frontendUrl = `${CONFIGS.BASE_URL.FRONTEND}/${router.query.typeGame}/${gameData.path}/summary/${room_id}`
+    const profile_id = profile.id
+    const room_number = null
+    const item_size = null
+    const { email } = profile
+    const token = Helper.getTokenFromLocal()
+    const rank_name = null
+    const date = null
+    const stage_id = null
+    const profile_name = profile.username
+    const type_play = conditionPlayToEarn ? "free" : "not_free"
+    // Get url by game type
+    switch (gameData.game_type) {
+      case "storymode":
+        return `${CONFIGS.BASE_URL.GAME}/${gameData.id}/?${Helper.makeID(
+          8
+        )}${btoa(
+          `${room_id}:|:${profile_id}:|:${item_size}:|:${email}:|:${token}:|:${frontendUrl}:|:${CONFIGS.BASE_URL.API?.slice(
+            0,
+            -4
+          )}:|:${rank_name}:|:${room_number}:|:${date}:|:${stage_id}:|:${profile_name}:|:${type_play}`
+        )}`
+      case "singleplayer":
+        // TODO: Need to update url later
+        return "/singleplayer"
+      case "multiplayer":
+        // TODO: Need to update url later
+        return "/multiplayer"
+      default:
+        return ""
+    }
+  }
+
+  const getGamePokerModeURL = (gameData: IGame): string => {
+    if (!profile) return ""
+
+    const frontendUrl = `${CONFIGS.BASE_URL.FRONTEND}/${router.query.typeGame}/${gameData.path}`
+    const { username, address, avatar, status } = profile
+
+    // Get url by game type
+    // address: string
+    // username: string
+    // avatar: number
+    // status: number
+    // createdAt?: string
+    // friend: IAuthServiceFriend[]
+    // banned: string[]
+    // gas: 0 | 1 | 2 | null | undefined
+    // jwtToken: string
+
+    return `${gameData.game_url}?game_data=${gameData.id}?data=${btoa(
+      `${address}:|:${username}:|:${avatar}:|:${status}:|:${CONFIGS.BASE_URL.API?.slice(
+        0,
+        -4
+      )}:|:${frontendUrl}:|:${gameData.image_banner}`
+    )}`
+  }
+
+  const isPokerGame = (gameData: IGame) =>
+    gameData && gameData?.category?.name === "Casino"
+
+  const goldProfile: number = useMemo(() => profile?.gold || 0, [profile])
+  const goldProfileComma: string = useMemo(
+    () => Helper.formatNumber(profile?.gold || 0),
+    [profile]
+  )
+
+  const isRedirectRoomlist = (_game: IGame): "/roomlist" | "" => {
+    if (
+      _game.play_to_earn_status === "free" ||
+      _game.game_mode === "free-to-earn" ||
+      _game.game_mode === "free-to-play"
+    ) {
+      if (isPokerGame(_game)) {
+        return ""
       }
-      if (a.symbol > b.symbol) {
-        return 1
+      return "/roomlist"
+    }
+    return ""
+  }
+
+  /**
+   * @description When logout reset all stores
+   */
+  const onClickLogout = async () => {
+    onResetChainStore()
+    onSetGameItemSelectd({} as IGameItemListData)
+    setQtyItemOfRoom(0)
+    onResetNotification()
+    onReset()
+    await router.push("/")
+  }
+
+  const handleClickScroll = (targetSection: string) => {
+    const element = document.getElementById(targetSection)
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" })
+    }
+  }
+
+  /**
+   * @description Get market type
+   */
+  useEffect(() => {
+    let load = false
+
+    if (!load) {
+      if (router.asPath.includes("land")) {
+        setMarketType("nft_land")
+      } else if (router.asPath.includes("building")) {
+        setMarketType("nft_building")
+      } else if (router.asPath.includes("naka-punk")) {
+        setMarketType("nft_naka_punk")
+      } else if (router.asPath.includes("material")) {
+        setMarketType("nft_material")
+      } else if (router.asPath.includes("game-item")) {
+        setMarketType("game_item")
+      } else if (router.asPath.includes("arcade-game")) {
+        setMarketType("nft_game")
+      } else if (router.asPath.includes("avatar-reef")) {
+        setMarketType("nft_avatar")
+      } else {
+        // path = "/"
+        setMarketType("nft_land")
       }
-      return 0
-    })
-    setChainSupport(allTokenSupportedSorted)
+    }
+
+    return () => {
+      load = true
+    }
+  }, [router.asPath])
+
+  /** This is only temporary code for hide marketplace in production */
+  const _mode = process.env.NEXT_PUBLIC_MODE
+
+  const redirectionDone = useRef(false)
+
+  useEffect(() => {
+    const redirectIfNecessary = () => {
+      if (
+        router.asPath.includes("marketplace") &&
+        _mode === "production" &&
+        !redirectionDone.current
+      ) {
+        router.replace("/404", undefined, { shallow: true })
+        setIsShowMarket(false)
+        redirectionDone.current = true
+      } else if (
+        router.asPath.includes("marketplace") &&
+        _mode === "development" &&
+        !redirectionDone.current
+      ) {
+        router.replace(router.asPath, undefined, { shallow: true })
+        setIsShowMarket(true)
+        redirectionDone.current = true
+      }
+    }
+
+    const intervalId = setInterval(redirectIfNecessary, 0)
+
+    return () => {
+      clearInterval(intervalId)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [router.asPath, _mode])
+  /** This is only temporary code for hide marketplace in production */
 
   /**
    * @description Fetch all token supported
    */
-  useEffect(() => {
-    if (signer && accounts) {
-      if (chainId === CONFIGS.CHAIN.CHAIN_ID_HEX_BNB) {
-        fetchAllTokenSupported()
-      } else if (chainId === CONFIGS.CHAIN.CHAIN_ID_HEX) {
-        fetchNAKAToken()
-      }
-    } /* else {
-      console.log("signer or accounts is undefined", signer, accounts, provider)
-    } */
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainId, signer, fetchAllTokenSupported, fetchNAKAToken])
-
-  /**
-   * @description Get default currency
-   * @returns {ITokenContract[]}
-   */
-  const getDefaultCoin = (): ITokenContract[] => {
-    switch (chainId) {
-      case CONFIGS.CHAIN.CHAIN_ID_HEX_BNB:
-        return DEFAULT_CURRENCY_BNB
-      default:
-        return DEFAULT_CURRENCY_NAKA
+  const fetchChainData = useCallback(async () => {
+    if (!isLogin) return
+    if (currentChainSelected === CONFIGS.CHAIN.CHAIN_ID_HEX_BNB) {
+      await fetchAllTokenSupported()
+    } else if (currentChainSelected === CONFIGS.CHAIN.CHAIN_ID_HEX) {
+      await fetchNAKAToken()
     }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentChainSelected, fetchAllTokenSupported, fetchNAKAToken])
+
+  useEffect(() => {
+    let load = false
+    if (!load && marketType) {
+      onAllReset()
+    }
+    return () => {
+      load = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [marketType])
 
   return {
     onHandleClick,
+    onClickLink,
     limit,
     page,
     setPage,
+    setLimit,
     totalCount,
     setTotalCount,
+    handleLimit,
     stateProfile,
     hydrated,
     defaultBody,
     pager,
-    getTokenAddress,
-    getTokenSupply,
-    fetchAllTokenSupported,
-    fetchNAKAToken,
-    getDefaultCoin,
-    isMarketplace
+    isMarketplace,
+    isDeveloperPage,
+    isShowMarket,
+    getGamePokerModeURL,
+    openInNewTab,
+    getGameMode,
+    getTypeGamePartnerPathFolder,
+    marketType,
+    isRedirectRoomlist,
+    onHandleSetGameStore,
+    onClickLogout,
+    fetchChainData,
+    getColorChipByGameType,
+    getGameStoryModeURL,
+    isFreeToEarnGame,
+    isFreeToPlayGame,
+    isStoryModeGame,
+    isPokerGame,
+    goldProfile,
+    goldProfileComma,
+    handleClickScroll
   }
 }
 

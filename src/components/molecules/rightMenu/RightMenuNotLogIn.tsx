@@ -1,42 +1,45 @@
-import React, { memo, useState } from "react"
-import { Box, Stack } from "@mui/material"
-import { ModalCustom } from "../Modal/ModalCustom"
+import React, { ReactElement, memo, useState } from "react"
+import { Box } from "@mui/material"
+import RightMenuNotLogInTemplate from "@components/templates/contents/RightMenuNotLogInTemplate"
 import ButtonLogin from "./ButtonLogin"
-import FormLogin from "../../../features/authentication/components/FormLogin"
-import ModalHeader from "../Modal/ModalHeader"
 
-const RightMenuNotLogIn = () => {
+interface IProps {
+  button?: ReactElement
+}
+const RightMenuNotLogIn = ({ button }: IProps) => {
   const [open, setOpen] = useState<boolean>(false)
 
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
-
   return (
-    <>
-      <Box className="w-max rounded-xl bg-neutral-700 p-1">
-        <Box className="xs:flex-col items-center justify-between gap-1 lg:flex">
-          <ButtonLogin handleButton={handleOpen} />
-        </Box>
-        <ModalCustom
-          open={open}
-          onClose={handleClose}
-          className="w-auto gap-3 rounded-[34px] p-[10px]"
-          width={400}
+    <RightMenuNotLogInTemplate
+      open={open}
+      handleClose={handleClose}
+    >
+      {button ? (
+        <Box
+          component="div"
+          className="w-full"
+          onClick={handleOpen}
         >
-          <Stack
-            spacing={3}
-            className="md:p-5"
+          {button}
+        </Box>
+      ) : (
+        <Box
+          component="div"
+          className="!rounded-[29px] !bg-[#FFFFFF20] !p-[6px]"
+        >
+          {/* <Box className="w-full rounded-xl bg-neutral-700 !p-[5px] md:w-max"> */}
+          <Box
+            component="div"
+            className="xs:flex-col items-center justify-between gap-1 lg:flex"
           >
-            <ModalHeader
-              handleClose={handleClose}
-              title="Login"
-            />
-
-            <FormLogin />
-          </Stack>
-        </ModalCustom>
-      </Box>
-    </>
+            <ButtonLogin handleButton={handleOpen} />
+          </Box>
+          {/* </Box> */}
+        </Box>
+      )}
+    </RightMenuNotLogInTemplate>
   )
 }
 export default memo(RightMenuNotLogIn)

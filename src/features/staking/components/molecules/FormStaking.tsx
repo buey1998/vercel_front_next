@@ -50,7 +50,10 @@ const FormStaking = ({ userName, onCloseModal }: IProp) => {
   }
 
   return (
-    <Box className="h-auto max-h-[644px] overflow-y-auto">
+    <Box
+      component="div"
+      className="h-auto max-h-[644px] overflow-y-auto"
+    >
       {profile && (
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid gap-x-[25px] max-sm:gap-y-[25px] sm:grid-cols-2">
@@ -60,7 +63,7 @@ const FormStaking = ({ userName, onCloseModal }: IProp) => {
                 rewards and additional benefit
               </Typography>
 
-              <Typography className="mt-2 mb-1 font-neue-machina-semi text-xs uppercase  text-neutral-500">
+              <Typography className="mb-1 mt-2 font-neue-machina-semi text-xs uppercase  text-neutral-500">
                 Staking Period
               </Typography>
               <CalenderDropdown
@@ -76,7 +79,7 @@ const FormStaking = ({ userName, onCloseModal }: IProp) => {
                 </span>
               </Typography>
 
-              <Typography className="mt-4 mb-1 font-neue-machina-semi text-xs uppercase  text-neutral-500">
+              <Typography className="mb-1 mt-4 font-neue-machina-semi text-xs uppercase  text-neutral-500">
                 Stake amount
               </Typography>
               <div className="stake-amount relative mb-2">
@@ -117,7 +120,7 @@ const FormStaking = ({ userName, onCloseModal }: IProp) => {
                   width={IMAGES.nakaLogoMaster.width}
                   height={IMAGES.nakaLogoMaster.height}
                   alt={IMAGES.nakaLogoMaster.alt}
-                  className="absolute bottom-0 top-0 right-[18px] m-[auto_0]"
+                  className="absolute bottom-0 right-[18px] top-0 m-[auto_0]"
                 />
               </div>
               <Typography className="mb-1 font-neue-machina-semi text-xs uppercase text-neutral-500">
@@ -178,7 +181,7 @@ const FormStaking = ({ userName, onCloseModal }: IProp) => {
             </div>
           </div>
 
-          <div className="mt-6 rounded-[13px] border border-purple-primary bg-[#110A1C] px-4 py-2 font-neue-machina text-sm uppercase text-purple-primary text-neutral-500 shadow-[0px_4px_4px_rgba(0,0,0,0.18)]">
+          <div className="mt-6 rounded-[13px] border border-purple-primary bg-[#110A1C] px-4 py-2 font-neue-machina text-sm uppercase text-neutral-500 shadow-[0px_4px_4px_rgba(0,0,0,0.18)]">
             The NAKA Coins that staked by players will be obtained from
             Metamask. If players need to check whether NAKA is successfully
             staking. please check the Metamask

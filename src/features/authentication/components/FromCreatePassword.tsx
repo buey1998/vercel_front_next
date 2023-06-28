@@ -30,6 +30,7 @@ import { useForm } from "react-hook-form"
 import IEdit from "@components/icons/Edit"
 import { ModalCustom } from "@components/molecules/Modal/ModalCustom"
 import ModalHeader from "@components/molecules/Modal/ModalHeader"
+import { useTranslation } from "react-i18next"
 import useCreateNewPassword from "../containers/hooks/useCreateNewPassword"
 import FormLogin from "./FormLogin"
 
@@ -63,6 +64,7 @@ interface IProp {
 }
 
 const FromCreatePassword = ({ email, token }: IProp) => {
+  const { t } = useTranslation()
   const [showPassword, setShowPassword] = useState(false)
   const [characterUppercase, setCharacterUppercase] = useState(true)
   const [characterPasswordLength, setCharacterPasswordLength] = useState(true)
@@ -158,13 +160,22 @@ const FromCreatePassword = ({ email, token }: IProp) => {
   }
 
   useEffect(() => {
-    isConfirmPassword(watch("password"), watch("confirmPassword"))
+    let load = false
+
+    if (!load) isConfirmPassword(watch("password"), watch("confirmPassword"))
+
+    return () => {
+      load = true
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watch("password"), watch("confirmPassword")])
 
   return (
-    <Box>
-      <Box className="py-5">
+    <Box component="div">
+      <Box
+        component="div"
+        className="py-5"
+      >
         <Grid
           item
           container
@@ -187,13 +198,17 @@ const FromCreatePassword = ({ email, token }: IProp) => {
             >
               <HeadLogo />
             </Box>
-            <Box className="container absolute bottom-0 overflow-hidden">
+            <Box
+              component="div"
+              className="container absolute bottom-0 overflow-hidden"
+            >
               <Tagline
                 bgColor="bg-neutral-800"
                 textColor="text-neutral-500"
-                text="Secue. fun. simple. earn $naka AND enjoy "
+                text={t("main_tagline")}
                 icon={<VectorIcon />}
                 className="!my-[2.938rem]"
+                show={false}
               />
             </Box>
           </Grid>
@@ -231,6 +246,7 @@ const FromCreatePassword = ({ email, token }: IProp) => {
               </div>
             </Box>
             <Box
+              component="div"
               sx={{
                 my: 8,
                 mx: 4,
@@ -243,7 +259,10 @@ const FromCreatePassword = ({ email, token }: IProp) => {
                 className="h-full"
                 onSubmit={handleSubmit(onSubmitConfirm)}
               >
-                <Box className="flex h-[600px] w-[333px] items-center">
+                <Box
+                  component="div"
+                  className="flex h-[600px] w-[333px] items-center"
+                >
                   <Grid
                     container
                     spacing={2.25}
@@ -253,6 +272,7 @@ const FromCreatePassword = ({ email, token }: IProp) => {
                       xs={12}
                     >
                       <Box
+                        component="div"
                         className="flex items-center rounded-lg"
                         sx={{ height: "54px" }}
                       >
@@ -265,7 +285,7 @@ const FromCreatePassword = ({ email, token }: IProp) => {
                           <ButtonClose onClick={() => {}} />
                         </Link>
                       </Box>
-                      <Divider className="mx-0 mt-5 mb-8" />
+                      <Divider className="mx-0 mb-8 mt-5" />
                       <>
                         {formSubmitErrors && (
                           <motion.div
@@ -389,7 +409,7 @@ const FromCreatePassword = ({ email, token }: IProp) => {
                         className="mt-[5px] w-full"
                         type={showConfirmPassword ? "text" : "password"}
                         placeholder="Confirm Password"
-                        label="A Number or Symbol, Atleast 6 Characters"
+                        label="A Number or Symbol, at least 6 Characters"
                         autoComplete="new-password'"
                         onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
                           e.target.value = e.target.value.slice(0, 128)
@@ -518,7 +538,7 @@ const FromCreatePassword = ({ email, token }: IProp) => {
                               title="Login"
                             />
 
-                            <FormLogin href="/" />
+                            <FormLogin />
                           </Stack>
                         </ModalCustom>
                       </Grid>
@@ -534,7 +554,7 @@ const FromCreatePassword = ({ email, token }: IProp) => {
                 className="absolute bottom-32"
               >
                 <Typography className="text-sm uppercase text-neutral-700">
-                  Copyright 2022 © Nakamoto Games
+                  COPYRIGHT 2023 © NAKAMOTO GAMES
                 </Typography>
               </Grid>
             </Box>

@@ -1,7 +1,7 @@
-import { Button } from "@mui/material"
+import { Button, SxProps, Theme } from "@mui/material"
 import Link from "next/link"
 import React, { ReactNode, useMemo } from "react"
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward"
+import dynamic from "next/dynamic"
 
 export interface IButtonLink extends React.HTMLAttributes<HTMLDivElement> {
   text?: string | ReactNode
@@ -18,6 +18,9 @@ export interface IButtonLink extends React.HTMLAttributes<HTMLDivElement> {
   disabled?: boolean
   disabledStartIcon?: boolean
   disabledEndIcon?: boolean
+  sxCustomStyled?: SxProps<Theme>
+  target?: "_blank" | "_self" | "_parent" | "_top"
+  stroke?: string
 }
 
 const ButtonLink = ({
@@ -34,8 +37,18 @@ const ButtonLink = ({
   type,
   disabled = false,
   disabledStartIcon = false,
-  disabledEndIcon = false
+  disabledEndIcon = false,
+  sxCustomStyled = {},
+  target = "_self",
+  stroke
 }: IButtonLink) => {
+  const IconArrowRight = dynamic(
+    () => import("@components/icons/arrowRightIcon"),
+    {
+      suspense: true,
+      ssr: false
+    }
+  )
   const ButtonSelf = useMemo(
     () => (
       <Button
@@ -46,7 +59,9 @@ const ButtonLink = ({
         size={size}
         startIcon={
           !disabledStartIcon && (
-            <div className={`button-icon animation-arrow ${textColor}`}>
+            <div
+              className={`button-icon animation-arrow my-[5px] ${textColor}`}
+            >
               {icon}
             </div>
           )
@@ -56,18 +71,23 @@ const ButtonLink = ({
         endIcon={
           !disabledEndIcon && (
             <div className="button-arrow animation-arrow">
-              <ArrowForwardIcon className={arrowColor} />
+              <IconArrowRight
+                stroke={stroke}
+                className={arrowColor}
+              />
             </div>
           )
         }
+        sx={sxCustomStyled}
       >
         <span
-          className={`animation-button-text flex items-center ${textColor}`}
+          className={`animation-button-text flex h-fit items-center truncate xl:mt-0 ${textColor}`}
         >
           {text}
         </span>
       </Button>
     ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       arrowColor,
       className,
@@ -87,10 +107,11 @@ const ButtonLink = ({
 
   return (
     <>
-      {!onClick ? (
+      {href && !onClick ? (
         <Link
           href={href || "/"}
           className="w-auto"
+          target={target}
         >
           {ButtonSelf}
         </Link>

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { BlogTagsPayload } from "@feature/blog/interfaces/IBlogTagsService"
 import { useQuery } from "@tanstack/react-query"
 import { getBlogTags } from "../services/blog.service"
@@ -21,12 +20,11 @@ const useGetBlogTags = ({
     queryKey: ["getBlogTags", { limit, skip, sort, search, tags_id }],
     queryFn: () => getBlogTags({ limit, skip, sort, search, tags_id }),
     keepPreviousData: true,
-    staleTime: Infinity,
-    enabled: !!tags_id
+    staleTime: Infinity
   })
 
   return {
-    getBlogTagData,
+    getBlogTagData: getBlogTagData?.data[0],
     error,
     isLoading,
     isPreviousData,

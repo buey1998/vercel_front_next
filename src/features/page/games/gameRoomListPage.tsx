@@ -6,6 +6,7 @@ import useGameStore from "@stores/game"
 import SingleRoomList from "@feature/game/components/templates/roomList/singlePlayer/SingleRoomList"
 import MultiRoomList from "@feature/game/components/templates/roomList/multiPlayer/MultiRoomList"
 import PleaseLogin from "@components/atoms/PleaseLogin"
+import NoData from "@components/molecules/NoData"
 
 /**
  *
@@ -22,13 +23,23 @@ const GameRoomListPage = () => {
         case "singleplayer":
           return <SingleRoomList />
         case "multiplayer":
-          return <MultiRoomList />
+          if (profile) {
+            return <MultiRoomList />
+          }
+          return <PleaseLogin />
         default:
-          return <Box className="m-auto block">No Data</Box>
+          return (
+            <Box
+              component="div"
+              className="m-auto block"
+            >
+              <NoData />
+            </Box>
+          )
       }
     }
   }
-  return <>{profile ? getTemplateGame() : <PleaseLogin />}</>
+  return <>{getTemplateGame()}</>
 }
 
 export default GameRoomListPage

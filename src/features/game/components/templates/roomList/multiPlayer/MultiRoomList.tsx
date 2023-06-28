@@ -1,45 +1,30 @@
+/* eslint-disable no-nested-ternary */
 import ReloadIcon from "@components/icons/ReloadIcon"
 import ButtonSticky from "@components/molecules/ButtonSticky"
 import RoomListBar from "@components/molecules/roomList/RoomListBar"
 import HeaderRoomList from "@components/organisms/HeaderRoomList"
-import BuyItemBody from "@components/templates/game/BuyItemBody"
-import { MESSAGES } from "@constants/messages"
+import useRoomMulti from "@feature/game/containers/hooks/useRoomMulti"
 import useSocketRoomList from "@feature/game/containers/hooks/useSocketRoomList"
 import {
   IGameRoomListSocket,
   IResSocketRoomList
 } from "@feature/game/interfaces/IGameService"
-import CardBuyItem from "@feature/gameItem/components/molecules/CardBuyItem"
-import useGetBalanceOf from "@feature/inventory/containers/hooks/useGetBalanceOf"
-import { useToast } from "@feature/toast/containers"
+import useGameGlobal from "@hooks/useGameGlobal"
 import { Box, Divider } from "@mui/material"
 import SocketProviderRoom from "@providers/SocketProviderRoom"
-import useGameStore from "@stores/game"
 import useProfileStore from "@stores/profileStore"
 import helper from "@utils/helper"
-import { useRouter } from "next/router"
 import React, { memo, useEffect, useMemo, useState, useCallback } from "react"
 
 const MultiRoomList = () => {
   const profile = useProfileStore((state) => state.profile.data)
-  const router = useRouter()
-  const { errorToast } = useToast()
-  const { data, itemSelected, qtyItemOfRoom } = useGameStore()
+  // const router = useRouter()
+  // const { errorToast } = useToast()
+  // const { data, itemSelected, qtyItemOfRoom } = useGameStore()
 
   const [dataRoom, setDataRoom] = useState<IGameRoomListSocket[]>()
-
-  const item_id = useMemo(() => {
-    if (data) {
-      if (data.play_to_earn || data.tournament) {
-        return data.item[0]._id
-      }
-      if (itemSelected) {
-        return itemSelected._id
-      }
-    } else {
-      return ""
-    }
-  }, [data, itemSelected])
+  // const { balanceofItem } = useBuyGameItemController()
+  const { item: item_id, gameData: data } = useGameGlobal()
 
   const propsSocketRoomlist = useMemo(
     () => ({
@@ -62,22 +47,24 @@ const MultiRoomList = () => {
     ...propsSocketRoomlist
   })
 
-  const { balanceofItem } = useGetBalanceOf({
-    _address: profile?.address ?? "",
-    _item_id: itemSelected?.item_id_smartcontract ?? 0
-  })
+  const { handleJoinRoom, getRoomStatus } = useRoomMulti()
 
   useEffect(() => {
-    if (profile) {
-      const token = helper.getTokenFromLocal()
+    let load = false
 
-      if (token) {
-        socketRoomList.auth = { token }
-        socketRoomList.connect()
+    if (!load) {
+      if (profile) {
+        const token = helper.getTokenFromLocal()
+
+        if (token) {
+          socketRoomList.auth = { token }
+          socketRoomList.connect()
+        }
       }
     }
 
     return () => {
+      load = true
       if (socketRoomList.connected === false) return
       socketRoomList.disconnect()
     }
@@ -120,57 +107,78 @@ const MultiRoomList = () => {
   }, [fetchRoomFromSearch, getRooms, isConnected, search])
 
   useEffect(() => {
-    if (isConnected) {
-      fetchRoom()
+    let load = false
+
+    if (!load) {
+      if (isConnected) {
+        fetchRoom()
+      }
+    }
+
+    return () => {
+      load = true
     }
   }, [fetchRoom, fetchRoomFromSearch, isConnected, search])
 
-  const handleJoinRoom = (_data: IGameRoomListSocket) => {
-    if (profile) {
-      const player_me = _data.current_player.find(
-        (ele) => ele.player_id === profile.id
-      )
-      if (
-        _data.amount_current_player < _data.max_players &&
-        new Date() < new Date(_data.end_time) &&
-        itemSelected &&
-        balanceofItem &&
-        balanceofItem?.data >= qtyItemOfRoom
-      ) {
-        if (player_me && player_me.status === "played") {
-          errorToast(MESSAGES["you-played"])
-        } else {
-          router.push(`${router.asPath}/${_data._id}`)
-        }
-      } else if (
-        data &&
-        ((data.play_to_earn && data.play_to_earn_status === "free") ||
-          data.tournament)
-      ) {
-        router.push(`${router.asPath}/${_data.id}`)
-      } else if (new Date() > new Date(_data.end_time)) {
-        errorToast(MESSAGES["room-timeout"])
-      } else if (!balanceofItem || balanceofItem?.data < qtyItemOfRoom) {
-        errorToast(MESSAGES["you-don't-have-item"])
-      } else if (player_me && player_me.status === "played") {
-        errorToast(MESSAGES["you-played"])
-      } else if (_data.amount_current_player >= _data.max_players) {
-        errorToast(MESSAGES["room-full"])
-      } else {
-        errorToast(MESSAGES["error-something"])
-      }
-    } else {
-      errorToast(MESSAGES["please_login"])
-    }
-  }
+  // const intoRoomGame = (player_me: CurrentPlayer, _roomId: string) => {
+  //   if (data) {
+  //     if (player_me && player_me.status === "played") {
+  //       router.push(
+  //         `/${router?.query?.typeGame}/${data.path}/summary/${_roomId}`
+  //       )
+  //       errorToast(MESSAGES["you-played"])
+  //     } else if (router.asPath.includes("?id=")) {
+  //       router.push(`${router.asPath.split("?id=")[0]}/${_roomId}`)
+  //     } else {
+  //       router.push(`${router.asPath}/${_roomId}`)
+  //     }
+  //   }
+  // }
+  // const handleJoinRoom = (_data: IGameRoomListSocket) => {
+  //   if (profile) {
+  //     const player_me = _data.current_player.find(
+  //       (ele) => ele.player_id === profile.id
+  //     )
+  //     if (
+  //       _data.amount_current_player < _data.max_players &&
+  //       new Date() < new Date(_data.end_time) &&
+  //       itemSelected &&
+  //       balanceofItem &&
+  //       balanceofItem?.data >= qtyItemOfRoom &&
+  //       data
+  //     ) {
+  //       intoRoomGame(player_me as CurrentPlayer, _data._id)
+  //     } else if (conditionGameFree) {
+  //       intoRoomGame(player_me as CurrentPlayer, _data._id)
+  //     } else if (new Date() > new Date(_data.end_time)) {
+  //       errorToast(MESSAGES["room-timeout"])
+  //     } else if (!balanceofItem || balanceofItem?.data < qtyItemOfRoom) {
+  //       errorToast(MESSAGES["you-don't-have-item"])
+  //     } else if (player_me && player_me.status === "played") {
+  //       errorToast(MESSAGES["you-played"])
+  //     } else if (_data.amount_current_player >= _data.max_players) {
+  //       errorToast(MESSAGES["room-full"])
+  //     } else {
+  //       errorToast(MESSAGES["error-something"])
+  //     }
+  //   } else {
+  //     errorToast(MESSAGES["please_login"])
+  //   }
+  // }
 
   return (
     <>
-      <Box className=" block gap-3 lg:flex">
+      <Box
+        component="div"
+        className=" block gap-3 lg:flex"
+      >
         <SocketProviderRoom
           propsSocket={{ getRoomListMultiPlayer, fetchRoom, searchRoom }}
         >
-          <Box className="relative w-full rounded-3xl border border-neutral-700">
+          <Box
+            component="div"
+            className="relative w-full rounded-3xl border border-neutral-700"
+          >
             {data && <HeaderRoomList lobby={data.name} />}
             <Divider />
 
@@ -180,9 +188,6 @@ const MultiRoomList = () => {
                 dataRoom.length > 0 &&
                 dataRoom.map((_data) => {
                   const initEndTime = new Date(_data.end_time)
-                  const player = _data.current_player.find(
-                    (ele) => ele.player_id === profile.id
-                  )
                   return (
                     <RoomListBar
                       key={Number(_data.id)}
@@ -190,15 +195,13 @@ const MultiRoomList = () => {
                         time: initEndTime,
                         onExpire: () => null
                       }}
-                      btnText={
-                        player && player.status === "played" ? "played" : "join"
-                      }
+                      btnText={getRoomStatus(_data)}
                       player={{
                         currentPlayer: _data.amount_current_player,
                         maxPlayer: _data.max_players
                       }}
                       roomId={_data.create_room_detail.no_room}
-                      roomName="Room Name"
+                      roomName="Room Naka"
                       onClick={() => handleJoinRoom(_data)}
                     />
                   )
@@ -212,9 +215,18 @@ const MultiRoomList = () => {
             </div>
           </Box>
         </SocketProviderRoom>
-        {data && (!data?.play_to_earn || !data.tournament) && (
-          <BuyItemBody>{data && <CardBuyItem gameObject={data} />}</BuyItemBody>
-        )}
+        {/* {data && (
+          <BuyItemBody>
+            <OverviewContent
+              gameId={data.id}
+              gameType={getGameMode(data)}
+              gameIdNFT={data.NFT_Owner}
+            />
+            {data?.play_to_earn_status !== "free" && !data.tournament && (
+              <CardBuyItem gameObject={data} />
+            )}
+          </BuyItemBody>
+        )} */}
       </Box>
     </>
   )

@@ -1,7 +1,9 @@
 import ButtonIcon from "@components/atoms/button/ButtonIcon"
+import { isMobile } from "@hooks/useGlobal"
 import { Typography } from "@mui/material"
 import Helper from "@utils/helper"
 import React from "react"
+import { MobileView } from "react-device-detect"
 
 interface IProp {
   icon: React.ReactNode
@@ -10,11 +12,13 @@ interface IProp {
   title: string
   amount: number | string
   unit: string
+  classNameDiv?: string
 }
 
 /**
  *
  * @param className for background of icon should be tailwind class
+ * @param classNameDiv for div of icon
  * @example "bg-primary-main"
  * @param textColor should be tailwind class
  * @example "text-primary-main"
@@ -26,7 +30,8 @@ const StatWithIcon = ({
   className,
   title,
   amount,
-  unit
+  unit,
+  classNameDiv
 }: IProp) => {
   const iconmotion = {
     hover: {
@@ -42,20 +47,43 @@ const StatWithIcon = ({
   }
 
   return (
-    <div className="flex items-center rounded-lg border-[1px] border-neutral-700 border-opacity-80 p-2">
-      <ButtonIcon
-        variants={iconmotion}
-        icon={icon}
-        className={`rounded-lg ${className}`}
-      />
-      <div className={`ml-5 mr-14 uppercase ${textColor}`}>
-        <Typography className="mb-6 text-xs font-bold">{title}</Typography>
-        <Typography className="text-default font-bold">
-          {Helper.formatNumber(amount as number)}
-        </Typography>
-        <Typography className="text-xs font-bold">{unit}</Typography>
-      </div>
-    </div>
+    <>
+      {isMobile ? (
+        <MobileView>
+          <div
+            className={`flex flex-wrap items-center justify-start gap-4 rounded-lg border-[1px] border-neutral-700 border-opacity-80 ${classNameDiv}`}
+          >
+            <ButtonIcon
+              variants={iconmotion}
+              icon={icon}
+              className={`rounded-lg ${className}`}
+            />
+            <div className={` uppercase ${textColor}`}>
+              <Typography className=" text-xs font-bold">{title}</Typography>
+              <Typography className="text-default font-bold">
+                {Helper.formatNumber(amount as number)}
+              </Typography>
+              <Typography className="text-xs font-bold">{unit}</Typography>
+            </div>
+          </div>
+        </MobileView>
+      ) : (
+        <div className="flex items-center rounded-lg border-[1px] border-neutral-700 border-opacity-80 p-2">
+          <ButtonIcon
+            variants={iconmotion}
+            icon={icon}
+            className={`rounded-lg ${className}`}
+          />
+          <div className={`ml-5 mr-14 uppercase ${textColor}`}>
+            <Typography className="mb-6 text-xs font-bold">{title}</Typography>
+            <Typography className="text-default font-bold">
+              {Helper.formatNumber(amount as number)}
+            </Typography>
+            <Typography className="text-xs font-bold">{unit}</Typography>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 

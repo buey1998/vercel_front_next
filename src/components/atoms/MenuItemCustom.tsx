@@ -3,13 +3,15 @@ import { ListItemIcon, ListItemText, MenuItem } from "@mui/material"
 import React from "react"
 import ArrowOutwardOutlinedIcon from "@mui/icons-material/ArrowOutwardOutlined"
 import { useRouter } from "next/router"
+import Link from "next/link"
+import { Trans } from "react-i18next"
 
-interface IProp extends IMenu {
+interface IMenuItemCustomProp extends IMenu {
   active?: boolean
   endIcon?: boolean
-  icon: string | React.ReactElement
   onClick?: () => void
   endText?: string | React.ReactElement
+  byPassOnClick?: boolean
 }
 
 /**
@@ -22,31 +24,50 @@ const MenuItemCustom = ({
   icon,
   onClick,
   endText,
+  byPassOnClick,
   ...props
-}: IProp) => {
+}: IMenuItemCustomProp) => {
   const router = useRouter()
+
   return (
     <MenuItem
-      key={props.id}
       aria-label={props.id}
       onClick={() => {
-        if (props.href && props.href !== "") {
+        if (byPassOnClick && onClick && props.href && props.href !== "") {
+          router.push(props.href)
+          onClick()
+        } else if (props.href && props.href !== "") {
           router.push(props.href)
         } else if (onClick) {
           onClick()
         }
       }}
       sx={{
-        color: active ? "#E1E2E2" : null,
-        backgroundColor: active ? "#010101" : null
+        color: active ? "#E1E2E2" : "null",
+        backgroundColor: active ? "#010101 !important" : null,
+        "&:hover": {
+          backgroundColor: "#F42728 !important",
+          color: "#E1E2E2"
+        }
       }}
     >
-      <ListItemIcon>{icon}</ListItemIcon>
-      <div className="flex w-full items-center justify-between">
-        <ListItemText className="w-full">{props.label}</ListItemText>
-        <ListItemText className="mr-3">{endText}</ListItemText>
-      </div>
-      {endIcon && <ArrowOutwardOutlinedIcon sx={{ height: 14 }} />}
+      <Link
+        href={props.href ?? ""}
+        className={`flex w-full flex-row items-center justify-start ${
+          active ? "active" : ""
+        } ${icon ? "" : "px-4"}`}
+      >
+        {icon ? <ListItemIcon>{icon}</ListItemIcon> : null}
+        <div className="flex w-full items-center">
+          <ListItemText className="w-full">
+            <Trans i18nKey={props.label as string}>
+              {props.label as string}
+            </Trans>
+          </ListItemText>
+          <ListItemText className="mr-3">{endText}</ListItemText>
+        </div>
+        {endIcon && <ArrowOutwardOutlinedIcon sx={{ height: 14 }} />}
+      </Link>
     </MenuItem>
   )
 }

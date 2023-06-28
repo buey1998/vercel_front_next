@@ -8,7 +8,6 @@ import { Alert, Typography } from "@mui/material"
 import React, { useEffect, useMemo } from "react"
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward"
 
-import useAllBalances from "@hooks/useAllBalances"
 import { useForm } from "react-hook-form"
 import useContractMultichain from "@feature/contract/containers/hooks/useContractMultichain"
 import { formatEther } from "ethers/lib/utils"
@@ -32,6 +31,9 @@ import useSwitchNetwork from "@hooks/useSwitchNetwork"
 import SwitchChain from "@components/atoms/SwitchChain"
 import { chainIdConfig } from "@configs/sites"
 import RightMenuNotLogIn from "@components/molecules/rightMenu/RightMenuNotLogIn"
+import { Trans, useTranslation } from "react-i18next"
+import { ITokenContract } from "@feature/contract/containers/hooks/useContractVaultBinance"
+import useChainSupportStore from "@stores/chainSupport"
 import Input from "../atoms/Input"
 import LeftContentForm from "../molecules/LeftContentForm"
 
@@ -57,7 +59,7 @@ const FormEx = ({
 }: IProp) => {
   const profile = useProfileStore((state) => state.profile.data)
   const { address, signer } = useWeb3Provider()
-  const { balanceValutNaka, balanceValutBusd } = useAllBalances()
+  // const { balanceValutNaka, balanceValutBusd } = useAllBalances()
   const { setClose, setOpen } = useLoadingStore()
   const { handleSwitchNetwork } = useSwitchNetwork()
 
@@ -65,23 +67,31 @@ const FormEx = ({
     fee,
     allowNaka,
     sendAllowNaka,
-    // eslint-disable-next-line no-unused-vars
-    sendRequestBuyNaka,
     allowBinance,
     sendAllowBinance,
     saveRequestNaka
   } = useContractMultichain()
+  const { chainSupport } = useChainSupportStore()
 
   const { errorToast } = useToast()
+  const { t } = useTranslation()
 
   const { formatNumber } = Helper
 
-  const balance = useMemo(() => {
-    if (chain === "polygon") {
-      return Number(balanceValutNaka?.digit)
-    }
-    return Number(balanceValutBusd?.digit)
-  }, [balanceValutBusd, balanceValutNaka])
+  // const balance = useMemo(() => {
+  //   if (chain === "polygon") {
+  //     return Number(balanceValutNaka?.digit)
+  //   }
+  //   return Number(balanceValutBusd?.digit)
+  // }, [balanceValutBusd, balanceValutNaka])
+
+  const balance = useMemo(
+    () =>
+      Number(
+        (chainSupport as unknown as ITokenContract)?.[0]?.balanceVault?.digit
+      ),
+    [chainSupport]
+  )
 
   const priceBusdDefault = useMemo(() => dataEdit?.busd_price, [dataEdit])
   const priceNakaDefault = useMemo(() => dataEdit?.naka_price, [dataEdit])
@@ -105,29 +115,44 @@ const FormEx = ({
 
   // !defaultvalue
   useEffect(() => {
-    const price =
-      type === "buy"
-        ? Number(priceNakaDefault) * Number(amountDefault)
-        : Number(priceBusdDefault) * Number(amountDefault)
+    let load = false
 
-    setValue("price", price)
-    setValue("amount", amountDefault)
+    if (!load) {
+      const price =
+        type === "buy"
+          ? Number(priceNakaDefault) * Number(amountDefault)
+          : Number(priceBusdDefault) * Number(amountDefault)
+
+      setValue("price", price)
+      setValue("amount", amountDefault)
+    }
 
     return () => {
       setValue("amount", 0)
       setValue("price", 0)
+      load = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataEdit])
 
   // !setValue amount
   useEffect(() => {
-    const price =
-      type === "buy"
-        ? Number(priceNakaDefault) * Number(watch("amount"))
-        : Number(priceBusdDefault) * Number(watch("amount"))
-    setValue("price", Number(formatNumber(price, { maximumFractionDigits: 4 })))
+    let load = false
 
+    if (!load) {
+      const price =
+        type === "buy"
+          ? Number(priceNakaDefault) * Number(watch("amount"))
+          : Number(priceBusdDefault) * Number(watch("amount"))
+      setValue(
+        "price",
+        Number(formatNumber(price, { maximumFractionDigits: 4 }))
+      )
+    }
+
+    return () => {
+      load = true
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watch("amount")])
 
@@ -229,7 +254,7 @@ const FormEx = ({
       disabled={disableButton}
       text={`${edit ? "edit" : ""} ${type} NAKA`}
       handleClick={() => {}}
-      className={`leading-2 mt-5 mb-5 flex h-[50px] w-full items-center  justify-center rounded-md ${
+      className={`leading-2 mb-5 mt-5 flex h-[50px] w-full items-center  justify-center rounded-md ${
         type === "buy" ? " bg-varidian-default " : " bg-error-main"
       } !fill-primary-main font-neue-machina text-sm font-bold capitalize !text-primary-main`}
       type="submit"
@@ -311,7 +336,7 @@ const FormEx = ({
                       : " !text-error-main"
                   }`}
                 >
-                  {type}
+                  <Trans i18nKey={type} />
                   {" : "}
                 </span>
                 NAKA
@@ -332,18 +357,18 @@ const FormEx = ({
                   <div>
                     <Typography className=" font-neue-machina text-sm uppercase text-neutral-500">
                       {edit
-                        ? "enter price naka/busd"
-                        : `HOW MANY NAKA WOULD YOU LIKE TO ${type}?`}
+                        ? t("enter_price_naka_busd")
+                        : `${t("how_many_naka")} ${t(type)}?`}
                     </Typography>
                     <Input
                       name="amount"
                       endIcon={<INaka />}
-                      placeholder="Enter The amount of NAKA"
+                      placeholder={String(t("enter_amount_naka"))}
                       {...formData}
                     />
                     <Typography className="font-neue-machina text-sm uppercase text-neutral-600">
                       <p>
-                        your total naka{" "}
+                        ${t("your_total_naka")}{" "}
                         <span className=" text-neutral-300">
                           {dataEdit?.naka_amount ?? 0}
                         </span>{" "}
@@ -351,7 +376,7 @@ const FormEx = ({
                           className=" cursor-pointer text-secondary-main"
                           onClick={() => setValue("amount", amountDefault)}
                         >
-                          MAX
+                          {t("max")}
                         </span>{" "}
                       </p>
                     </Typography>
@@ -361,19 +386,20 @@ const FormEx = ({
                       </div>
                     </div>
                     <Typography className="font-neue-machina text-sm uppercase text-neutral-500">
-                      You will {type === "buy" ? "pay" : "recieve"}
+                      {t("you_will")} {type === "buy" ? t("pay") : "recieve"}
                     </Typography>
 
                     <Input
                       name="price"
                       endIcon={<IBusd />}
-                      placeholder="Enter price"
+                      placeholder={String(t("enter_price"))}
                       disabled={!edit}
                       {...formData}
                     />
                     {edit && (
                       <Typography className="font-neue-machina text-sm uppercase text-neutral-600">
-                        you will {type === "buy" ? "pay" : "recieve"}
+                        {t("you_will")}{" "}
+                        {type === "buy" ? t("pay") : t("recieve")}
                         <span className="ml-2 text-neutral-300">
                           {Helper.formatNumber(
                             Number(watch("price")) * Number(watch("amount")),
@@ -389,7 +415,7 @@ const FormEx = ({
                     {buttonData}
                     {edit && (
                       <Typography className="my-2 text-center font-neue-machina text-sm uppercase text-neutral-500">
-                        fee {fee ? formatEther(fee) : 0} busd
+                        {t("fee")} {fee ? formatEther(fee) : 0} busd
                       </Typography>
                     )}
 

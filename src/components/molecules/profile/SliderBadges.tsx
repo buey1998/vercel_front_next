@@ -13,6 +13,7 @@ import { motion } from "framer-motion"
 import BadgesPlacrhoder from "@components/icons/Banner/BadgesPlacrhoder"
 import { IBadge } from "@src/types/profile"
 import SupportIcon from "@components/icons/MenunIcon/SupportIcon"
+import { useTranslation } from "react-i18next"
 import ButtonSticky from "../ButtonSticky"
 
 interface IProp {
@@ -23,6 +24,7 @@ const SliderBadges = ({ _playerId }: IProp) => {
   const { getBadgeData } = useGetBadge(_playerId)
   // const { getBadgeData } = useGetBadge("61d51db5e64c9751321a8ecc")
   const [isLoading] = useState<boolean>(false)
+  const { t } = useTranslation()
 
   const handleOnExpandClick = () => {
     setOpenBadges(!openBadges)
@@ -44,7 +46,33 @@ const SliderBadges = ({ _playerId }: IProp) => {
     arrows: false,
     draggable: true,
     dots: true,
-    variableWidth: false
+    variableWidth: false,
+    responsive: [
+      // {
+      //   breakpoint: 870,
+      //   settings: {
+      //     slidesToShow: 4,
+      //     slidesToScroll: 4,
+      //     infinite: true,
+      //     dots: true
+      //   }
+      // },
+      {
+        breakpoint: 600,
+        settings: {
+          slidesToShow: 3,
+          slidesToScroll: 3,
+          initialSlide: 2
+        }
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1
+        }
+      }
+    ]
   }
 
   const [slideArray, setSlideArray] = useState<IBadge[] | React.ReactElement[]>(
@@ -98,38 +126,38 @@ const SliderBadges = ({ _playerId }: IProp) => {
 
   return (
     <>
-      <div className="relative mt-[90px] flex items-center justify-between">
-        <div className="flex">
+      <div className="relative mt-[90px] grid md:flex md:items-center md:justify-between">
+        <div className="flex ">
           <CrumbCustom
-            text="My emblems are more than just symbols"
+            text={t("my_emblems_are_more")}
             className="mr-4 cursor-default border border-solid border-neutral-700 p-[20px] text-neutral-400"
           />
           {getBadgeData && (
             <CrumbCustom
               text={`${
                 getBadgeData.badges.length > 1
-                  ? `${getBadgeData.badges.length} Badges`
-                  : `${getBadgeData.badges.length} Badge`
+                  ? `${getBadgeData.badges.length} ${t("Badges")}`
+                  : `${getBadgeData.badges.length} ${t("Badge")}`
               } `}
               className="cursor-default bg-error-main"
             />
           )}
         </div>
         <Divider className="w-[40%]" />
-        <div className="flex items-center">
+        <div className="my-4 flex items-center md:my-0">
           <CheckBoxNaka
             value={openBadges}
             onHandle={handleOnExpandClick}
-            text="Hide my emblems"
+            text={t("hide_my_emblems")!}
             className="mr-4 items-center self-center uppercase"
             fontStyle="text-xs text-black-default"
           />
           <CrumbCustom
-            text="View Emblems info"
+            text={t("view_emblems_info")}
             className="cursor-default bg-purple-primary"
           />
         </div>
-        <div className="absolute top-[180%] right-[-24%] z-[5] flex flex-col items-center justify-center">
+        <div className="md: absolute right-[-24%] top-[180%] z-[5] flex hidden flex-col items-center justify-center">
           <ButtonSticky icon={<SupportIcon />} />
           <ButtonSticky
             multi
@@ -140,7 +168,7 @@ const SliderBadges = ({ _playerId }: IProp) => {
 
       {openBadges ? null : (
         <>
-          <div className="mt-[30px] flex h-[216px] !max-w-[1050px] items-center rounded-lg border border-neutral-700 bg-neutral-800">
+          <div className="mt-[30px] flex h-[216px] !max-w-[280] items-center rounded-lg border border-neutral-700 bg-neutral-800 md:!max-w-[400] lg:!max-w-[1050px] ">
             {isLoading ? (
               "loading"
             ) : (

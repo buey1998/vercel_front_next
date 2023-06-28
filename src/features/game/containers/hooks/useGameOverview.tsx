@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { IGameTag } from "@feature/slider/interfaces/IGameTags"
 import dayjs from "dayjs"
 import GlobalIcon from "@components/icons/GlobalIcon"
@@ -14,6 +14,18 @@ import { IVerticalThumbSlide } from "@feature/slider/interfaces/ISlides"
 import { IGameItemList } from "@feature/gameItem/interfaces/IGameItemService"
 import { IPartnerGameData } from "@feature/game/interfaces/IPartnerGame"
 import useGameStore from "@stores/game"
+import { GAME_MOCKUP_CARD, SLIDES_GAME_MOCKUP } from "@constants/images"
+import { v4 as uuid } from "uuid"
+import useBuyGameItemController from "@feature/buyItem/containers/hooks/useBuyGameItemController"
+import useGetReward from "@feature/rewardWeekly/containers/hooks/useGetReward"
+import { IWeeklyPoolByGameIdData } from "@feature/rewardWeekly/interfaces/IRewardWeeklyService"
+import useCheckGameOwner from "./useCheckGameOwner"
+
+interface IPlayCount {
+  game_id: string
+  play_count: number
+  _id: string
+}
 
 /**
  * @description Game Overview Hook functions to handle all game overview data
@@ -26,15 +38,34 @@ const useGameOverview = (gameId: string, gameType: IGetType) => {
   const gamePartnerSocial: IMenuBase[] = []
   const gameData = useGameStore((state) => state.data)
   const partnerGames = useGameStore((state) => state.dataGamePartner)
+  const { gameItemList } = useBuyGameItemController()
 
   const [gameDataState, setGameDataState] = React.useState<IGame>()
+  const [gameOwnerId, setGameOwnerId] = React.useState<string>("")
   const [gamePartnerState, setGamePartnerState] =
     React.useState<IPartnerGameData>()
 
-  useEffect(() => {
-    if (gameData) setGameDataState(gameData)
-    if (partnerGames) setGamePartnerState(partnerGames)
-  }, [gameData, partnerGames])
+  const [weeklyPoolByGameId, setWeeklyPoolByGameId] =
+    useState<IWeeklyPoolByGameIdData>()
+  const [poolId, setPoolId] = useState<string>("")
+
+  // Get owner Data
+  const { checkOwnerData } = useCheckGameOwner({
+    game_id: gameOwnerId,
+    start: "2023-01-31T10:08:02.448Z",
+    end: "2023-05-28T10:08:02.448Z"
+  })
+
+  // Get weekly pool data any weeks
+  const {
+    dataWeeklyPoolByGameId,
+    refetchWeeklyPoolByGameId,
+    isFetchingWeeklyPoolByGameId
+  } = useGetReward({
+    _gameId: gameId,
+    _type: "REWARD_WEEKLY",
+    _poolId: poolId
+  })
 
   /**
    * @description Set Game Tags
@@ -50,28 +81,44 @@ const useGameOverview = (gameId: string, gameType: IGetType) => {
               name: category.name,
               link: `/categories/${
                 category.slug
-                  ? category.slug
-                  : category.name.toLocaleLowerCase()
+                  ? `${category.slug}?id=${category._id}`
+                  : `${
+                      category.name &&
+                      category.name.toLocaleLowerCase().split(" ").join("-")
+                    }?id=${category._id}`
               }`
             })
           )
         break
 
       default:
-        gameData &&
-          gameData.category_list &&
-          gameData.category_list.length > 0 &&
-          gameData.category_list.map((category) =>
+        gameData && gameData.category_list && gameData.category_list.length > 0
+          ? gameData.category_list.map((category) =>
+              gameTags.push({
+                id: category.id,
+                name: category.name,
+                link: `/categories/${
+                  category.slug
+                    ? `${category.slug}?id=${category.id}`
+                    : `${
+                        category.name &&
+                        category.name.toLocaleLowerCase().split(" ").join("-")
+                      }?id=${category.id}`
+                }`
+              })
+            )
+          : gameData?.category &&
             gameTags.push({
-              id: category.id,
-              name: category.name,
+              id: gameData?.category.id,
+              name: gameData?.category.name,
               link: `/categories/${
-                category.slug
-                  ? category.slug
-                  : category.name.toLocaleLowerCase()
+                gameData?.category.slug
+                  ? `${gameData?.category.slug}/?id=${gameData?.category.id}`
+                  : `${
+                      gameData?.category.name.toLocaleLowerCase().split(" ")[1]
+                    }/?id=${gameData?.category.id}`
               }`
             })
-          )
         break
     }
     return gameTags
@@ -84,10 +131,10 @@ const useGameOverview = (gameId: string, gameType: IGetType) => {
   const setGameDeveloper = (): string => {
     switch (gameType) {
       case "partner-game":
-        return (partnerGames && partnerGames.short_detail.developer) || "-"
+        return (partnerGames && partnerGames?.short_detail?.developer) || "-"
 
       default:
-        return (gameData && gameData.developer) || "-"
+        return (gameData && gameData?.developer) || "-"
     }
   }
 
@@ -98,9 +145,24 @@ const useGameOverview = (gameId: string, gameType: IGetType) => {
   const setPublisher = (): string => {
     switch (gameType) {
       case "partner-game":
-        return (partnerGames && partnerGames.short_detail.publisher) || "-"
+        return (partnerGames && partnerGames?.short_detail?.publisher) || "-"
       default:
         return "-"
+    }
+  }
+
+  /**
+   * @description Set Game Owner Commission
+   * @returns {any} gameOwnerCommission
+   */
+  const setOwnerCommission = (): any => {
+    if (gameType && checkOwnerData) {
+      switch (gameType) {
+        case "play-to-earn" || "arcade-emporium":
+          return checkOwnerData.data
+        default:
+          return "-"
+      }
     }
   }
 
@@ -113,7 +175,7 @@ const useGameOverview = (gameId: string, gameType: IGetType) => {
       case "partner-game":
         return (
           (partnerGames &&
-            dayjs(partnerGames.short_detail.release_date).format(
+            dayjs(partnerGames?.short_detail?.release_date).format(
               "DD MMM YYYY"
             )) ||
           "-"
@@ -135,37 +197,37 @@ const useGameOverview = (gameId: string, gameType: IGetType) => {
             {
               icon: <GlobalIcon />,
               label: "Website",
-              href: partnerGames.social.web || ""
+              href: partnerGames?.social?.web || ""
             },
             {
               icon: <DiscordIcon />,
               label: "Discord",
-              href: partnerGames.social.discord || ""
+              href: partnerGames?.social?.discord || ""
             },
             {
               icon: <FacebookIcon />,
               label: "Facebook",
-              href: partnerGames.social.facebook || ""
+              href: partnerGames?.social?.facebook || ""
             },
             {
               icon: <MediumIcon />,
               label: "Medium",
-              href: partnerGames.social.medium || ""
+              href: partnerGames?.social?.medium || ""
             },
             {
               icon: <TelegramIcon />,
               label: "Telegram",
-              href: partnerGames.social.telegram || ""
+              href: partnerGames?.social?.telegram || ""
             },
             {
               icon: <TiktokIcon />,
               label: "Tiktok",
-              href: partnerGames.social.tiktok || ""
+              href: partnerGames?.social?.tiktok || ""
             },
             {
               icon: <TwitterIcon />,
               label: "Twitter",
-              href: partnerGames.social.twitter || ""
+              href: partnerGames?.social?.twitter || ""
             }
           )
         return gamePartnerSocial
@@ -182,7 +244,7 @@ const useGameOverview = (gameId: string, gameType: IGetType) => {
   const setDescription = (): string => {
     switch (gameType) {
       case "partner-game":
-        return (partnerGames && partnerGames.description) || "-"
+        return (partnerGames && partnerGames?.description) || "-"
       default:
         return (gameData && gameData.story) || "-"
     }
@@ -191,7 +253,7 @@ const useGameOverview = (gameId: string, gameType: IGetType) => {
   const setChainName = () => {
     switch (gameType) {
       case "partner-game":
-        return (partnerGames && partnerGames.short_detail.network_name) || "-"
+        return (partnerGames && partnerGames?.short_detail?.network_name) || "-"
       default:
         return "-"
     }
@@ -200,7 +262,7 @@ const useGameOverview = (gameId: string, gameType: IGetType) => {
   const setChainIcon = () => {
     switch (gameType) {
       case "partner-game":
-        return (partnerGames && partnerGames.short_detail.network_icon) || "-"
+        return (partnerGames && partnerGames?.short_detail?.network_icon) || "-"
       default:
         return "-"
     }
@@ -211,12 +273,20 @@ const useGameOverview = (gameId: string, gameType: IGetType) => {
    * @returns {IVerticalThumbSlide[]}
    */
   const setGameMedia = (): IVerticalThumbSlide[] => {
+    const EMPTY_MEDIAS: IVerticalThumbSlide[] = []
+    SLIDES_GAME_MOCKUP.map((slide) =>
+      EMPTY_MEDIAS.push({
+        id: slide.alt,
+        type: "image",
+        src: slide.src
+      })
+    )
     switch (gameType) {
       case "partner-game":
-        if (partnerGames && partnerGames.media_list.length > 0) {
-          partnerGames.media_list.map((media) =>
+        if (partnerGames && partnerGames?.media_list?.length > 0) {
+          partnerGames?.media_list?.map((media) =>
             gameDataMedia.push({
-              id: media._id,
+              id: uuid(),
               type: media.media_type,
               src: media.path
             })
@@ -227,52 +297,65 @@ const useGameOverview = (gameId: string, gameType: IGetType) => {
         if (gameData) {
           gameDataMedia.push(
             {
-              id: "1",
+              id: uuid(),
               type: "image",
-              src: gameData ? gameData.image_banner : ""
+              src: gameData ? gameData.image_banner : GAME_MOCKUP_CARD[0].src
             },
             {
-              id: "2",
+              id: uuid(),
               type: "video",
-              src: gameData ? gameData.animation_nft_arcade_game : ""
+              src: gameData
+                ? gameData.animation_nft_arcade_game
+                : GAME_MOCKUP_CARD[1].src
             },
             {
-              id: "3",
+              id: uuid(),
               type: "image",
-              src: gameData ? gameData.image_nft_arcade_game : ""
+              src: gameData
+                ? gameData.image_nft_arcade_game
+                : GAME_MOCKUP_CARD[2].src
             },
             {
-              id: "4",
+              id: uuid(),
               type: "image",
-              src: gameData ? gameData.image_background : ""
+              src: gameData
+                ? gameData.image_background
+                : GAME_MOCKUP_CARD[3].src
             },
             {
-              id: "5",
+              id: uuid(),
               type: "image",
-              src: gameData ? gameData.image_category_list : ""
+              src: gameData
+                ? gameData.image_category_list
+                : GAME_MOCKUP_CARD[4].src
             },
             {
-              id: "6",
+              id: uuid(),
               type: "image",
-              src: gameData ? gameData.image_background : ""
+              src: gameData
+                ? gameData.image_background
+                : GAME_MOCKUP_CARD[5].src
             }
           )
         }
         break
       default:
-        gameDataMedia.push(
-          {
-            id: "1",
-            type: "image",
-            src: gameData ? gameData.image_banner : ""
-          },
-          {
-            id: "2",
-            type: "image",
-            src: gameData ? gameData.image_list : ""
-          }
-        )
-        break
+        // TODO: Change to use media_list
+        // gameData.meta_data_list.map((metaData) =>
+        //   gameDataMedia.push({
+        //     id: uuid(),
+        //     type: metaData.type,
+        //     src: metaData.image as string
+        //   })
+        // )
+        gameDataMedia.push({
+          id: uuid(),
+          type: "image",
+          src:
+            gameData && gameData.image_background
+              ? gameData.image_background
+              : GAME_MOCKUP_CARD[0].src
+        })
     }
     return gameDataMedia
   }
@@ -295,12 +378,22 @@ const useGameOverview = (gameId: string, gameType: IGetType) => {
    * @returns {string} gameOwner
    */
   const setGameOwner = (): string => {
-    switch (gameType) {
-      case "arcade-emporium":
-        return (gameData && gameData.NFT_Owner) || "-"
-      default:
-        return "-"
+    if (
+      gameData &&
+      gameData.is_NFT &&
+      gameData.NFT_info &&
+      gameData.NFT_info.player_id &&
+      gameData.NFT_info.player_id.username
+    ) {
+      return gameData.NFT_info.player_id.username
+      // switch (gameType) {
+      //   case "arcade-emporium":
+      //     return gameData.NFT_info.address_owner
+      //   default:
+      //     return gameData.developer || "-"
+      // }
     }
+    return "-"
   }
 
   /**
@@ -324,11 +417,11 @@ const useGameOverview = (gameId: string, gameType: IGetType) => {
   const setGameHowToPlay = (): string => {
     switch (gameType) {
       case "partner-game":
-        return (partnerGames && partnerGames.how_to_play) || ""
+        return (partnerGames && partnerGames?.how_to_play) || ""
       default:
         return (
           (gameData &&
-            `<h2 class="text-lg uppercase mb-2 font-neue-machina-semi">${gameData.howto.title}</h2><div class="mb-2">${gameData.howto.details}</div>`) ||
+            `<h2 class="text-lg uppercase mb-2 font-neue-machina-semi">${gameData?.howto?.title}</h2><div class="mb-2">${gameData?.howto?.details}</div>`) ||
           ""
         )
     }
@@ -345,14 +438,90 @@ const useGameOverview = (gameId: string, gameType: IGetType) => {
       case "arcade-emporium":
         return (gameData && gameData.item) || []
       default:
-        return []
+        return (gameData && gameData.item) || gameItemList || []
     }
   }
+
+  const getPlayingCount = (): number | undefined => {
+    if (gameDataState && "game_type" in gameDataState) {
+      switch (gameType) {
+        case "story-mode":
+          return typeof gameDataState?.play_total_count === "number"
+            ? gameDataState?.play_total_count
+            : (
+                gameDataState?.play_total_count as unknown as IPlayCount[]
+              )?.find((ele) => ele)?.play_count || 0
+        default:
+          return undefined
+      }
+    } else {
+      return undefined
+    }
+  }
+
+  useEffect(() => {
+    let load = false
+
+    if (!load) {
+      if (dataWeeklyPoolByGameId) {
+        setWeeklyPoolByGameId(dataWeeklyPoolByGameId)
+      }
+    }
+
+    return () => {
+      load = true
+    }
+  }, [dataWeeklyPoolByGameId])
+
+  useEffect(() => {
+    let load = false
+
+    if (!load) {
+      refetchWeeklyPoolByGameId()
+    }
+
+    return () => {
+      load = true
+    }
+  }, [poolId, refetchWeeklyPoolByGameId])
+
+  const onClickedPrevWeeklyPrizePoolByGameId = (_previousId: string) => {
+    setPoolId(_previousId)
+  }
+  const onClickedNextWeeklyPoolByGameId = (_nextId: string) => {
+    setPoolId(_nextId)
+  }
+
+  useEffect(() => {
+    let load = false
+    if (!load) {
+      if (gameData && gameData.NFT_Owner) {
+        setGameOwnerId(gameId)
+      }
+    }
+    return () => {
+      load = true
+    }
+  }, [gameData, gameId])
+
+  useEffect(() => {
+    let load = false
+
+    if (!load) {
+      if (gameData) setGameDataState(gameData)
+      if (partnerGames) setGamePartnerState(partnerGames)
+    }
+
+    return () => {
+      load = true
+    }
+  }, [gameData, partnerGames])
 
   return {
     gameTags: setGameTags(),
     gameDeveloper: setGameDeveloper(),
     gamePublisher: setPublisher(),
+    gameOwnerCommission: setOwnerCommission(),
     gameReleaseDate: setReleaseDate(),
     gamePartnerSocial: setPartnerSocial(),
     gameDescription: setDescription(),
@@ -366,7 +535,12 @@ const useGameOverview = (gameId: string, gameType: IGetType) => {
     gameOwner: setGameOwner(),
     singleVersion: setSingleVersion(),
     gameHowToPlay: setGameHowToPlay(),
-    gameItems: setGameItems()
+    gameItems: setGameItems(),
+    playCount: getPlayingCount(),
+    onClickedNext: onClickedNextWeeklyPoolByGameId,
+    onClickedPrev: onClickedPrevWeeklyPrizePoolByGameId,
+    weeklyPoolByGameId,
+    isLoadingWeeklyPoolByGameId: isFetchingWeeklyPoolByGameId
   }
 }
 

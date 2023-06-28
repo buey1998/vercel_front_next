@@ -10,10 +10,12 @@ declare namespace NodeJS {
 
   interface ProcessEnv {
     readonly NEXT_PUBLIC_MODE: "development" | "uat" | "production"
+    readonly NEXT_PUBLIC_DISPLAY_MOBILE_MODE: string
     readonly NEXT_PUBLIC_APP_NAME: string
     readonly NEXT_PUBLIC_API_URL: string
     readonly NEXT_PUBLIC_GAME_URL: string
     readonly NEXT_PUBLIC_FRONTEND_URL: string
+    readonly NEXT_PUBLIC_METAMASK_APP: string
     readonly NEXT_PUBLIC_SUPPORT: string
     readonly NEXT_PUBLIC_KEYTEXT: string
     readonly NEXT_PUBLIC_MARKETPLACE: string
@@ -39,10 +41,18 @@ declare namespace NodeJS {
     readonly NEXT_PUBLIC_CONTRACT_BALANCE_VAULT_BINANCE: string
     readonly NEXT_PUBLIC_CONTRACT_ITEM_VAULT: string
     readonly NEXT_PUBLIC_CONTRACT_SHOP: string
+    readonly NEXT_PUBLIC_CONTRACT_MATERIAL_VAULT: string
     readonly NEXT_PUBLIC_CONTRACT_MARKETPLACE: string
+    readonly NEXT_PUBLIC_CONTRACT_MARKETPLACE_MATERIAL: string
     readonly NEXT_PUBLIC_CONTRACT_MARKETPLACE_NFT: string
-    readonly NEXT_PUBLIC_CONTRACT_LAND_NFT: string
-    readonly NEXT_PUBLIC_CONTRACT_GETALLLANDSOFADDRESS: string
+    readonly NEXT_PUBLIC_CONTRACT_MARKETPLACE_NFT_INSTALLMENT: string
+    readonly NEXT_PUBLIC_CONTRACT_MARKETPLACE_NFT_RENTAL: string
+    readonly NEXT_PUBLIC_CONTRACT_NFT_LAND: string
+    readonly NEXT_PUBLIC_CONTRACT_NFT_BUILDING: string
+    readonly NEXT_PUBLIC_CONTRACT_NFT_NAKAPUNK: string
+    readonly NEXT_PUBLIC_CONTRACT_NFT_ARCADEGAME: string
+    readonly NEXT_PUBLIC_CONTRACT_GETLANDSOFADDRESS: string
+    readonly NEXT_PUBLIC_CONTRACT_GETGAMEITEMADDRESS: string
     readonly NEXT_PUBLIC_CONTRACT_STAKING_30DAY: string
     readonly NEXT_PUBLIC_CONTRACT_STAKING_60DAY: string
     readonly NEXT_PUBLIC_CONTRACT_STAKING_90DAY: string
@@ -63,6 +73,8 @@ declare namespace NodeJS {
     readonly NEXT_PUBLIC_FIREBASE_MESSAGING_SEND_ID: string
     readonly NEXT_PUBLIC_FIREBASE_APPID: string
     readonly NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: string
+    readonly NEXT_PUBLIC_ICON_NAKA: string
+    readonly NEXT_PUBLIC_CONTRACT_REEF_PAY: string
   }
 }
 
@@ -75,6 +87,9 @@ interface ethreumAdditionalMethods {
 declare interface Window {
   ethereum?: import("ethers").providers.ExternalProvider &
     ethreumAdditionalMethods
+  TWidgetLogin: {
+    auth: () => void
+  }
 }
 
 // declare module "*.svg" {

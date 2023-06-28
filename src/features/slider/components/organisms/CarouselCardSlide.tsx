@@ -2,10 +2,12 @@ import ShortDetailsCTA from "@components/molecules/ShortDetailsCTA"
 import React from "react"
 import LanguageOutlinedIcon from "@mui/icons-material/LanguageOutlined"
 import { CardMedia } from "@mui/material"
+import { ImageCustom } from "@components/atoms/image/Image"
+import { IImageProps } from "@constants/images"
 
 export interface CarouselCardSlideProps {
   video?: boolean
-  src: string
+  image: IImageProps | string
   name: string
   index: number
   activeIndex: number
@@ -14,7 +16,7 @@ export interface CarouselCardSlideProps {
 }
 const CarouselCardSlide = ({
   video = false,
-  src,
+  image,
   name,
   index,
   activeIndex,
@@ -24,20 +26,31 @@ const CarouselCardSlide = ({
   const isActive = index === activeIndex
   return (
     <div
-      className={`carousel-slide__item relative overflow-hidden rounded-2xl  ${
+      className={`carousel-slide__item relative h-full overflow-hidden rounded-2xl ${
         video ? "border border-neutral-800 " : ""
       } ${isActive ? "carousel-slide__item--active" : ""}`}
     >
-      <div className="carousel-slide__item__image">
-        <CardMedia
-          className="h-[30vh] md:h-[472px]"
-          component={video ? "video" : "img"}
-          alt={name}
-          height={468}
-          src={src}
-          autoPlay
-          controls
-        />
+      <div className="carousel-slide__item__image h-full">
+        {video ? (
+          <CardMedia
+            className="h-[30vh] md:h-[472px]"
+            component={video ? "video" : "img"}
+            alt={name}
+            height={468}
+            src={image as string}
+            autoPlay
+            controls
+          />
+        ) : (
+          <ImageCustom
+            src={(image as IImageProps).src}
+            srcWebp={(image as IImageProps).srcWebp}
+            width={(image as IImageProps).width}
+            height={(image as IImageProps).height}
+            alt={(image as IImageProps).alt}
+            className="h-full w-full object-cover object-center"
+          />
+        )}
       </div>
       <ShortDetailsCTA
         description={description}

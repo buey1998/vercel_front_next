@@ -5,23 +5,23 @@ import dynamic from "next/dynamic"
 const GamePageWithBreadcrumb = dynamic(
   () => import("@components/templates/GamePageWithBreadcrumb"),
   {
-    suspense: true
+    suspense: true,
+    ssr: false
   }
 )
 const CatogoriesListPage = dynamic(
   () => import("@feature/page/CatogoriesListPage"),
   {
-    suspense: true
+    suspense: true,
+    ssr: false
   }
 )
 
 export default function Categories() {
   return (
-    <>
-      <article className="h-full w-full">
-        <CatogoriesListPage />
-      </article>
-    </>
+    <article className="h-full w-full">
+      <CatogoriesListPage />
+    </article>
   )
 }
 

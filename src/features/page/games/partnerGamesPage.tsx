@@ -1,7 +1,6 @@
 import { PaginationNaka } from "@components/atoms/pagination"
 import SkeletonCard from "@components/atoms/skeleton/SkeletonCard"
 import { P2EHeaderMenu } from "@constants/gameSlide"
-import GameCard from "@feature/game/containers/components/molecules/GameCard"
 import { useQueryClient } from "@tanstack/react-query"
 import React, { memo, useEffect, useState } from "react"
 import { v4 as uuid } from "uuid"
@@ -9,9 +8,11 @@ import useGameStore from "@stores/game/index"
 import usePartnerGame from "@feature/game/containers/hooks/usePartnerGame"
 import useGlobal from "@hooks/useGlobal"
 import { getAllPartnerGames } from "@feature/game/partnerGames/containers/services/gamePartners.service"
-import { filterGamePartner } from "@feature/partner/containers/services/dropdownPartner.service"
 import useFilterStore from "@stores/blogFilter"
 import { IPartnerGameData } from "@feature/game/interfaces/IPartnerGame"
+import useFilterGamePartnerList from "@feature/partner/containers/hooks/useFilterGamePartnerList"
+import GameCard from "@feature/game/components/molecules/GameCard"
+import NoData from "@components/molecules/NoData"
 
 const PartnerGames = () => {
   const search = ""
@@ -21,7 +22,7 @@ const PartnerGames = () => {
   const [gameFilter, setGameFilter] = useState<IPartnerGameData[]>()
   const queryClient = useQueryClient()
   const { clearGamePartnersData } = useGameStore()
-  const { onHandleClick } = useGlobal()
+  const { onHandleSetGameStore } = useGlobal()
   const {
     category: categoryDropdown,
     gameItem: gameItemDropdown,
@@ -44,29 +45,45 @@ const PartnerGames = () => {
   })
 
   useEffect(() => {
-    if (gameData?.info && gameData) {
-      setTotalCount(gameData.info?.totalCount)
+    let load = false
+
+    if (!load) {
+      if (gameData?.info && gameData) {
+        setTotalCount(gameData.info?.totalCount)
+      }
+    }
+
+    return () => {
+      load = true
     }
   }, [gameData])
 
   useEffect(() => {
-    if (!isPreviousData && gameData) {
-      queryClient.prefetchQuery({
-        queryKey: ["partner-games", limit, search, page + 1],
-        queryFn: () =>
-          getAllPartnerGames({
-            _search: search,
-            _limit: limit,
-            _page: page + 1
-          })
-      })
-      setGameFilter(gameData.data)
+    let load = false
+
+    if (!load) {
+      if (!isPreviousData && gameData) {
+        queryClient.prefetchQuery({
+          queryKey: ["partner-games", limit, search, page + 1],
+          queryFn: () =>
+            getAllPartnerGames({
+              _search: search,
+              _limit: limit,
+              _page: page + 1
+            })
+        })
+        setGameFilter(gameData.data)
+      }
+      clearGamePartnersData()
+      clearSearch()
+      clearCategory()
+      clearGameItem()
+      clearDevice()
     }
-    clearGamePartnersData()
-    clearSearch()
-    clearCategory()
-    clearGameItem()
-    clearDevice()
+
+    return () => {
+      load = true
+    }
   }, [
     clearCategory,
     clearDevice,
@@ -78,49 +95,63 @@ const PartnerGames = () => {
     page,
     queryClient
   ])
-
+  const { mutateFilterGamePartner, isLoading: loadFilter } =
+    useFilterGamePartnerList()
   useEffect(() => {
-    const filterData = {
-      "limit": limit,
-      "skip": page,
-      "search": searchDropdown,
-      "type": "",
-      "genres_filter": categoryDropdown
-    }
-    filterGamePartner(filterData).then((res) => {
-      if (res) {
-        const { data, info } = res
-        setGameFilter(data.data)
-        setTotalCount(info ? info.totalCount : 1)
+    let load = false
+
+    if (!load) {
+      const filterData = {
+        "limit": limit,
+        "skip": page,
+        "search": searchDropdown,
+        "type": "",
+        "genres_filter": categoryDropdown
       }
-    })
+
+      mutateFilterGamePartner(filterData).then((res) => {
+        if (res) {
+          const { data, info } = res
+          setGameFilter(data.data)
+          setTotalCount(info ? info.totalCount : 1)
+        }
+      })
+    }
+
+    return () => {
+      load = true
+    }
   }, [
     categoryDropdown,
     gameItemDropdown,
     deviceDropdown,
     searchDropdown,
     page,
-    limit
+    limit,
+    mutateFilterGamePartner
   ])
 
   return (
     <div className="flex flex-col">
-      <div className="mx-2 mb-6 grid grid-cols-2 gap-y-4 gap-x-2 md:mx-0 md:grid-cols-5">
-        {isLoading
-          ? [...Array(limit)].map(() => <SkeletonCard key={uuid()} />)
-          : null}
-        {gameFilter &&
+      <div className="mx-2 mb-6 grid grid-cols-2 gap-x-2 gap-y-4 md:mx-0 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        {isLoading ||
+          (loadFilter &&
+            [...Array(limit)].map(() => <SkeletonCard key={uuid()} />))}
+        {gameFilter && gameFilter.length > 0 ? (
           gameFilter.map((game) => (
             <GameCard
               key={game.id}
               menu={P2EHeaderMenu}
               partnerdata={game}
               imgPartner={game.image_thumbnail}
-              onHandleClick={() =>
-                onHandleClick("partner-game", game.slug, game)
-              }
+              href={`/partner-game/${game.slug}`}
+              onHandleClick={() => onHandleSetGameStore("partner-game", game)}
+              gameType="partner-game"
             />
-          ))}
+          ))
+        ) : (
+          <NoData className="mt-4 w-[300px]" />
+        )}
       </div>
       <PaginationNaka
         totalCount={totalCount}

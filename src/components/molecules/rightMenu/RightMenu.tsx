@@ -1,36 +1,29 @@
-import React, { useEffect, useState } from "react"
+import React from "react"
 import { Box } from "@mui/material"
 import useProfileStore from "@stores/profileStore"
 import CreateProfile from "@feature/profile/components/createProfile/CreateProfile"
-import { IProfile } from "@feature/profile/interfaces/IProfileService"
-
-import useGetProfileByEmail from "@feature/profile/containers/hook/getProfileByEmail"
-
 import useGlobal from "@hooks/useGlobal"
+import useRefreshProfile from "@hooks/useRefreshProfile"
 import RightMenuLogIn from "./RightMenuLogIn"
 import RightMenuNotLogIn from "./RightMenuNotLogIn"
 
 const RightMenu = () => {
-  const profile = useProfileStore((state) => state.profile.data)
-  const [stateProfile, setStateProfile] = useState<IProfile | null>()
-  const { profile: profileData } = useGetProfileByEmail(profile?.email ?? "")
+  const { profile } = useProfileStore()
   const { hydrated } = useGlobal()
-
-  useEffect(() => {
-    if (profileData) {
-      setStateProfile(profileData)
-    }
-  }, [profileData, profile, profile?.email])
+  const { isTokenValid } = useRefreshProfile()
 
   return hydrated ? (
-    <Box className="mx-auto flex w-[360px] flex-1 justify-end md:order-2 xl:mx-0 xl:flex-none">
-      {stateProfile && profile ? (
+    <Box
+      component="div"
+      className="static right-2.5 top-2 order-2 mx-auto flex flex-1 justify-center md:mt-2 md:w-[360px] lg:mt-0 lg:justify-end xl:mx-0 xl:flex-none"
+    >
+      {!profile.data || !isTokenValid ? (
+        <RightMenuNotLogIn />
+      ) : (
         <>
           <CreateProfile />
           <RightMenuLogIn />
         </>
-      ) : (
-        <RightMenuNotLogIn />
       )}
     </Box>
   ) : (

@@ -14,6 +14,7 @@ import {
 } from "@feature/multichain/interfaces/IMultichain"
 
 import { useToast } from "@feature/toast/containers"
+import { Trans } from "next-i18next"
 import useProfileStore from "@stores/profileStore"
 import Form from "../molecules/Form"
 import LeftContentForm from "../molecules/LeftContentForm"
@@ -77,12 +78,17 @@ const FormEdit = ({
 
   // !default value
   useEffect(() => {
-    setValue("price", price)
-    setValue("amount", amount)
+    let load = false
+
+    if (!load) {
+      setValue("price", price)
+      setValue("amount", amount)
+    }
 
     return () => {
       setValue("amount", 0)
       setValue("price", 0)
+      load = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [price])
@@ -171,7 +177,7 @@ const FormEdit = ({
                       : " !text-error-main"
                   }`}
                 >
-                  {type}
+                  <Trans i18nKey={type} />
                   {" : "}
                 </span>
                 NAKA

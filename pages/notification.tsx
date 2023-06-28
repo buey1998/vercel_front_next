@@ -2,17 +2,21 @@ import { ReactElement } from "react"
 import { serverSideTranslations } from "next-i18next/serverSideTranslations"
 import { Box } from "@mui/material"
 import dynamic from "next/dynamic"
+import { MobileView } from "react-device-detect"
+import { isMobile } from "@hooks/useGlobal"
 
 const NotificationList = dynamic(
   () => import("@feature/notification/components/organisms/NotificationList"),
   {
-    suspense: true
+    suspense: true,
+    ssr: false
   }
 )
 const ProfileLayout = dynamic(
   () => import("@components/templates/ProfileLayout"),
   {
-    suspense: true
+    suspense: true,
+    ssr: false
   }
 )
 
@@ -28,7 +32,15 @@ export default function Notification() {
 }
 
 Notification.getLayout = function getLayout(page: ReactElement) {
-  return <ProfileLayout>{page}</ProfileLayout>
+  return (
+    <>
+      {isMobile ? (
+        <MobileView>{page}</MobileView>
+      ) : (
+        <ProfileLayout>{page}</ProfileLayout>
+      )}
+    </>
+  )
 }
 
 export async function getStaticProps({ locale }) {

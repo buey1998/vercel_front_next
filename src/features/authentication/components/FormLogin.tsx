@@ -15,61 +15,31 @@ import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined"
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined"
 import { useForm } from "react-hook-form"
 import ButtonLink from "@components/atoms/button/ButtonLink"
-import { useToast } from "@feature/toast/containers"
-import { MESSAGES } from "@constants/messages"
 import ButtonIcon from "@components/atoms/button/ButtonIcon"
 import FacebookIcon from "@components/icons/SocialIcon/FacebookIcon"
 import TwitterIcon from "@components/icons/SocialIcon/TwitterIcon"
 import GoogleIcon from "@components/icons/SocialIcon/GoogleIcon"
 import MetaMarkIcon from "@components/icons/SocialIcon/Metamask"
 import FacebookLogin from "react-facebook-login"
-import {
-  getAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
-  TwitterAuthProvider
-} from "firebase/auth"
-import { getApps, initializeApp } from "@firebase/app"
-import { IError } from "@src/types/contract"
-import { IProfileFaceBook } from "@src/types/profile"
-import Web3 from "web3"
 import useLoginTypeStore from "@stores/loginTypes"
-import useConnectMetamaskAction from "@utils/useConnectMetamesk"
-import { useWeb3Provider } from "@providers/Web3Provider"
-import { useRouter } from "next/router"
-import useSignIn from "../containers/hooks/useSignIn"
-import { ISignIn } from "../interfaces/IAuthService"
-import useLoginProvider from "../containers/hooks/useLoginProvider"
-import useLoginMetamask from "../containers/hooks/useLoginMetamask"
+import { useTranslation } from "react-i18next"
+import { isMobile } from "@hooks/useGlobal"
 import FromForgotPassword from "./FromForgotPassword"
+import useFormLoginController from "../containers/hooks/useFormLoginController"
 
-interface IProp {
-  href?: string
-}
+const FormLogin = () => {
+  const {
+    facebookLogin,
+    googleLogin,
+    twitterLogin,
+    metaMarkLogin,
+    isLoading,
+    onSubmitLogin,
+    onError
+  } = useFormLoginController()
 
-const FormLogin = ({ href }: IProp) => {
-  const { mutateLoginProvider } = useLoginProvider()
-  const { mutateLoginMetamask } = useLoginMetamask()
+  const { t } = useTranslation()
 
-  const web3 = new Web3(Web3.givenProvider)
-  const { address: account } = useWeb3Provider()
-  const { getSignature } = useConnectMetamaskAction()
-
-  const firebaseConfig = {
-    apiKey: process.env.NEXT_PUBLIC_FIREBASE_APIKEY,
-    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTHDOMAIN,
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_Id,
-    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SEND_ID,
-    appId: process.env.NEXT_PUBLIC_FIREBASE_APPID,
-    measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
-  }
-
-  if (!getApps().length) {
-    initializeApp(firebaseConfig)
-  }
-
-  const auth = getAuth()
   const {
     getClickLoginFacebook: toggleFacebookLogin,
     setClickLoginFacebook: setToggleFacebookLogin
@@ -77,167 +47,20 @@ const FormLogin = ({ href }: IProp) => {
 
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const handleShowPassword = () => setShowPassword(!showPassword)
-  const { errorToast, successToast } = useToast()
+
   const { register, handleSubmit } = useForm({
     defaultValues: {
       _email: "",
       _password: ""
     }
   })
-  const { mutateSignIn, isLoading } = useSignIn()
-  const router = useRouter()
-
-  const onSubmit = (_data: ISignIn) => {
-    mutateSignIn({ _email: _data._email, _password: _data._password })
-      .then((_profile) => {
-        if (_profile) {
-          successToast(MESSAGES.sign_in_success)
-          if (href) {
-            return router.push("/")
-          }
-        }
-      })
-      .catch(() => {})
-  }
-  const onError = () => {
-    errorToast(MESSAGES.please_fill)
-  }
-
-  const facebookLogin = async (response: IProfileFaceBook) => {
-    if (
-      response.email !== null &&
-      response.email !== undefined &&
-      response.userID !== null &&
-      response.userID !== undefined
-    ) {
-      mutateLoginProvider({
-        _email: response.email,
-        _provider: "facebook",
-        _prevPath: "/",
-        _providerUUID: response.userID,
-        _referral: ""
-      })
-        .then((_res) => {
-          if (_res) {
-            successToast(MESSAGES.logged_in_successfully)
-          }
-        })
-        .catch((_error: IError) => {
-          errorToast(MESSAGES.logged_in_unsuccessfully || _error.message)
-        })
-    }
-  }
-
-  const twitterLogin = async () => {
-    const provider = new TwitterAuthProvider()
-    provider.addScope("email")
-    await signInWithPopup(auth, provider)
-      .then((result) => {
-        const { user } = result
-        if (
-          user.providerData[0].email !== null &&
-          user.providerData[0].email !== undefined &&
-          result.providerId !== null &&
-          result.providerId !== undefined
-        ) {
-          mutateLoginProvider({
-            _email: user.providerData[0].email,
-            _provider: "google",
-            _prevPath: "/",
-            _providerUUID: user.uid,
-            _referral: ""
-          })
-            .then((_res) => {
-              if (_res) {
-                successToast(MESSAGES.logged_in_successfully)
-              }
-            })
-            .catch((_error: IError) => {
-              errorToast(MESSAGES.logged_in_unsuccessfully || _error.message)
-            })
-        } else {
-          errorToast(MESSAGES.logged_in_unsuccessfully)
-        }
-      })
-      .catch((_error: IError) => {
-        errorToast(MESSAGES.logged_in_unsuccessfully || _error.message)
-      })
-  }
-
-  const googleLogin = async () => {
-    const provider = new GoogleAuthProvider()
-    provider.addScope("email")
-    await signInWithPopup(auth, provider)
-      .then((result) => {
-        const { user } = result
-        if (
-          user.providerData[0].email !== null &&
-          user.providerData[0].email !== undefined &&
-          result.providerId !== null &&
-          result.providerId !== undefined
-        ) {
-          mutateLoginProvider({
-            _email: user.providerData[0].email,
-            _provider: "google",
-            _prevPath: "/",
-            _providerUUID: user.uid,
-            _referral: ""
-          })
-            .then((_res) => {
-              if (_res) {
-                successToast(MESSAGES.logged_in_successfully)
-              }
-            })
-            .catch((_error: IError) => {
-              errorToast(MESSAGES.logged_in_unsuccessfully || _error.message)
-            })
-        } else {
-          errorToast(MESSAGES.logged_in_unsuccessfully)
-        }
-      })
-      .catch((_error: IError) => {
-        errorToast(MESSAGES.logged_in_unsuccessfully || _error.message)
-      })
-  }
-
-  const metaMarkLogin = async () => {
-    let accounts: Array<string> = []
-    try {
-      await web3?.givenProvider?.request({ method: "eth_requestAccounts" })
-      accounts = await web3.eth.getAccounts()
-    } catch (_error) {
-      errorToast(MESSAGES["please-connect-wallet"])
-    }
-    const valueSigner = await getSignature(account || accounts[0])
-    if (
-      ((typeof valueSigner === "string" || valueSigner instanceof String) &&
-        account) ||
-      accounts[0]
-    ) {
-      mutateLoginMetamask({
-        _account: account,
-        _accounts: accounts[0],
-        _valueSigner: valueSigner
-      })
-        .then(async (_res) => {
-          if (_res) {
-            successToast(MESSAGES.logged_in_successfully)
-          }
-        })
-        .catch((_error: IError) => {
-          errorToast(MESSAGES.logged_in_unsuccessfully || _error.message)
-        })
-    } else {
-      errorToast(MESSAGES["please-connect-wallet"])
-    }
-  }
 
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit, onError)}>
-        <Box>
+      <form onSubmit={handleSubmit(onSubmitLogin, onError)}>
+        <Box component="div">
           <Typography className="mb-2 font-neue-machina text-sm uppercase  text-neutral-500">
-            Email Address
+            {t("email_address")}
           </Typography>
           <TextField
             className="w-full"
@@ -250,7 +73,7 @@ const FormLogin = ({ href }: IProp) => {
             }}
             {...register("_email")}
             id="email-login"
-            placeholder="Email"
+            placeholder={`${t("email")}`}
             size="medium"
             autoComplete="email"
             InputProps={{
@@ -262,9 +85,9 @@ const FormLogin = ({ href }: IProp) => {
             }}
           />
         </Box>
-        <Box>
+        <Box component="div">
           <Typography className="mb-2 mt-5 font-neue-machina text-sm uppercase text-neutral-500">
-            Password
+            {t("password")}
           </Typography>
 
           <TextField
@@ -278,8 +101,8 @@ const FormLogin = ({ href }: IProp) => {
             size="medium"
             {...register("_password")}
             type={showPassword ? "text" : "password"}
-            placeholder="Password"
-            helperText="A number or symbol, atleast 6 characters"
+            placeholder={`${t("password")}`}
+            helperText={t("helperText_login")}
             required
             autoComplete="current-password"
             InputProps={{
@@ -308,11 +131,11 @@ const FormLogin = ({ href }: IProp) => {
           />
         </Box>
 
-        <ButtonGroup className="mt-10  gap-3">
+        <ButtonGroup className="mt-10 w-full gap-3 md:w-auto">
           <ButtonLink
-            className="h-[40px] !min-w-[150px] text-sm"
+            className="h-[40px] w-full !min-w-[150px]  text-sm md:w-auto"
             href="/register"
-            text="Register"
+            text={t("register")}
             size="medium"
           />
           <ButtonLink
@@ -320,7 +143,7 @@ const FormLogin = ({ href }: IProp) => {
             size="medium"
             color="secondary"
             disabled={isLoading}
-            className="h-[40px] !min-w-[200px]  text-sm"
+            className="h-[40px]  text-sm  md:!min-w-[200px]"
             href=""
             onClick={() => {}}
             text={
@@ -332,7 +155,7 @@ const FormLogin = ({ href }: IProp) => {
                     size={20}
                   />
                 ) : (
-                  "Login"
+                  `${t("login")}`
                 )}
               </>
             }
@@ -347,10 +170,10 @@ const FormLogin = ({ href }: IProp) => {
         container
         justifyContent="space-between"
         alignItems="center"
-        className="mt-8 mb-8"
+        className="!mb-0 !mt-0"
       >
         <Grid item>
-          <p className="text-xs uppercase">OR join us with</p>
+          <p className="text-xs uppercase">{t("or_join_us_with")}</p>
         </Grid>
         <Grid item>
           <hr className="w-[208px] border border-solid border-neutral-800" />
@@ -361,7 +184,7 @@ const FormLogin = ({ href }: IProp) => {
         className="w-full"
         container
       >
-        <div className="flex w-full flex-row flex-wrap justify-between">
+        <div className="flex w-full flex-row flex-wrap justify-between gap-2">
           <ButtonIcon
             whileHover="hover"
             transition={{
@@ -411,17 +234,19 @@ const FormLogin = ({ href }: IProp) => {
             icon={<GoogleIcon />}
             className="flex h-[40px] w-[75px] items-center justify-center rounded-lg border border-neutral-700 bg-neutral-800"
           />
-          <ButtonIcon
-            whileHover="hover"
-            transition={{
-              type: "spring",
-              stiffness: 400,
-              damping: 4
-            }}
-            onClick={metaMarkLogin}
-            icon={<MetaMarkIcon />}
-            className="flex h-[40px] w-[75px] items-center justify-center rounded-lg border border-neutral-700 bg-neutral-800"
-          />
+          {!isMobile && (
+            <ButtonIcon
+              whileHover="hover"
+              transition={{
+                type: "spring",
+                stiffness: 400,
+                damping: 4
+              }}
+              onClick={metaMarkLogin}
+              icon={<MetaMarkIcon />}
+              className="flex h-[40px] w-[75px] items-center justify-center rounded-lg border border-neutral-700 bg-neutral-800"
+            />
+          )}
         </div>
       </Grid>
     </>

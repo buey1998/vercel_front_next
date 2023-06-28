@@ -1,12 +1,10 @@
 import { getCategories } from "@feature/dropdown/containers/services/dropdown.service"
-import { getGamesByKey } from "@feature/game/containers/services/game.service"
-import { IFilterGamesByKey } from "@feature/game/interfaces/IGameService"
+import { getGameAllFilter } from "@feature/game/containers/services/game.service"
+import { IPayloadGameFilter } from "@feature/game/interfaces/IGameService"
 import { useQuery } from "@tanstack/react-query"
-import { useRouter } from "next/router"
 import useGlobal from "./useGlobal"
 
-const useCategories = (_body?: IFilterGamesByKey | undefined) => {
-  const router = useRouter()
+const useCategories = (_body?: IPayloadGameFilter | undefined) => {
   const { defaultBody } = useGlobal()
 
   /**
@@ -25,7 +23,8 @@ const useCategories = (_body?: IFilterGamesByKey | undefined) => {
     queryKey: ["getCategories"],
     queryFn: () => getCategories(),
     keepPreviousData: true,
-    staleTime: Infinity
+    staleTime: Infinity,
+    retry: 3
   })
 
   /**
@@ -39,19 +38,19 @@ const useCategories = (_body?: IFilterGamesByKey | undefined) => {
     isError: isErrorGamesFilterByCategoryId,
     isFetching: isFetchingGamesFilterByCategoryId
   } = useQuery({
-    queryKey: ["getGamesByKey", _body],
-    queryFn: () => getGamesByKey(_body || defaultBody),
+    queryKey: ["getGameAllFilter", _body],
+    queryFn: () => getGameAllFilter(_body || defaultBody),
     keepPreviousData: true,
-    staleTime: Infinity
+    staleTime: Infinity,
+    retry: 3
   })
 
   /**
    * @description Handle click
    * @param _link
    */
-  const onHandleClickCatogory = (_link: string, _id: string) => {
-    router.push(`/categories/${_link}?id=${_id}`)
-  }
+  const onHandleClickCatogory = (_link: string, _id: string) =>
+    `/categories/${_link}?id=${_id}`
 
   return {
     getCategoriesAll,

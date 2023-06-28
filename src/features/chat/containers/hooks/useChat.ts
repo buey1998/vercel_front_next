@@ -7,7 +7,7 @@ import useChatContext from "../contexts/useChatContext"
 const useChat = () => {
   const propsSocket = useSocketProviderWaiting()
   const { onSendMessage, getChat } = propsSocket
-  const { setChat } = useChatContext()
+  const { setChat, setMessage } = useChatContext()
 
   const manageChat = useCallback(async () => {
     if (getChat) {
@@ -23,17 +23,31 @@ const useChat = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const handleInputChat = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "Enter") {
-      onSendMessage()
+  const handleInputChat = (
+    e:
+      | React.KeyboardEvent<HTMLDivElement>
+      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    if ((e as React.KeyboardEvent<HTMLDivElement>).key === "Enter") {
+      onSendMessage(
+        (e as React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>).target
+          .value
+      )
       manageChat()
+      setMessage("")
     }
   }
 
   useEffect(() => {
-    manageChat()
+    let load = false
+
+    if (!load) manageChat()
+
+    return () => {
+      load = true
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onSendMessage])
+  }, [onSendMessage, handleInputChat])
 
   return {
     handleInputChat,

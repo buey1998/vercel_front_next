@@ -10,8 +10,9 @@ import {
   Typography,
   Box
 } from "@mui/material"
-import { useTranslation } from "next-i18next"
+import { Trans, useTranslation } from "next-i18next"
 import { useRouter } from "next/router"
+import Link from "next/link"
 import ButtonClose from "../button/ButtonClose"
 
 interface IProp {
@@ -72,24 +73,30 @@ const SelectNaka = ({
             >
               <div className="bg-primary-main p-[6px]">
                 <div className="rounded-default bg-neutral-700 p-[3px]">
-                  <div className="flex items-center justify-between">
-                    <div className="m-[3px] w-full rounded-[8px] bg-primary-main px-4 py-[7px]">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="m-[3px] w-[calc(100%-60px)] rounded-[8px] bg-primary-main px-4 py-[7px]">
                       <ListItemText>
                         <Typography className="overflow-hidden !truncate !font-neue-machina-semi !text-sm">
                           {t(`${title}`)}
                         </Typography>
                       </ListItemText>
                     </div>
-                    <ButtonClose onClick={() => popupState.close()} />
+                    <ButtonClose
+                      className="right-[22px]"
+                      onClick={() => popupState.close()}
+                    />
                   </div>
                 </div>
                 <div className="flex items-center justify-between bg-primary-main pt-2 ">
-                  <div className="flex w-full items-center  justify-between rounded-default bg-neutral-700 p-[3px]">
+                  <Box
+                    component="div"
+                    className="menu-list flex w-full  items-center justify-between rounded-default bg-neutral-700 p-[3px]"
+                  >
                     <MenuList className="w-full !p-[3px]">
                       {options.map((option) => (
                         <MenuItem
                           className={`${
-                            router.pathname === option.link ? "active" : ""
+                            router.asPath === option.link ? "active" : ""
                           } menu-select-naka !rounded-[8px] !p-[10px]`}
                           key={option.value}
                           onClick={() => {
@@ -100,31 +107,47 @@ const SelectNaka = ({
                               router.push(option.link)
                             }
                           }}
+                          sx={
+                            option.value === "Become Developer"
+                              ? {
+                                  "&.MuiMenuItem-root": {
+                                    display: "none"
+                                  }
+                                }
+                              : {}
+                          }
                         >
-                          <ListItemIcon className="!text-primary-contrastText ">
-                            {option.icon}
-                          </ListItemIcon>
-                          <ListItemText className="w-50">
-                            <Typography className="!font-neue-machina-semi !text-sm">
-                              {option.label}
-                            </Typography>
-                          </ListItemText>
-                          {option.textEnd && (
-                            <Box
-                              component="div"
-                              className="w-max "
-                            >
-                              <ListItemText className="text-end-select-naka rounded-less border border-neutral-700 bg-primary-main py-[2px] px-2 text-center font-neue-machina-semi text-xs uppercase ">
-                                <Typography className="uppercase text-primary-contrastText" />
-                                {option.textEnd}
-                              </ListItemText>
-                            </Box>
-                          )}
+                          <Link
+                            href={option.link ?? ""}
+                            className="flex w-full justify-between"
+                          >
+                            <ListItemIcon className="!text-primary-contrastText ">
+                              {option.icon}
+                            </ListItemIcon>
+                            <ListItemText className="w-50 flex items-center">
+                              <Typography className="!font-neue-machina-semi !text-sm">
+                                <Trans i18nKey={option.label}>
+                                  {option.label}
+                                </Trans>
+                              </Typography>
+                            </ListItemText>
+                            {option.textEnd && (
+                              <Box
+                                component="div"
+                                className="w-max "
+                              >
+                                <ListItemText className="text-end-select-naka rounded-less border border-neutral-700 bg-primary-main px-2 py-[2px] text-center font-neue-machina-semi text-xs uppercase ">
+                                  <Typography className="uppercase text-primary-contrastText" />
+                                  {option.textEnd}
+                                </ListItemText>
+                              </Box>
+                            )}
+                          </Link>
                         </MenuItem>
                       ))}
                     </MenuList>
-                    <div className="py-1 px-2">{imageSelectd}</div>
-                  </div>
+                    <div className="px-2 py-1">{imageSelectd}</div>
+                  </Box>
                 </div>
               </div>
             </Popover>

@@ -14,7 +14,7 @@ interface IReviewProps {
 const Review = ({ children, average }: IReviewProps) => {
   const { t } = useTranslation()
   return (
-    <div className="flex flex-col justify-start">
+    <div className="relative flex flex-col justify-start rounded-md border-[1px] border-neutral-700 border-opacity-80 bg-neutral-780 p-4">
       <AsideLayout
         icon={<MedalIcon />}
         title={`${t("review_title")}`}
@@ -22,7 +22,7 @@ const Review = ({ children, average }: IReviewProps) => {
         adornmentButton={
           <ButtonLink
             href="#"
-            text="View All"
+            text={t("view_all")}
             icon={<AddIcon />}
             color="secondary"
             size="small"

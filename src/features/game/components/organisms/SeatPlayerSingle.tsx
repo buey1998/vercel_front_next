@@ -11,11 +11,14 @@ import CONFIGS from "@configs/index"
 import useGameStore from "@stores/game"
 import Helper from "@utils/helper"
 import { useToast } from "@feature/toast/containers"
-import useGetBalanceOf from "@feature/inventory/containers/hooks/useGetBalanceOf"
 import { MESSAGES } from "@constants/messages"
 import { useWeb3Provider } from "@providers/Web3Provider"
 
 import { IResGetIp } from "@interfaces/IGetIP"
+import { useTranslation } from "react-i18next"
+import useBuyGameItemController from "@feature/buyItem/containers/hooks/useBuyGameItemController"
+import useGlobal, { isMobile } from "@hooks/useGlobal"
+import useGameGlobal from "@hooks/useGameGlobal"
 import ButtonGame from "../atoms/ButtonPlayer"
 import PlayerCard from "../molecules/PlayerCard"
 
@@ -35,48 +38,62 @@ const SeatPlayers = ({ players, room_id }: IProps) => {
   const { address } = useWeb3Provider()
   const [gameUrl, setGameUrl] = useState<string>("")
   const [ip, setIp] = useState("")
+  const { t } = useTranslation()
+  const { balanceofItem } = useBuyGameItemController()
+  const { isFreeToEarnGame, isFreeToPlayGame } = useGlobal()
+  const {
+    item: item_id,
+    // conditionGameFree,
+    conditionPlayToEarn
+  } = useGameGlobal()
 
   useEffect(() => {
-    if (data && data.type_code === "survival_01")
-      Helper.getIP().then((res) => {
-        setIp((res as IResGetIp).ip)
-      })
+    let load = false
+
+    if (!load) {
+      if (data && data.type_code === "survival_01")
+        Helper.getIP().then((res) => {
+          setIp((res as IResGetIp).ip)
+        })
+    }
+
     return () => {
       setIp("")
+      load = true
     }
   }, [data])
 
-  const item_id = useMemo(() => {
-    if (data) {
-      if (data.play_to_earn || data.tournament) {
-        return data?.item[0]._id
-      }
-      if (itemSelected) {
-        return itemSelected._id
-      }
-      return undefined
-    }
-    return undefined
-  }, [data, itemSelected])
+  // const item_id = useMemo(() => {
+  //   if (data) {
+  //     if (data.play_to_earn || data.tournament) {
+  //       return data?.item[0]._id
+  //     }
+  //     if (itemSelected) {
+  //       return itemSelected._id
+  //     }
+  //     return undefined
+  //   }
+  //   return undefined
+  // }, [data, itemSelected])
 
-  const item_id_smartcontract = useMemo(() => {
-    if (data) {
-      if (data.play_to_earn || data.tournament) {
-        return Number(data?.item[0].item_id_smartcontract)
-      }
-      if (itemSelected) {
-        return Number(itemSelected.item_id_smartcontract)
-      }
-    }
-    return 0
-  }, [data, itemSelected])
+  // const item_id_smartcontract = useMemo(() => {
+  //   if (data) {
+  //     if (data.play_to_earn || data.tournament) {
+  //       return Number(data?.item[0].item_id_smartcontract)
+  //     }
+  //     if (itemSelected) {
+  //       return Number(itemSelected.item_id_smartcontract)
+  //     }
+  //   }
+  //   return 0
+  // }, [data, itemSelected])
 
   const { gameRoomById } = useGetGameRoomById(room_id)
 
-  const { balanceofItem } = useGetBalanceOf({
-    _address: address ?? "",
-    _item_id: item_id_smartcontract ?? 0
-  })
+  // const { balanceofItem } = useGetBalanceOf({
+  //   _address: address ?? "",
+  //   _item_id: item_id_smartcontract ?? 0
+  // })
 
   const playerMe = useMemo(() => {
     if (players && players.length > 0) {
@@ -99,12 +116,19 @@ const SeatPlayers = ({ players, room_id }: IProps) => {
   }, [gameRoomById])
 
   useEffect(() => {
-    const statueTimout = checkRoomTimeout()
-    if (statueTimout) {
-      router.push(`/${data?.path}/roomlist`)
-      errorToast(MESSAGES["room-timeout"])
+    let load = false
+
+    if (!load) {
+      const statueTimout = checkRoomTimeout()
+      if (statueTimout) {
+        router.push(`/${data?.path}/roomlist`)
+        errorToast(MESSAGES["room-timeout"])
+      }
     }
-    return () => {}
+
+    return () => {
+      load = true
+    }
   }, [checkRoomTimeout, errorToast, data?.path, gameRoomById, router])
 
   const checkReadyPlayer = () => {
@@ -119,6 +143,14 @@ const SeatPlayers = ({ players, room_id }: IProps) => {
       errorToast(MESSAGES["you-played"])
       return false
     }
+    return false
+  }
+
+  const checkPlayerMe = () => {
+    if (playerMe) {
+      return true
+    }
+    errorToast(MESSAGES["you_out_room_in_to_again"])
     return false
   }
 
@@ -142,6 +174,18 @@ const SeatPlayers = ({ players, room_id }: IProps) => {
     return true
   }
 
+  const checkGameFree = () => {
+    // if (
+    //   (data?.play_to_earn && data?.play_to_earn_status === "free") ||
+    //   data?.game_mode === "free-to-earn"
+    // )
+    if (!data) return false
+    if (isFreeToPlayGame(data) || isFreeToEarnGame(data)) {
+      return true
+    }
+    return false
+  }
+
   const checkAccountProfile = () => {
     if (profile && address === profile.address) {
       return true
@@ -151,59 +195,67 @@ const SeatPlayers = ({ players, room_id }: IProps) => {
   }
 
   useEffect(() => {
-    if (
-      gameRoomById &&
-      profile &&
-      room_id &&
-      item_id &&
-      data &&
-      data.game_type === "singleplayer"
-    ) {
-      const frontendUrl = `${baseUrlFront}/${router.query.typeGame}/${data.path}/summary/${room_id}`
+    let load = false
 
-      if (data.type_code === "survival_01") {
-        if (ip) {
-          const data_game = `${room_id}:|:${profile.id}:|:${
-            itemSelected?._id
-          }:|:${profile.email}:|:${Helper.getLocalStorage(
+    if (!load) {
+      if (
+        gameRoomById &&
+        profile &&
+        room_id &&
+        item_id &&
+        data &&
+        data.game_type === "singleplayer"
+      ) {
+        const frontendUrl = `${baseUrlFront}/${router.query.typeGame}/${data.path}/summary/${room_id}`
+
+        if (data.type_code === "survival_01") {
+          if (ip) {
+            const data_game = `${room_id}:|:${profile.id}:|:${
+              itemSelected?._id
+            }:|:${profile.email}:|:${Helper.getLocalStorage(
+              "token"
+            )}:|:${frontendUrl}:|:${CONFIGS.BASE_URL.API}:|:${
+              isMobile ? "mobile" : gameRoomById.rank_name
+            }:|:${gameRoomById.room_number}:|:${new Date(
+              gameRoomById.start_time
+            ).getTime()}:|:${profile.username}:|:${
+              gameRoomById.max_players
+            }:|:${gameRoomById.stage_id}:|:${ip}:|:${
+              conditionPlayToEarn ? "free" : "not_free"
+            }:|:${profile.country}`
+            const gameURL = `${CONFIGS.BASE_URL.GAME}/${
+              data.id
+            }/?query=${Helper.makeID(8)}${btoa(data_game)}`
+            setGameUrl(gameURL)
+          }
+        } else {
+          const url_data = `${room_id}:|:${profile.id}:|:${item_id}:|:${
+            profile.email
+          }:|:${Helper.getLocalStorage(
             "token"
-          )}:|:${frontendUrl}:|:${CONFIGS.BASE_URL.API}:|:${
-            gameRoomById.rank_name
+          )}:|:${frontendUrl}:|:${baseUrlApi}:|:${
+            isMobile ? "mobile" : gameRoomById.rank_name
           }:|:${gameRoomById.room_number}:|:${new Date(
             gameRoomById.start_time
-          ).getTime()}:|:${profile.username}:|:${gameRoomById.max_players}:|:${
-            gameRoomById.stage_id
-          }:|:${ip}:|:${data.play_to_earn === true ? "free" : "not_free"}:|:${
-            profile.country
+          ).getTime()}${
+            gameRoomById.stage_id !== undefined
+              ? `:|:${gameRoomById.stage_id}`
+              : ":|:0"
+          }:|:${profile.username}:|:${
+            conditionPlayToEarn ? "free" : "not_free"
           }`
-          const gameURL = `${CONFIGS.BASE_URL.GAME}/${
-            data.id
-          }/?query=${Helper.makeID(8)}${btoa(data_game)}`
+          const gameURL = `${baseUrlGame}/${data.id}/?${Helper.makeID(8)}${btoa(
+            url_data
+          )}`
           setGameUrl(gameURL)
         }
-      } else {
-        const url_data = `${room_id}:|:${profile.id}:|:${item_id}:|:${
-          profile.email
-        }:|:${Helper.getLocalStorage(
-          "token"
-        )}:|:${frontendUrl}:|:${baseUrlApi}:|:${gameRoomById.rank_name}:|:${
-          gameRoomById.room_number
-        }:|:${new Date(gameRoomById.start_time).getTime()}${
-          gameRoomById.stage_id !== undefined
-            ? `:|:${gameRoomById.stage_id}`
-            : ":|:0"
-        }:|:${profile.username}:|:${
-          data.play_to_earn === true ? "free" : "not_free"
-        }`
-        const gameURL = `${baseUrlGame}/${data.id}/?${Helper.makeID(8)}${btoa(
-          url_data
-        )}`
-        setGameUrl(gameURL)
       }
     }
     return () => {
       setGameUrl("")
+      load = true
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     data,
     gameRoomById,
@@ -217,10 +269,12 @@ const SeatPlayers = ({ players, room_id }: IProps) => {
 
   const onPlayGame = () => {
     if (
-      checkPlayerIsNotBanned() &&
-      checkAccountProfile() &&
-      checkBalanceOfItem() &&
-      checkReadyPlayer()
+      checkGameFree() ||
+      (checkPlayerIsNotBanned() &&
+        checkAccountProfile() &&
+        checkBalanceOfItem() &&
+        checkReadyPlayer() &&
+        checkPlayerMe())
     ) {
       window.location.href = gameUrl
     } else if (!item_id) {
@@ -232,19 +286,25 @@ const SeatPlayers = ({ players, room_id }: IProps) => {
 
   return (
     <>
-      <Box>
+      <Box component="div">
         <PlayerCard players={players} />
-        <Box className="mb-10  flex justify-center">
-          <Box className="w-fit items-center justify-center gap-3 rounded-md border border-neutral-800 bg-primary-main p-3 md:flex md:rounded-[50px]">
+        <Box
+          component="div"
+          className="mb-10  flex justify-center"
+        >
+          <Box
+            component="div"
+            className="w-fit items-center justify-center gap-3 rounded-md border border-neutral-800 bg-primary-main p-3 md:flex md:rounded-[50px]"
+          >
             <Typography className=" mx-4 w-full font-neue-machina text-sm ">
-              {" It's time to play! Press the Start"}
+              {t("its_time")}
             </Typography>
             <ButtonGame
               startIcon={<Ellipse fill="#AOED61" />}
               handleClick={onPlayGame}
               text={
-                <Typography className="w-full font-neue-machina text-2xl text-neutral-600">
-                  START
+                <Typography className="w-full font-neue-machina text-2xl uppercase text-neutral-600">
+                  {t("start")}
                 </Typography>
               }
               className={`h-[60px] w-[194px] rounded-[50px] ${"bg-green-lemon "}${"btn-green-rainbow  "} font-bold capitalize text-neutral-900`}

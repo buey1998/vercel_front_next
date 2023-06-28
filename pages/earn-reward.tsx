@@ -6,25 +6,29 @@ import dynamic from "next/dynamic"
 const ProfileLayout = dynamic(
   () => import("@components/templates/ProfileLayout"),
   {
-    suspense: true
+    suspense: true,
+    ssr: false
   }
 )
 const EarnRewardPage = dynamic(() => import("@feature/page/EarnRewardPage"), {
-  suspense: true
+  suspense: true,
+  ssr: false
 })
 
 export default function EarnReward() {
   return (
-    <>
-      <article className="flex h-full w-full justify-center">
-        <EarnRewardPage />
-      </article>
-    </>
+    <article className="flex h-full w-full justify-center">
+      <EarnRewardPage />
+    </article>
   )
 }
 
 EarnReward.getLayout = function getLayout(page: ReactElement) {
-  return <ProfileLayout _breadcrumb={ITEM_REWARD_CRUMB()}>{page}</ProfileLayout>
+  return (
+    <>
+      <ProfileLayout _breadcrumb={ITEM_REWARD_CRUMB()}>{page}</ProfileLayout>
+    </>
+  )
 }
 
 export async function getServerSideProps({ locale }: { locale: string }) {

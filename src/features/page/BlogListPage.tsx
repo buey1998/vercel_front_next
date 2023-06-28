@@ -41,43 +41,59 @@ const BlogListPage = () => {
   const fetchRef = useRef(false)
   const queryClient = useQueryClient()
   const { select: selectHeader } = useSelectStore()
-  // const type = "date_released"
   const type = selectHeader
   const searchBlog = useSearchStore((state: any) => state.search)
 
   const { getBlogAllData, isPreviousData } = useGetBlog({
     limit: limitPage,
     skip: page,
-    search: searchBlog,
+    search: !fetchRef.current ? "" : searchBlog,
     sort: type,
     cate: "all"
   })
 
   useEffect(() => {
-    if (!fetchRef.current && getBlogAllData) {
-      fetchRef.current = true
-      setTotalCount(getBlogAllData.info.totalCount)
+    let load = false
+
+    if (!load) {
+      if (!fetchRef.current && getBlogAllData) {
+        fetchRef.current = true
+        setTotalCount(getBlogAllData.info.totalCount)
+      }
+    }
+
+    return () => {
+      load = true
     }
   }, [getBlogAllData])
 
   useEffect(() => {
-    if (!isPreviousData && getBlogAllData) {
-      queryClient.prefetchQuery({
-        queryKey: ["blog", type, page + 1],
-        queryFn: () =>
-          getBlogAll({
-            limit: limitPage,
-            skip: page + 1,
-            search: "",
-            sort: type,
-            cate: "all"
-          })
-      })
+    let load = false
+
+    if (!load) {
+      if (!isPreviousData && getBlogAllData) {
+        queryClient.prefetchQuery({
+          queryKey: ["blog", type, page + 1],
+          queryFn: () =>
+            getBlogAll({
+              limit: limitPage,
+              skip: page + 1,
+              search: "",
+              sort: type,
+              cate: "all"
+            })
+        })
+        setTotalCount(getBlogAllData.info.totalCount)
+      }
+    }
+
+    return () => {
+      load = true
     }
   }, [getBlogAllData, isPreviousData, page, queryClient, type])
 
   return (
-    <>
+    <div className="blog-list-page w-full">
       <div className="mb-6 grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {getBlogAllData
           ? getBlogAllData.data.map((item) => (
@@ -101,7 +117,7 @@ const BlogListPage = () => {
         page={page}
         setPage={setPage}
       />
-    </>
+    </div>
   )
 }
 

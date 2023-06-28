@@ -1,4 +1,9 @@
-import { IGetType, TRoomStatus } from "@feature/game/interfaces/IGameService"
+import {
+  IGame,
+  IGetType,
+  TGameType,
+  TRoomStatus
+} from "@feature/game/interfaces/IGameService"
 
 export interface IGetHistory {
   player_id: string
@@ -20,17 +25,13 @@ export interface IDetailUsedItems {
 
 export interface IHistory {
   _id: string
+  createdAt: Date
   room_id: string
-  detail: string
-  room_status: TRoomStatus
-  is_active: boolean
   player_id: string
-  createdAt: string
-  updatedAt: string
-  game_name: string
-  path: string
+  game_detail: IGame
+  room_status: TRoomStatus
   detail_used_items: IDetailUsedItems
-  game_type: string
+  game_type: TGameType
   game_mode: IGetType
 }
 
@@ -45,4 +46,37 @@ export interface IPlayloadHistory {
   data: IHistory[]
   info: IHistoryInfo
   status: boolean
+}
+
+export interface Howto {
+  title: string
+  details: string
+}
+
+export interface BrowserSupport {
+  key: string
+  name: string
+  supported: boolean
+}
+
+export interface DeviceSupport {
+  key: string
+  name: string
+  supported: boolean
+}
+
+export interface RewardPaymentRate {
+  no: number
+  item_reward_amount: number
+}
+
+export interface Map {
+  _id: string
+  map_name: string
+  map_id: number
+}
+
+export interface CheckCheatList {
+  _id: string
+  cheat_condition: string
 }

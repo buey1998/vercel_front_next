@@ -3,7 +3,10 @@ import { MENU_BLOG_HEADER } from "@configs/menu"
 import { Button, TextField, Typography } from "@mui/material"
 import useSearchStore from "@stores/blogFilter"
 import useSelectStore from "@stores/selector"
-import React from "react"
+import { useRouter } from "next/router"
+import { useTranslation } from "next-i18next"
+import React, { useEffect, useState } from "react"
+import { commonPattern } from "@constants/regex"
 
 const HeadBlog = ({ children }: { children: React.ReactNode }) => {
   const styleButton = {
@@ -11,19 +14,38 @@ const HeadBlog = ({ children }: { children: React.ReactNode }) => {
     borderRadius: "15px !important"
   }
 
-  const { search: searchBlog, setSearch: setSearchBlog } = useSearchStore()
+  const { setSearch: setSearchBlog, clearSearch } = useSearchStore()
   const { select: selectHeader, setSelect: setSelectHeader } = useSelectStore()
+  const router = useRouter()
+
+  const { t } = useTranslation()
+
+  useEffect(() => {
+    clearSearch()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.pathname])
+
+  const [searchVal, setSearchVal] = useState<string>("")
+
+  useEffect(() => {
+    const deboucer = setTimeout(() => {
+      setSearchBlog(searchVal)
+    }, 1000)
+
+    return () => clearTimeout(deboucer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchVal])
 
   return (
-    <div className="mx-auto xl:mx-0">
+    <div className="mx-auto w-full max-w-[1140px] xl:mx-0">
       {/* {selectHeader} */}
       <div className="justify-between max-md:my-[30px] md:flex">
-        <div className="mx-auto mb-[30px] flex w-full max-w-xs justify-between gap-1 rounded-2xl bg-neutral-700 p-1 md:mx-0 md:w-[230px]">
+        <div className="mx-auto mb-[30px] flex h-full w-full max-w-xs justify-between gap-1 rounded-lg bg-neutral-700 p-1 md:mx-0 md:w-[230px]">
           {MENU_BLOG_HEADER.map((item) => (
             <Button
               key={item.name}
               sx={styleButton}
-              className={`button-select-naka xs:mb-1 !hover:bg-error-main !hover:text-white-primary group h-[50px] w-full !text-black-default ${
+              className={`button-select-naka xs:mb-1 !hover:bg-error-main !hover:text-white-primary group h-[40px] w-full !rounded-lg !text-black-default ${
                 selectHeader === item.link
                   ? "!bg-primary-main"
                   : "!bg-neutral-800"
@@ -36,20 +58,20 @@ const HeadBlog = ({ children }: { children: React.ReactNode }) => {
             >
               <div className="">{item.icon}</div>
               <Typography className="!font-neue-machina-semi !text-sm">
-                {item.name}
+                {t(`${item.name}`)}
               </Typography>
             </Button>
           ))}
         </div>
         <TextField
-          value={searchBlog}
+          value={searchVal}
           onChange={(event) => {
             let { value } = event.target
-            value = value.replace(/[^A-Za-z0-9]/gi, "")
-            setSearchBlog(value)
+            value = value.replace(commonPattern, " ")
+            setSearchVal(value)
           }}
-          className="mx-auto w-full max-w-xs max-md:flex md:mx-0 md:w-[234px] md:px-2"
-          placeholder="Search Blog"
+          className="mx-auto h-full w-full max-w-xs max-md:flex md:mx-0 md:w-[234px] md:px-2"
+          placeholder={t("search") + t("Blog")}
           InputProps={{
             style: {
               fontSize: "12px",

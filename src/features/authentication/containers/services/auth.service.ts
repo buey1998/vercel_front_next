@@ -3,7 +3,10 @@ import { IRefreshToken, IRevorkToken } from "@interfaces/IAuth"
 import useProfileStore from "@stores/profileStore"
 import Helper from "@utils/helper"
 import services from "@configs/axiosGlobalConfig"
-import { IProfile } from "@feature/profile/interfaces/IProfileService"
+import {
+  IProfile,
+  IProfileSubmit
+} from "@feature/profile/interfaces/IProfileService"
 import { ELocalKey } from "@interfaces/ILocal"
 import {
   ICreateNewPassword,
@@ -12,7 +15,8 @@ import {
   IGetVerifyCode,
   ILoginWithMetamask,
   ISignIn,
-  ISignUp
+  ISignUp,
+  ISubmit
 } from "@feature/authentication/interfaces/IAuthService"
 import { ILoginProvider, IProfileRegister } from "@src/types/profile"
 
@@ -57,6 +61,32 @@ export const signUp = ({
       .catch((error) => reject(error))
   })
 
+export const submitGenaralReview = ({
+  _name,
+  _player_type,
+  _categories,
+  _description,
+  _short_detail,
+  _game_play_url,
+  _how_to_play
+}: ISubmit) =>
+  new Promise<IProfileSubmit>((resolve, reject) => {
+    services
+      .post<IProfileSubmit>("/arcade_game_nft/submit/genaral/review", {
+        name: _name,
+        player_type: _player_type,
+        categories: _categories,
+        description: _description,
+        short_detail: _short_detail,
+        game_play_url: _game_play_url,
+        how_to_play: _how_to_play
+      })
+      .then((response) => {
+        resolve(response.data)
+      })
+      .catch((error) => reject(error))
+  })
+
 /**
  * @description Function has avariable for user role "ADMIN"
  * @param _token JWT token
@@ -79,7 +109,7 @@ export const refreshProfileToken = async (
           withCredentials: true
         }
       )
-      .then((_response) => {
+      .then(async (_response) => {
         Helper.setLocalStorage({
           key: ELocalKey.token,
           value: _response.data.jwtToken
@@ -87,8 +117,7 @@ export const refreshProfileToken = async (
         axios.defaults.headers.common = {
           Authorization: `Bearer ${_response.data.jwtToken}`
         }
-
-        return _response.data.jwtToken
+        return _response.data
       })
       .catch((error) => {
         useProfileStore.getState().onReset()
@@ -96,7 +125,8 @@ export const refreshProfileToken = async (
         callBeckWhenError && callBeckWhenError()
         if (error instanceof Error) {
           // console.error("Error", error.message)
-          throw Error(`refreshToken : ${error}`)
+          // throw Error(`refreshToken : ${error}`)
+          console.error(`refreshToken : ${error}`)
         }
       })
   } catch (error) {
@@ -104,7 +134,6 @@ export const refreshProfileToken = async (
     Helper.resetLocalStorage()
     callBeckWhenError && callBeckWhenError()
     if (error instanceof Error) {
-      // console.error("Error", error.message)
       throw Error(`refreshToken : ${error}`)
     }
   }

@@ -1,7 +1,8 @@
 import { IGameDownloadSlide } from "@feature/slider/interfaces/ISlides"
-import { Skeleton } from "@mui/material"
+import { Box, Skeleton } from "@mui/material"
 import React from "react"
 import Slider, { Settings } from "react-slick"
+import { useTranslation } from "react-i18next"
 import CarouselCardSlide from "../organisms/CarouselCardSlide"
 
 interface ICarouselSlideProps {
@@ -11,6 +12,7 @@ interface ICarouselSlideProps {
 
 const CarouselSlide = ({ slideGames, isLoading }: ICarouselSlideProps) => {
   const [activeIndex, setActiveIndex] = React.useState(0)
+  const { t } = useTranslation()
 
   /**
    * @description Slider settings
@@ -45,18 +47,22 @@ const CarouselSlide = ({ slideGames, isLoading }: ICarouselSlideProps) => {
     <Slider {...settings}>
       {slideGames &&
         slideGames.slice(0, 5).map((item, index) => (
-          <div key={item.id}>
+          <Box
+            component="div"
+            sx={{
+              height: "476px"
+            }}
+            key={item.id}
+          >
             <CarouselCardSlide
-              // video={index === 1}
-              // src={index === 1 ? "" : item.image_home_banner}
-              src={item.image}
+              image={item.image}
               name={item.name}
-              description={item.description}
+              description={t(item.description)}
               link={item.download_link}
               index={index}
               activeIndex={activeIndex}
             />
-          </div>
+          </Box>
         ))}
     </Slider>
   )

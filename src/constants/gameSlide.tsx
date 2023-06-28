@@ -5,10 +5,11 @@ import {
   ISlideList
 } from "@components/molecules/gameSlide/GameCarouselHeader"
 import { IGameDownloadSlide } from "@feature/slider/interfaces/ISlides"
-import IconNakaWorld from "@components/icons/nakaWorldIcon"
 import IconDollar from "@components/icons/dollarIcon"
-import IconFree from "@components/icons/freeIcon"
 import MapOutlinedIcon from "@mui/icons-material/MapOutlined"
+import ControllerIcon from "@components/icons/ControllerIcon"
+import { ImageCustom } from "@components/atoms/image/Image"
+import { IMAGES } from "./images"
 
 export const GAME_BANNER_SLIDES = [
   {
@@ -178,26 +179,53 @@ export const GAME_COMING_SOON = [
 
 const p2eMenu: ISlideList[] = [
   {
-    id: "11",
-    label: "hot games",
-    type: "hot-game",
+    id: "hot-game",
+    label: "Hot Games",
+    type: "play-to-earn"
+  },
+  {
+    id: "arcade-emporium",
+    label: "Arcade Emporium",
+    type: "arcade-emporium"
+  }
+  // {
+  //   id: "12",
+  //   label: "play to earn games",
+  //   type: "play-to-earn",
+  //   className: "w-[166px]"
+  // }
+]
+
+const onPlayingMenu: ISlideList[] = [
+  {
+    id: "all",
+    label: "All",
+    type: "all",
+    className: "w-[51px]"
+  },
+  {
+    id: "play-to-earn",
+    label: "Play to earn",
+    type: "play-to-earn",
     className: "w-[110px]"
   },
   {
-    id: "12",
-    label: "play to earn games",
-    type: "play-to-earn",
-    className: "w-[166px]"
+    id: "free-to-play",
+    label: "Free to play",
+    type: "free-to-play",
+    className: "w-[110px]"
   }
 ]
 export const P2EHeaderMenu: IHeaderSlide = {
   sticker: (
-    <IconNakaWorld
-      width={180}
-      height={125}
+    <ImageCustom
+      src={IMAGES.stickerEarn.src}
+      alt={IMAGES.stickerEarn.alt}
+      width={IMAGES.stickerEarn.width}
+      height={IMAGES.stickerEarn.height}
     />
   ),
-  title: "play to earn",
+  title: "Play To Earn",
   menuList: p2eMenu,
   theme: "error",
   stickerRotate: 15,
@@ -206,12 +234,14 @@ export const P2EHeaderMenu: IHeaderSlide = {
 
 export const StoryModeHeaderMenu: IHeaderSlide = {
   sticker: (
-    <IconNakaWorld
-      width={180}
-      height={125}
+    <ImageCustom
+      src={IMAGES.stickerEarn.src}
+      alt={IMAGES.stickerEarn.alt}
+      width={IMAGES.stickerEarn.width}
+      height={IMAGES.stickerEarn.height}
     />
   ),
-  title: "story mode",
+  title: "Story Mode",
   menuList: p2eMenu,
   theme: "success",
   stickerRotate: 15,
@@ -220,9 +250,11 @@ export const StoryModeHeaderMenu: IHeaderSlide = {
 
 export const NFTHeaderMenu: IHeaderSlide = {
   sticker: (
-    <IconNakaWorld
-      width={180}
-      height={125}
+    <ImageCustom
+      src={IMAGES.stickerEarn.src}
+      alt={IMAGES.stickerEarn.alt}
+      width={IMAGES.stickerEarn.width}
+      height={IMAGES.stickerEarn.height}
     />
   ),
   title: "Arcade",
@@ -232,18 +264,30 @@ export const NFTHeaderMenu: IHeaderSlide = {
   icon: <IconDollar.Ori className="slick-header-error-icon" />
 }
 
+export const onPlayingHeaderMenu: IHeaderSlide = {
+  sticker: <></>,
+  title: "On Playing",
+  menuList: onPlayingMenu,
+  theme: "success",
+  stickerRotate: 15,
+  icon: <ControllerIcon stroke="#3DCD95" /> // <IconDollar.Ori className="slick-header-error-icon" />
+}
+
 const f2pMenu: ISlideList[] = [
   {
-    id: "13",
-    label: "free mode",
-    type: "free-to-play",
-    className: "w-[110px]"
+    id: "free-to-earn",
+    label: "Free To Earn",
+    type: "free-to-earn"
   },
   {
-    id: "14",
-    label: "story mode",
-    type: "story-mode",
-    className: "w-[166px]"
+    id: "free-to-play",
+    label: "Free To Play",
+    type: "free-to-play"
+  },
+  {
+    id: "story-mode",
+    label: "Story Mode",
+    type: "story-mode"
   }
   // unnessesary use
   // {
@@ -256,13 +300,15 @@ const f2pMenu: ISlideList[] = [
 
 export const F2PHeaderMenu: IHeaderSlide = {
   sticker: (
-    <IconFree
-      width={200}
-      height={100}
+    <ImageCustom
+      src={IMAGES.stickerFree.src}
+      alt={IMAGES.stickerFree.alt}
+      width={IMAGES.stickerFree.width}
+      height={IMAGES.stickerFree.height}
     />
   ),
   icon: <IconDollar.Not className="slick-header-secondary-icon" />,
-  title: "free to earn",
+  title: "Free To Earn",
   menuList: f2pMenu,
   theme: "secondary",
   stickerRotate: -15
@@ -271,7 +317,7 @@ export const F2PHeaderMenu: IHeaderSlide = {
 export const HeaderMenuSeasonPass: IHeaderSlide = {
   sticker: <></>,
   icon: <MapOutlinedIcon className="" />,
-  title: "story mode",
+  title: "Story Mode",
   menuList: [],
   theme: "info",
   stickerRotate: 0
@@ -281,7 +327,14 @@ export const GAME_DOWNLOAD: IGameDownloadSlide[] = [
   {
     id: "1",
     name: "Escape",
-    image: "/images/home/escape.png",
+    image: {
+      src: "/images/home/escape/escape.jpg",
+      srcWebp: "/images/home/escape/escape.webp",
+      blurDataURL: "/images/home/escape/escape.webp",
+      width: 678,
+      height: 468,
+      alt: "Escape"
+    },
     description:
       "Your new adventure begins now! Our first 3D multiplayer game with high-end graphics launched on the Nakamoto Games Platform. Join and push yourself to the limits!",
     download_link: "https://files.naka.im/games/escape_win_x64_installation.zip"

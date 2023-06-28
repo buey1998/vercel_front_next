@@ -5,7 +5,7 @@ import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { Image } from "@components/atoms/image/index"
 import { IMAGES } from "@constants/images"
-import { Box, Grid, styled, Typography } from "@mui/material"
+import { Box, Grid, styled } from "@mui/material"
 import HeadLogo from "@components/molecules/HeadLogo"
 import Tagline from "@components/molecules/tagline/Tagline"
 import VectorIcon from "@components/icons/VectorIcon"
@@ -13,6 +13,8 @@ import { useRouter } from "next/router"
 import CreateProfile from "@feature/profile/components/createProfile/CreateProfile"
 import useRegisterAvatarStore from "@stores/registerAvater"
 import FormRegister from "@feature/authentication/components/FormRegister"
+import { useTranslation } from "react-i18next"
+import { isMobile } from "@hooks/useGlobal"
 
 const KeyFramesClockwise = styled("div")({
   "@keyframes rotation": {
@@ -59,12 +61,12 @@ const SignUpSchema = yup
   .required()
 
 const RegisterLayout = () => {
+  const { t } = useTranslation()
   const router = useRouter()
   const { referral } = router.query
 
-  const {
-    formState: { errors }
-  } = useForm<TFormData>({
+  // eslint-disable-next-line no-unused-vars
+  const { formState } = useForm<TFormData>({
     resolver: yupResolver(SignUpSchema),
     defaultValues: {
       referralId: referral || ""
@@ -75,101 +77,134 @@ const RegisterLayout = () => {
     useRegisterAvatarStore()
 
   return (
-    <Box>
-      <Box className="p-5">
-        <Grid
-          item
-          container
-          component="div"
-          className={`rounded-3xl border border-solid border-neutral-800 p-2.5 ${
-            !_.isEmpty({ errors }.errors) && submitRegisterForm
-              ? "h-[135vh]"
-              : "h-[95vh]"
-          }`}
-        >
+    <Box component="div">
+      <Box
+        component="div"
+        className="p-5"
+      >
+        {isMobile ? (
           <Grid
             item
-            xs={0}
-            sm={0}
-            md={6}
-            className="relative rounded-[14px] bg-cover bg-center bg-no-repeat"
-            sx={{
-              backgroundImage: `url(${IMAGES.rectagle.src})`
-            }}
+            container
+            component="div"
           >
-            <Box
-              component="div"
-              className="absolute z-[1] m-5 items-center justify-between lg:flex"
-            >
-              <HeadLogo />
-            </Box>
-            <Box className="container absolute bottom-0 overflow-hidden">
-              <Tagline
-                bgColor="bg-neutral-800"
-                textColor="text-neutral-500"
-                text="Secue. fun. simple. earn $naka AND enjoy "
-                icon={<VectorIcon />}
-                className="!my-[2.938rem]"
-              />
-            </Box>
-          </Grid>
-          <Grid
-            item
-            xs={12}
-            sm={12}
-            md={6}
-            className="relative rounded-[14px] bg-cover bg-center bg-no-repeat"
-            sx={{
-              background: "#050505"
-            }}
-          >
-            <Box
-              component="div"
-              className="flex justify-end"
-            >
-              <div className="absolute">
-                <KeyFramesClockwise>
-                  <Image
-                    src={IMAGES.ro.src}
-                    alt={IMAGES.ro.alt}
-                    className="h-full w-full"
-                  />
-                </KeyFramesClockwise>
-              </div>
-              <div className="absolute">
-                <KeyFramesAnticlockwise>
-                  <Image
-                    src={IMAGES.vectorWorld.src}
-                    alt={IMAGES.vectorWorld.alt}
-                    className="relative h-full w-full p-[5px]"
-                  />
-                </KeyFramesAnticlockwise>
-              </div>
-            </Box>
-            <Box
+            <Grid
+              item
+              xs={12}
+              sm={12}
+              md={6}
+              className="relative rounded-[14px] bg-cover bg-center bg-no-repeat"
               sx={{
-                my: 8,
-                mx: 4,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center"
+                background: "#050505"
               }}
             >
-              <FormRegister />
-              <Grid
-                item
-                container
-                justifyContent="center"
-                alignItems="center"
-                className="absolute bottom-4"
+              <Box
+                component="div"
+                sx={{
+                  height: "auto",
+                  width: { xs: "100%", lg: "auto" },
+                  my: { xs: 2, lg: 8 },
+                  mx: { xs: 0, lg: 0, xl: 4 },
+                  px: { md: 2, xl: 0 },
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center"
+                }}
               >
-                <Typography className="text-sm uppercase text-neutral-700">
-                  Copyright 2022 © Nakamoto Games
-                </Typography>
-              </Grid>
-            </Box>
+                <FormRegister />
+              </Box>
+            </Grid>
           </Grid>
-        </Grid>
+        ) : (
+          <Grid
+            item
+            container
+            component="div"
+            className={`min-h-[790px] rounded-3xl border border-solid border-neutral-800 p-[20px] md:p-[50px] lg:p-2.5 ${
+              submitRegisterForm ? "h-[135vh]" : "h-[95vh]"
+            }`}
+          >
+            <Grid
+              item
+              xs={0}
+              sm={0}
+              md={6}
+              className="relative rounded-[14px] bg-cover bg-center bg-no-repeat"
+              sx={{
+                backgroundImage: `url(${IMAGES.rectagle.src})`
+              }}
+            >
+              <Box
+                component="div"
+                className="absolute z-[1] m-5 items-center justify-between lg:flex"
+              >
+                <HeadLogo />
+              </Box>
+              <Box
+                component="div"
+                className="container absolute bottom-0 overflow-hidden"
+              >
+                <Tagline
+                  bgColor="bg-neutral-800"
+                  textColor="text-neutral-500"
+                  text={t("main_tagline")}
+                  icon={<VectorIcon />}
+                  className="!my-[2.938rem]"
+                  show={false}
+                />
+              </Box>
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              sm={12}
+              md={6}
+              className="relative rounded-[14px] bg-cover bg-center bg-no-repeat"
+              sx={{
+                background: "#050505"
+              }}
+            >
+              <Box
+                component="div"
+                className="relative flex  h-[100px] justify-end lg:h-auto"
+              >
+                <div className="absolute">
+                  <KeyFramesClockwise>
+                    <Image
+                      src={IMAGES.ro.src}
+                      alt={IMAGES.ro.alt}
+                      className="h-full w-full"
+                    />
+                  </KeyFramesClockwise>
+                </div>
+                <div className="absolute">
+                  <KeyFramesAnticlockwise>
+                    <Image
+                      src={IMAGES.vectorWorld.src}
+                      alt={IMAGES.vectorWorld.alt}
+                      className="relative h-full w-full p-[5px]"
+                    />
+                  </KeyFramesAnticlockwise>
+                </div>
+              </Box>
+              <Box
+                component="div"
+                sx={{
+                  height: "auto",
+                  width: { xs: "100%", lg: "auto" },
+                  my: { xs: 2, lg: 8 },
+                  mx: { xs: 0, lg: 0, xl: 4 },
+                  px: { md: 2, xl: 0 },
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center"
+                }}
+              >
+                <FormRegister />
+              </Box>
+            </Grid>
+          </Grid>
+        )}
       </Box>
       <CreateProfile />
     </Box>

@@ -2,12 +2,12 @@ import PleaseLogin from "@components/atoms/PleaseLogin"
 import { ChatProvider } from "@feature/chat/containers/contexts/ChatProvider"
 import MultiWaiting from "@feature/game/components/templates/waitingRoom/multiPlayer/MultiWaiting"
 import SingleWaiting from "@feature/game/components/templates/waitingRoom/singlePlayer/SingleWaiting"
-import StoryWaiting from "@feature/game/components/templates/waitingRoom/storymode/StoryWaiting"
 import { IGame } from "@feature/game/interfaces/IGameService"
 import { Box } from "@mui/material"
 import useGameStore from "@stores/game"
 import useProfileStore from "@stores/profileStore"
 import React, { useEffect, useState } from "react"
+import NoData from "@components/molecules/NoData"
 
 interface IProp {
   _roomId: string
@@ -19,8 +19,16 @@ const GameRoomWaitingPage = ({ _roomId }: IProp) => {
   const [gameData, setGameData] = useState<IGame>()
 
   useEffect(() => {
-    if (data) {
-      setGameData(data)
+    let load = false
+
+    if (!load) {
+      if (data) {
+        setGameData(data)
+      }
+    }
+
+    return () => {
+      load = true
     }
   }, [data])
 
@@ -35,10 +43,17 @@ const GameRoomWaitingPage = ({ _roomId }: IProp) => {
               <MultiWaiting _roomId={_roomId} />
             </ChatProvider>
           )
-        case "storymode":
-          return <StoryWaiting />
+        // case "storymode":
+        //   return <StoryWaiting />
         default:
-          return <Box className="m-auto block">No Data</Box>
+          return (
+            <Box
+              component="div"
+              className="m-auto block"
+            >
+              <NoData />
+            </Box>
+          )
       }
     }
   }

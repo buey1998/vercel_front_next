@@ -17,12 +17,12 @@ export const BANNER_DATA: Banner[] = [
     path: "/",
     textColor: "red"
   },
-  {
-    title: "tournament",
-    imgSrc: "/images/banner/tournament.webp",
-    path: "/tournament",
-    textColor: "red"
-  },
+  // {
+  //   title: "tournament",
+  //   imgSrc: "/images/banner/tournament.webp",
+  //   path: "/tournament",
+  //   textColor: "red"
+  // },
   {
     title: "staking",
     imgSrc: "/images/banner/staking.webp",
@@ -58,6 +58,12 @@ export const BANNER_DATA: Banner[] = [
     title: "naka market",
     imgSrc: "/images/banner/nakaMarket.webp",
     path: "/marketplace",
+    textColor: "purple"
+  },
+  {
+    title: "naka market",
+    imgSrc: "/images/banner/nakaMarket.webp",
+    path: "/marketplace/building",
     textColor: "purple"
   }
 ]

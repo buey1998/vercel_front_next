@@ -18,9 +18,9 @@ import ButtonPlayer from "@feature/game/components/atoms/ButtonPlayer"
 import PlayerCard from "@feature/game/components/molecules/PlayerCard"
 import { IResGetIp } from "@interfaces/IGetIP"
 import { useRouter } from "next/router"
-import useGetBalanceOf from "@feature/inventory/containers/hooks/useGetBalanceOf"
+import useBuyGameItemController from "@feature/buyItem/containers/hooks/useBuyGameItemController"
 
-interface IProps {
+export interface IPropsPlayerMulti {
   players: IGameCurrentPlayerMulti[] | undefined[]
 }
 
@@ -28,7 +28,7 @@ const baseUrlGame = CONFIGS.BASE_URL.GAME
 const baseUrlApi = CONFIGS.BASE_URL.API
 const baseUrlFront = CONFIGS.BASE_URL.FRONTEND
 
-const SeatPlayersMulti = ({ players }: IProps) => {
+const SeatPlayersMulti = ({ players }: IPropsPlayerMulti) => {
   const {
     onReadyPlayerBurnItem,
     cancelReadyPlayer,
@@ -42,6 +42,7 @@ const SeatPlayersMulti = ({ players }: IProps) => {
   const profile = useProfileStore((state) => state.profile.data)
   const router = useRouter()
   const { data: gameData, itemSelected, qtyItemOfRoom } = useGameStore()
+  const { gameItemList, balanceofItem } = useBuyGameItemController()
   const [ownerPressPlay, setOwnPressPlay] = useState(false)
   const [playerPressReady, setPlayerPressReady] = useState(false)
   const [loading, setLoading] = useState<boolean>(false)
@@ -51,23 +52,24 @@ const SeatPlayersMulti = ({ players }: IProps) => {
   const { errorToast } = useToast()
   const [gameUrl, setGameUrl] = useState<string>("")
   const [room_number] = useState<string>("")
-  const [rank_name] = useState<string>("")
+  const [rank_name] = useState<string>("multiplayer_rank")
   const [start_time] = useState<string>("")
   const time = new Date()
 
   useEffect(() => {
-    Helper.getIP().then((res) => {
-      setIp((res as IResGetIp).ip)
-    })
+    let load = false
+
+    if (!load) {
+      Helper.getIP().then((res) => {
+        setIp((res as IResGetIp).ip)
+      })
+    }
+
     return () => {
       setIp("")
+      load = true
     }
   }, [])
-
-  const { balanceofItem } = useGetBalanceOf({
-    _address: profile?.address ?? "",
-    _item_id: itemSelected?.item_id_smartcontract ?? 0
-  })
 
   const playerInroom = useMemo(() => {
     if (players) {
@@ -77,48 +79,53 @@ const SeatPlayersMulti = ({ players }: IProps) => {
   }, [players])
 
   useEffect(() => {
-    if (
-      gameData &&
-      itemSelected &&
-      profile &&
-      gameData.game_type === "multiplayer"
-    ) {
-      const frontendUrl = `${baseUrlFront}/${router.query.typeGame}/${gameData.path}/summary/${room_id}`
+    let load = false
 
-      let gameURL = ""
-      if (gameData.type_code === "multi_02" && ip) {
-        const dataLinkGame = `${room_id}:|:${profile?.id}:|:${
-          itemSelected._id
-        }:|:${profile?.email}:|:${Helper.getLocalStorage(
-          "token"
-        )}:|:${frontendUrl}:|:${baseUrlApi}:|:${rank_name}:|:${room_number}:|:${new Date(
-          start_time
-        ).getTime()}:|:${profile?.username}:|:${playerInroom?.length}:|:${
-          dataPlayers?.map_id
-        }:|:${ip}`
+    if (!load) {
+      if (
+        gameData &&
+        itemSelected &&
+        profile &&
+        gameData.game_type === "multiplayer"
+      ) {
+        const frontendUrl = `${baseUrlFront}/${router.query.typeGame}/${gameData.path}/summary/${room_id}`
 
-        gameURL = `${baseUrlGame}/${gameData.id}/?query=${Helper.makeID(
-          8
-        )}${btoa(dataLinkGame)}`
-      } else {
-        const dataLinkGame = `${room_id}:|:${profile?.id}:|:${
-          itemSelected._id
-        }:|:${profile?.email}:|:${Helper.getLocalStorage(
-          "token"
-        )}:|:${frontendUrl}:|:${baseUrlApi}:|:${rank_name}:|:${room_number}:|:${new Date(
-          start_time
-        ).getTime()}:|:${profile?.username}:|:${playerInroom?.length}:|:${
-          dataPlayers?.map_id
-        }:|:${ip}`
-        gameURL = `${gameData.game_url}/${gameData.id}/?query=${Helper.makeID(
-          8
-        )}${btoa(dataLinkGame)}`
+        let gameURL = ""
+        if (gameData.type_code === "multi_02" && ip) {
+          const dataLinkGame = `${room_id}:|:${profile?.id}:|:${
+            itemSelected._id
+          }:|:${profile?.email}:|:${Helper.getLocalStorage(
+            "token"
+          )}:|:${frontendUrl}:|:${baseUrlApi}:|:${rank_name}:|:${room_number}:|:${new Date(
+            start_time
+          ).getTime()}:|:${profile?.username}:|:${playerInroom?.length}:|:${
+            dataPlayers?.map_id
+          }:|:${ip}`
+
+          gameURL = `${baseUrlGame}/${gameData.id}/?query=${Helper.makeID(
+            8
+          )}${btoa(dataLinkGame)}`
+        } else {
+          const dataLinkGame = `${room_id}:|:${profile?.id}:|:${
+            itemSelected._id
+          }:|:${profile?.email}:|:${Helper.getLocalStorage(
+            "token"
+          )}:|:${frontendUrl}:|:${baseUrlApi}:|:${rank_name}:|:${room_number}:|:${new Date(
+            start_time
+          ).getTime()}:|:${profile?.username}:|:${playerInroom?.length}:|:${
+            dataPlayers?.map_id
+          }:|:${ip}`
+          gameURL = `${gameData.game_url}/${gameData.id}/?query=${Helper.makeID(
+            8
+          )}${btoa(dataLinkGame)}`
+        }
+        setGameUrl(gameURL)
       }
-      setGameUrl(gameURL)
     }
 
     return () => {
       setGameUrl("")
+      load = true
     }
   }, [
     dataPlayers?.map_id,
@@ -159,7 +166,12 @@ const SeatPlayersMulti = ({ players }: IProps) => {
   }, [playerInroom])
 
   const playerAllBurnItem = useMemo(() => {
-    if (playerBurnItem && playerInroom && playerInroom.length > 1) {
+    if (
+      playerBurnItem &&
+      playerInroom &&
+      playerInroom.length > 1 &&
+      playerBurnItem.length > 0
+    ) {
       return playerBurnItem.length === playerInroom?.length
     }
   }, [playerBurnItem, playerInroom])
@@ -180,13 +192,13 @@ const SeatPlayersMulti = ({ players }: IProps) => {
     if (playerInroom && playerInroom.length > 0) {
       if (isOwnerRoom) {
         //  owner
-        if (playerNotReady) {
+        if (playerNotReady && playerInroom.length < 2) {
           return "The game will begin as soon as all players are ready"
         }
         if (playerAllReady && playerAllBurnItem) {
-          return "Everyone's here and we're ready to go. Let's start the game!"
+          return `Everyone's here and we're ready to go. Let's start the game!`
         }
-        return "The game will begin as soon as all players are ready"
+        return "The game will begin as soon as all players are ready..."
       }
 
       // player
@@ -216,60 +228,107 @@ const SeatPlayersMulti = ({ players }: IProps) => {
   ])
 
   useEffect(() => {
-    if (dataPlayers && dataPlayers.room_status === "playing") {
-      waitingRoomPlay()
+    let load = false
+
+    if (!load) {
+      if (dataPlayers && dataPlayers.room_status === "playing") {
+        waitingRoomPlay()
+      }
+    }
+
+    return () => {
+      load = true
     }
   }, [dataPlayers, waitingRoomPlay])
 
   useEffect(() => {
-    if (dataPlayers?.room_status === "ready_play" && gameUrl && playerInroom) {
-      if (playerInroom.length === dataPlayers.max_players) {
-        setTimeout(() => {
-          window.location.href = gameUrl
-        }, 10000)
+    let load = false
+
+    if (!load) {
+      if (
+        dataPlayers?.room_status === "ready_play" &&
+        gameUrl &&
+        playerInroom &&
+        playerReady &&
+        playerAllBurnItem
+      ) {
+        if (playerInroom.length === playerReady.length) {
+          setTimeout(() => {
+            window.location.href = gameUrl
+          }, 10000)
+        }
       }
+    }
+
+    return () => {
+      load = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataPlayers])
 
   const onReady = async () => {
-    // const itemGame = gameItemList?.find((ele) => ele._id === itemSelected?._id)
     if (profile) {
       if (
-        playerMe &&
-        itemSelected &&
-        balanceofItem &&
-        balanceofItem.data >= qtyItemOfRoom &&
-        dataPlayers &&
-        balanceofItem.data >= dataPlayers?.create_room_detail.number_of_item
+        (gameData && gameData?.play_to_earn_status === "free") ||
+        (playerMe &&
+          itemSelected &&
+          balanceofItem &&
+          // balanceofItem.data >= qtyItemOfRoom &&
+          dataPlayers &&
+          balanceofItem.data >=
+            dataPlayers?.create_room_detail.number_of_item &&
+          dataPlayers.item_id === itemSelected._id)
       ) {
         setLoading(true)
-        await onReadyPlayerBurnItem(
-          playerMe?.item_burn,
-          itemSelected._id,
-          qtyItemOfRoom
-        )
-        await setPlayerPressReady(true)
+        if (playerMe && itemSelected && dataPlayers) {
+          try {
+            await onReadyPlayerBurnItem(
+              playerMe?.item_burn,
+              itemSelected._id,
+              (dataPlayers?.create_room_detail?.number_of_item as number) ?? 1
+            )
+            await setPlayerPressReady(true)
+          } catch (err) {
+            setLoading(false)
+            setPlayerPressReady(false)
+          }
+        }
         await setLoading(false)
       } else if (!playerMe) {
         setPlayerPressReady(false)
         errorToast(MESSAGES["no-player"])
       } else if (
-        balanceofItem &&
-        balanceofItem.data < qtyItemOfRoom &&
-        dataPlayers &&
-        balanceofItem.data < dataPlayers?.create_room_detail.number_of_item
+        !balanceofItem ||
+        (balanceofItem && balanceofItem.data < qtyItemOfRoom) ||
+        (dataPlayers &&
+          balanceofItem.data <
+            dataPlayers?.create_room_detail.number_of_item) ||
+        dataPlayers?.item_id !== itemSelected?._id
       ) {
         if (
-          itemSelected &&
-          balanceofItem &&
-          balanceofItem.data < qtyItemOfRoom
+          !balanceofItem ||
+          (balanceofItem &&
+            dataPlayers &&
+            balanceofItem.data < dataPlayers?.create_room_detail.number_of_item)
         ) {
           errorToast(MESSAGES["you-not-enough"])
+        } else if (
+          dataPlayers &&
+          itemSelected &&
+          dataPlayers.item_id !== itemSelected._id
+        ) {
+          const item = gameItemList?.find(
+            (_item) => _item?.id === dataPlayers?.item_id
+          )
+          errorToast(
+            `${MESSAGES["please_item"]} for ${item?.name} ${item?.item_size}`
+          )
         } else {
           errorToast(MESSAGES["please_item"])
         }
         setPlayerPressReady(false)
+      } else {
+        errorToast(MESSAGES["error-something"])
       }
     } else {
       setPlayerPressReady(false)
@@ -278,35 +337,64 @@ const SeatPlayersMulti = ({ players }: IProps) => {
     setLoading(false)
   }
 
-  const onPlayGame = () => {
+  const onPlayGame = async () => {
     if (profile) {
       if (
-        playerMe &&
-        itemSelected &&
-        playerAllReady &&
-        balanceofItem &&
-        balanceofItem.data >= qtyItemOfRoom &&
-        dataPlayers &&
-        balanceofItem.data >= dataPlayers?.create_room_detail.number_of_item
+        (gameData && gameData?.play_to_earn_status === "free") ||
+        (playerMe &&
+          itemSelected &&
+          playerAllReady &&
+          balanceofItem &&
+          // balanceofItem.data >= qtyItemOfRoom &&
+          dataPlayers &&
+          balanceofItem.data >=
+            dataPlayers?.create_room_detail.number_of_item &&
+          dataPlayers.item_id === itemSelected._id)
       ) {
-        onOwnerBurnItem(playerMe.item_burn, itemSelected?._id, qtyItemOfRoom)
-        setOwnPressPlay(true)
-        startGame()
+        if (playerMe && itemSelected && dataPlayers) {
+          try {
+            await setLoading(true)
+            await onOwnerBurnItem(
+              playerMe.item_burn,
+              itemSelected?._id,
+              (dataPlayers?.create_room_detail?.number_of_item as number) ?? 1
+            )
+            await setLoading(false)
+            await setOwnPressPlay(true)
+            await startGame()
+          } catch (err) {
+            await setLoading(false)
+          }
+        }
       } else if (!playerMe) {
         setOwnPressPlay(false)
         errorToast(MESSAGES["no-player"])
       } else if (
-        qtyItemOfRoom < 1 ||
+        // qtyItemOfRoom < 1 ||
+        !itemSelected ||
+        !balanceofItem ||
         (dataPlayers &&
           itemSelected &&
-          itemSelected.qty < dataPlayers?.create_room_detail.number_of_item)
+          itemSelected.qty < dataPlayers?.create_room_detail.number_of_item) ||
+        dataPlayers?.item_id !== itemSelected?._id
       ) {
         if (
-          itemSelected &&
-          balanceofItem &&
-          balanceofItem.data < qtyItemOfRoom
+          !itemSelected ||
+          !balanceofItem ||
+          (balanceofItem && balanceofItem.data < qtyItemOfRoom)
         ) {
           errorToast(MESSAGES["you-not-enough"])
+        } else if (
+          dataPlayers &&
+          itemSelected &&
+          dataPlayers.item_id !== itemSelected._id
+        ) {
+          const item = gameItemList?.find(
+            (_item) => _item?.id === dataPlayers?.item_id
+          )
+          errorToast(
+            `${MESSAGES["please_item"]} for ${item?.name} ${item?.item_size}`
+          )
         } else {
           errorToast(MESSAGES["please_item"])
         }
@@ -323,11 +411,15 @@ const SeatPlayersMulti = ({ players }: IProps) => {
   return (
     <>
       {/* <Link href={gameUrl}>GO</Link> */}
-      <Box>
+      <Box component="div">
         <PlayerCard players={players} />
-        <Box className="mb-10  flex justify-center">
+        <Box
+          component="div"
+          className="mb-10  flex justify-center"
+        >
           {players.length > 0 && (
             <Box
+              component="div"
               className={` ${
                 ownerPressPlay &&
                 playerAllBurnItem &&
@@ -359,19 +451,20 @@ const SeatPlayersMulti = ({ players }: IProps) => {
 
               {/* owner */}
               {playerAllReady &&
+                playerAllBurnItem &&
                 playerMe?.status === "ready" &&
                 // play &&
                 dataPlayers?.room_status === "ready_play" && (
                   <ButtonCountdown
                     time
                     endTime={
-                      playerAllReady
+                      playerAllReady && playerAllBurnItem
                         ? new Date(time.setSeconds(time.getSeconds() + 10))
                         : new Date()
                     }
                     handleClick={() => {
                       isOwnerRoom &&
-                        (playerAllReady && !ownerPressPlay
+                        (playerAllReady && !ownerPressPlay && playerAllBurnItem
                           ? onPlayGame()
                           : !ownerPressPlay &&
                             errorToast(
@@ -380,12 +473,13 @@ const SeatPlayersMulti = ({ players }: IProps) => {
                     }}
                     endIcon={
                       isOwnerRoom ? (
-                        <HighlightOffIcon className="text-secondary-main " />
+                        // <HighlightOffIcon className="text-secondary-main " />
+                        <HourglassEmptyIcon className="text-secondary-main" />
                       ) : (
                         <HourglassEmptyIcon className="text-primary-main " />
                       )
                     }
-                    className={`h-[60px]  !w-[45%] rounded-full ${
+                    className={`h-[60px]  !w-[22%] rounded-full ${
                       isOwnerRoom
                         ? "!w-[30%] border border-secondary-main bg-neutral-900 text-secondary-main"
                         : "!w-[45%] bg-secondary-main text-neutral-900"
@@ -403,14 +497,22 @@ const SeatPlayersMulti = ({ players }: IProps) => {
                     startIcon={
                       <Ellipse fill={playerAllReady ? "#A0ED61" : "#F42728"} />
                     }
+                    disabled={loading}
                     handleClick={() => {
                       playerAllReady
                         ? onPlayGame()
                         : errorToast(MESSAGES["please-wait-player-all-ready"])
                     }}
                     text={
-                      <Typography className="w-full font-neue-machina text-2xl uppercase text-primary-main">
+                      <Typography className="flex w-full items-center justify-center font-neue-machina text-2xl uppercase text-primary-main">
                         START
+                        {loading && (
+                          <CircularProgress
+                            color="primary"
+                            className="ml-2"
+                            size={25}
+                          />
+                        )}
                       </Typography>
                     }
                     className={`h-[60px] w-[194px] rounded-[50px] ${
@@ -427,6 +529,7 @@ const SeatPlayersMulti = ({ players }: IProps) => {
                   <ButtonPlayer
                     startIcon={<Ellipse fill="#A0ED61" />}
                     handleClick={onReady}
+                    disabled={loading}
                     text={
                       loading ? (
                         <CircularProgress

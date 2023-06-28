@@ -11,8 +11,13 @@ const Crumb = ({ title, href, last = false }: IProp) => {
   const router = useRouter()
   if (last) {
     return (
-      <Typography className="cursor-pointer rounded bg-error-main py-[5px] px-[10px] text-xs font-bold text-error-contrastText">
-        {title}
+      <Typography
+        sx={{
+          lineHeight: "25px"
+        }}
+        className="max-w-sm cursor-pointer rounded bg-error-main px-[10px] text-xs font-bold text-error-contrastText line-clamp-1"
+      >
+        {title.split(/[_-]/).join(" ")}
       </Typography>
     )
   }
@@ -22,9 +27,9 @@ const Crumb = ({ title, href, last = false }: IProp) => {
       onClick={() => {
         router.push(title === "Home" ? "/" : `${href}`)
       }}
-      className="cursor-pointer rounded border border-neutral-700 py-[5px] px-[10px] text-xs font-bold"
+      className="cursor-pointer rounded border border-neutral-700 px-[10px] py-[5px] text-xs font-bold"
     >
-      {title}
+      {title.split(/[_-]/).join(" ")}
     </Typography>
   )
 }

@@ -3,7 +3,7 @@ import TimerLobby from "@components/atoms/timer/TimerLobby"
 import PlayersIcon from "@components/icons/PlayersIcon"
 import StopwatchIcon from "@components/icons/StopwatchIcon"
 import { Typography } from "@mui/material"
-import React from "react"
+import React, { ReactNode } from "react"
 import fullConfig from "../../../../tailwindResolver"
 
 interface IProp {
@@ -22,6 +22,9 @@ interface IProp {
   borderColor?: string
   unlimited?: boolean
   onClick?: () => void
+  classNameText?: string
+  showClock?: ReactNode
+  showTotalHours?: boolean
 }
 
 /**
@@ -43,7 +46,10 @@ const RoomListBox = ({
   type,
   borderColor = "border-neutral-700",
   unlimited,
-  onClick
+  onClick,
+  classNameText,
+  showClock = true,
+  showTotalHours
 }: IProp) => {
   const { theme } = fullConfig
 
@@ -51,16 +57,19 @@ const RoomListBox = ({
 
   return type === "timer" ? (
     <div
-      className={`flex h-[40px] w-fit flex-[1_1_100%] items-center justify-center gap-3 rounded-lg border px-3 sm:flex-[1_1_50%] lg:flex-none ${
+      className={`timer-box flex h-[40px] w-fit flex-[1_1_100%] items-center justify-center gap-3 rounded-lg border px-3 sm:flex-[1_1_50%] lg:flex-none ${
         borderColor ?? "border-neutral-700"
       } bg-neutral-900 py-2 align-baseline`}
     >
-      <StopwatchIcon stroke={initTheme} />
+      {showClock || <StopwatchIcon stroke={initTheme} />}
+
       {timer && !unlimited ? (
         <TimerLobby
-          time={timer.time}
+          endTime={timer.time}
           initTheme={initTheme}
           onExpire={timer.onExpire}
+          classNameText={classNameText}
+          showTotalHours={showTotalHours}
         />
       ) : (
         <Typography
@@ -73,7 +82,7 @@ const RoomListBox = ({
       )}
     </div>
   ) : (
-    <div className="flex h-[40px] w-fit flex-[1_1_100%] items-center justify-center rounded-lg border border-neutral-700 bg-neutral-900 p-2 px-3 align-baseline sm:flex-[1_1_50%] lg:flex-none">
+    <div className="player-list flex h-[40px] w-fit flex-[1_1_100%] items-center justify-center rounded-lg border border-neutral-700 bg-neutral-900 p-2 px-3 align-baseline sm:flex-[1_1_50%] lg:flex-none">
       <button
         type="button"
         onClick={onClick}

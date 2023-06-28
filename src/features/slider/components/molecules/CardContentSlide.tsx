@@ -23,18 +23,22 @@ const CardContentSlide = ({ slide }: ICardContentSlide) => {
       id: "1",
       name: slide.category.name,
       link: `categories/${
-        slide.category.slug || slide.category.name.toLocaleLowerCase()
+        slide.category.slug ||
+        (slide.category.name.toLocaleLowerCase().split(" ") &&
+        slide.category.name.toLocaleLowerCase().split(" ").length > 1
+          ? slide.category.name.toLocaleLowerCase().split(" ")[1]
+          : slide.category.name.toLocaleLowerCase().split(" ").join("-"))
       }`
     },
     {
       id: "2",
       name: slide.game_free_status ? "Free" : "",
-      link: `/free-to-play-games`
+      link: `/free-to-play`
     },
     {
       id: "3",
       name: slide.hot_game_status ? "Hot" : "",
-      link: `/play-to-earn-games`
+      link: `/play-to-earn`
     }
   )
 
@@ -45,7 +49,9 @@ const CardContentSlide = ({ slide }: ICardContentSlide) => {
         id: category.id,
         name: category.name,
         link: `categories/${
-          category.slug ? category.slug : category.name.toLocaleLowerCase()
+          category.slug
+            ? category.slug
+            : category.name.toLocaleLowerCase().split(" ").join("-")
         }?id=${category.id}`
       })
     )
@@ -53,6 +59,7 @@ const CardContentSlide = ({ slide }: ICardContentSlide) => {
   return (
     <div className="slide-item--content my-4 flex h-full flex-col rounded-2xl bg-neutral-800 p-6 text-sm md:my-0 md:!h-[24.313rem] md:rounded-3xl md:p-8">
       <Box
+        component="div"
         sx={{
           "&>div": {
             marginBottom: "0.5rem"

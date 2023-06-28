@@ -1,7 +1,12 @@
+import SkeletonCardPlayers from "@components/atoms/skeleton/SkeletonCardPlayers"
 import HeaderWaitingRoom from "@components/organisms/HeaderWaitingRoom"
+import OverviewContent from "@components/organisms/OverviewContent"
 import SeatPlayersSingle from "@feature/game/components/organisms/SeatPlayerSingle"
 import useGetCurrentPlayerGameSingle from "@feature/game/containers/hooks/useGetCurrentPlayerGameSingle"
 import CardBuyItem from "@feature/gameItem/components/molecules/CardBuyItem"
+import { IGameItem } from "@feature/gameItem/interfaces/IGameItemService"
+import TopPlayerFreeToEarn from "@feature/ranking/components/template/TopPlayerFreeToEarn"
+import useGlobal from "@hooks/useGlobal"
 import { Box } from "@mui/material"
 import useGameStore from "@stores/game"
 import useProfileStore from "@stores/profileStore"
@@ -19,6 +24,7 @@ const GameSinglePlayer = ({ _roomId }: IPropWaitingSingle) => {
   const router = useRouter()
   const { isLoading, playerGameSingle, fetchPlayerGameSingle } =
     useGetCurrentPlayerGameSingle()
+  const { getGameMode, isFreeToEarnGame } = useGlobal()
 
   const fetchPlayers = useCallback(
     (_type: "in" | "out") => {
@@ -36,24 +42,32 @@ const GameSinglePlayer = ({ _roomId }: IPropWaitingSingle) => {
   )
 
   useEffect(() => {
-    let load = true
-    if (load) fetchPlayers("in")
+    let load = false
+
+    if (!load) fetchPlayers("in")
+
     return () => {
-      load = false
+      load = true
     }
-  }, [fetchPlayers])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
-    router.beforePopState(({ as }) => {
-      if (as !== router.asPath) {
-        // Will run when leaving the current page; on back/forward actions
-        // out room this game
-        fetchPlayers("out")
-      }
-      return true
-    })
+    let load = false
+
+    if (!load) {
+      router.beforePopState(({ as }) => {
+        if (as !== router.asPath) {
+          // Will run when leaving the current page; on back/forward actions
+          // out room this game
+          fetchPlayers("out")
+        }
+        return true
+      })
+    }
 
     return () => {
+      load = true
       router.beforePopState(() => true)
     }
   }, [fetchPlayers, router])
@@ -66,6 +80,7 @@ const GameSinglePlayer = ({ _roomId }: IPropWaitingSingle) => {
     )
 
     const playerMe = uniquePlayerIn.find((ele) => ele.player_id === profile?.id)
+
     const playerMeIndex = uniquePlayerIn.findIndex(
       (ele) => ele.player_id === profile?.id
     )
@@ -85,46 +100,103 @@ const GameSinglePlayer = ({ _roomId }: IPropWaitingSingle) => {
     profile?.id
   ])
 
+  const playersMe = useMemo(() => {
+    if (playersMap)
+      return playersMap?.find((ele) => ele?.player_id === profile?.id)
+  }, [playersMap, profile?.id])
+
+  const outRoomLink = useCallback(async () => {
+    if (data)
+      await router.push(`/${router.query.typeGame}/${data.path}/roomlist`)
+  }, [data, router])
+
   const outRoom = async () => {
-    if (_roomId && profile && data) {
+    if (_roomId && profile) {
       await fetchPlayerGameSingle({
         _roomId,
         _playerId: profile.id,
         _type: "out"
       })
-      await router.push(`/${router.query.typeGame}/${data.path}/roomlist`)
+      await outRoomLink()
     }
   }
 
+  useEffect(() => {
+    let load = false
+
+    if (!load) {
+      if (playersMe) {
+        if (playersMe.status === "played") {
+          outRoomLink()
+        }
+      }
+    }
+
+    return () => {
+      load = true
+    }
+  }, [outRoomLink, playersMe])
+
   return (
     <>
-      <Box className="block gap-3 lg:flex ">
+      <Box
+        component="div"
+        className="block w-full gap-3 lg:flex"
+      >
         {_roomId &&
           (data ? (
             <>
-              <Box className="relative w-full rounded-3xl border border-neutral-700 lg:w-[1020px]">
-                {playerGameSingle && (
+              <Box
+                component="div"
+                className="relative w-full rounded-3xl border border-neutral-700"
+              >
+                {isLoading && (
                   <HeaderWaitingRoom
-                    roomTag={playerGameSingle.room_number}
-                    roomName={`#${data.name} ${playerGameSingle.room_number}`}
+                    roomTag={playerGameSingle?.room_number ?? ""}
+                    roomName={`#${data.name} ${
+                      playerGameSingle?.room_number ?? ""
+                    }`}
                     timer={{
-                      time: new Date(playerGameSingle.end_time)
+                      time: playerGameSingle
+                        ? new Date(playerGameSingle?.end_time)
+                        : new Date()
                     }}
                     player={{
                       currentPlayer:
-                        playersMap.filter((ele) => ele).length ?? 0,
-                      maxPlayer: playerGameSingle.max_players ?? 8
+                        playersMap?.filter((ele) => ele).length ?? 0,
+                      maxPlayer: playerGameSingle?.max_players ?? 8
                     }}
                     onOutRoom={outRoom}
                   />
                 )}
 
-                {!isLoading && (
+                {!isLoading ? (
                   <>
+                    <HeaderWaitingRoom
+                      roomTag={playerGameSingle?.room_number ?? ""}
+                      roomName={`#${data.name} ${
+                        playerGameSingle?.room_number ?? ""
+                      }`}
+                      timer={{
+                        time: playerGameSingle
+                          ? new Date(playerGameSingle?.end_time)
+                          : new Date()
+                      }}
+                      player={{
+                        currentPlayer:
+                          playersMap?.filter((ele) => ele).length ?? 0,
+                        maxPlayer: playerGameSingle?.max_players ?? 8
+                      }}
+                      onOutRoom={outRoom}
+                    />
                     <SeatPlayersSingle
                       players={playersMap}
                       room_id={_roomId}
                     />
+                  </>
+                ) : (
+                  <>
+                    <SkeletonCardPlayers />
                   </>
                 )}
               </Box>
@@ -132,9 +204,36 @@ const GameSinglePlayer = ({ _roomId }: IPropWaitingSingle) => {
           ) : (
             <>Loading...</>
           ))}
-        {(!data?.play_to_earn || !data.tournament) && (
-          <Box className="rounded-3xl lg:w-[333px]">
-            {data && <CardBuyItem gameObject={data} />}
+        {data && (
+          <Box
+            component="div"
+            className="flex flex-col gap-3 rounded-3xl lg:w-[333px]"
+            sx={{
+              ".panel-content": {
+                maxHeight: "200px",
+                ".custom-scroll": {
+                  overflow: "hidden"
+                }
+              },
+              ".like-no_score": {
+                margin: "0"
+              }
+            }}
+          >
+            <OverviewContent
+              gameId={data.id}
+              gameType={getGameMode(data)}
+            />
+            {isFreeToEarnGame(data) && (
+              <TopPlayerFreeToEarn
+                gameId={data.id}
+                total={10}
+                gameItem={data.item[0] || ({} as IGameItem)}
+              />
+            )}
+            {data.game_mode === "play-to-earn" && !data.tournament && (
+              <CardBuyItem gameObject={data} />
+            )}
           </Box>
         )}
       </Box>

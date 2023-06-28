@@ -9,9 +9,14 @@ import { useWeb3Provider } from "@providers/index"
 import { ITransactionResponse } from "@interfaces/ITransaction"
 import Helper from "@utils/helper"
 import BalanceVaultAbi from "@configs/abi/BalanceVault.json"
-import { DEFAULT_TOKEN_INFO, ITokenContract } from "./useContractVaultBinance"
+import { DEFAULT_TOKEN_INFO } from "@constants/defaultValues"
+import useProfileStore from "@stores/profileStore"
+// import { nodesRPCPolygon } from "@constants/rpcUrls"
+// import { random } from "lodash"
+import { ITokenContract } from "./useContractVaultBinance"
 
 const useContractVault = () => {
+  const profile = useProfileStore((state) => state.profile.data)
   const { WeiToNumber } = Helper
   const { signer, address: account } = useWeb3Provider()
   const [isLoading, setIsLoading] = useState(false)
@@ -154,8 +159,17 @@ const useContractVault = () => {
   ) =>
     // eslint-disable-next-line no-async-promise-executor
     new Promise<ITokenContract>(async (resolve) => {
+      if (
+        _userAddress.toLocaleLowerCase() !==
+        profile?.address.toLocaleLowerCase()
+      )
+        return
       try {
         const { ethereum }: any = window
+        // const _provider = new ethers.providers.Web3Provider(
+        //   ethereum,
+        //   nodesRPCPolygon[random(0, nodesRPCPolygon.length - 1)]
+        // )
         const _provider = new ethers.providers.Web3Provider(ethereum)
         const _signer = _provider.getSigner()
         const _balanceVaultContract = new ethers.Contract(
@@ -171,7 +185,8 @@ const useContractVault = () => {
         const namePromise = await tokenContract.name()
         const decimalsPromise = await tokenContract.decimals()
         const walletBalancePromise = await tokenContract.balanceOf(_userAddress)
-        const [tokenSymbol, totalSupply, tokenName] = await Promise.all([
+        // tokenName
+        const [tokenSymbol, totalSupply] = await Promise.all([
           symbolPromise,
           totalSupplyPromise,
           namePromise,
@@ -179,9 +194,10 @@ const useContractVault = () => {
           walletBalancePromise
         ])
 
+        // tokenName.toString() === "NK" ? "NAKA" : tokenName.toString()
         resolve({
           symbol: tokenSymbol.toString(),
-          tokenName: tokenName.toString(),
+          tokenName: "NAKA",
           totolSupply: totalSupply,
           decimals: decimalsPromise,
           address: _tokenAddress,
@@ -189,13 +205,15 @@ const useContractVault = () => {
             digit: Number(Helper.WeiToNumber(walletBalancePromise).toFixed(4)),
             text: Helper.formatNumber(WeiToNumber(walletBalancePromise), {
               maximumFractionDigits: 1
-            })
+            }),
+            hex: walletBalancePromise
           },
           balanceVault: {
             digit: Number(Helper.WeiToNumber(vaultBalancePromise).toFixed(4)),
             text: Helper.formatNumber(WeiToNumber(vaultBalancePromise), {
               maximumFractionDigits: 1
-            })
+            }),
+            hex: vaultBalancePromise
           }
         })
       } catch (err) {

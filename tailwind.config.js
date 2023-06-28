@@ -20,7 +20,8 @@ module.exports = {
         main: "#F42728",
         light: "#FFAEAB",
         dark: "#F42728",
-        contrastText: "#010101"
+        contrastText: "#010101",
+        100: "#F32429"
       },
       info: {
         main: "#27F1EC",
@@ -29,16 +30,17 @@ module.exports = {
         contrastText: "#010101"
       },
       success: {
-        main: "#5DBE74",
+        main: "#3DCD95",
         light: "#D8F3D5",
-        dark: "#5DBE74",
+        dark: "#3DCD95",
         contrastText: "#010101"
       },
       warning: {
         main: "#E1D35A",
         light: "#FBE88E",
         dark: "#FFCA63",
-        contrastText: "#010101"
+        contrastText: "#010101",
+        100: "#F2C94C"
       },
       neutral: {
         100: "#F7FBFA",
@@ -48,10 +50,14 @@ module.exports = {
         500: "#70727B",
         600: "#4E5057",
         680: "#333338",
+        690: "#35383F",
         700: "#232329",
+        710: "#1F222A",
         780: "#101013",
         800: "#18181C",
-        900: "#010101"
+        830: "#1f1f23",
+        900: "#010101",
+        950: "#23232962"
       },
       black: {
         100: "#000000",
@@ -80,7 +86,8 @@ module.exports = {
         "sans-serif"
       ],
       "digital-7": "digital-7",
-      "mondwest": ["mondwest", "Helvetica", "Arial", "sans-serif"]
+      "mondwest": ["mondwest", "Helvetica", "Arial", "sans-serif"],
+      "urbanist": ["Urbanist", "Helvetica", "Arial", "sans-serif"]
     },
     /* extend config here */
     extend: {
@@ -92,7 +99,8 @@ module.exports = {
       colors: {
         purple: {
           primary: "#7B5BE6",
-          "01": "#7a5be6"
+          "01": "#7a5be6",
+          "02": "#D5A9FF"
         },
         white: {
           primary: "#E1E2E2",
@@ -130,12 +138,16 @@ module.exports = {
         },
         grey: {
           default: "#98A0B5",
+          "neutral01": "#E0E0E0",
           "neutral04": "#A6A9AE"
         },
         black: {
           default: "#70727B"
         },
         transparent: "transparent"
+      },
+      screens: {
+        "3xl": "1601px"
       },
       borderRadius: {
         less: "4px",

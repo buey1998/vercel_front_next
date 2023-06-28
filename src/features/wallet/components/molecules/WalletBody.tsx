@@ -1,13 +1,9 @@
-import ButtonIcon from "@components/atoms/button/ButtonIcon"
 import IStickerSolid from "@components/icons/StickerSolid"
-import IVector from "@components/icons/Vector"
-import { MESSAGES } from "@constants/messages"
-import { useToast } from "@feature/toast/containers"
 import { IBalanceDisplay } from "@hooks/useAllBalances"
 import { styled } from "@mui/material"
-import Helper from "@utils/helper"
 import { ReactNode } from "react"
-import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded"
+import { useTranslation } from "react-i18next"
+import WalletAddress from "../atoms/WalletAddress"
 
 export const KeyFramesRotate = styled("div")({
   "@keyframes rotation": {
@@ -34,44 +30,30 @@ const WalletBody = ({
   className,
   contractAddress
 }: IWalletBodyProps) => {
-  const { successToast } = useToast()
+  const { t } = useTranslation()
   return (
-    <div className="relative mb-2 flex w-full flex-col gap-1 rounded-default bg-black-100 p-8">
+    <div className="relative mb-2 flex w-full flex-col gap-1 rounded-default bg-black-100 p-4 sm:p-8">
       <p className="text-sm uppercase text-neutral-600">
-        Your {tokenSymbol} in storage{" "}
+        {`${t("your")} ${tokenSymbol} ${t("in_storage")}${" "}`}
       </p>
       <div className="mb-4 flex w-[250px] items-center uppercase">
         {tokenSymbol}
-        <p className={`font-digital ml-2 text-2xl uppercase ${className}`}>
-          {`${balance && balance.text} ${tokenSymbol}`}
+        <p
+          className={`font-digital ml-2 whitespace-nowrap text-2xl uppercase ${className}`}
+        >
+          {`${balance && balance.text}`}
+          {/* ${tokenSymbol} */}
         </p>
       </div>
-      <IVector
-        width="325"
-        height="6"
-        className="mb-2"
-      />
+      <div className="h-[10px] w-full rounded-[13px] bg-[url('/images/services/curvy-line.png')]" />
       <div className="flex items-center">
-        <span className="text-xl uppercase text-neutral-600">
-          {tokenSymbol}
+        <span className="font-neue-machina-semi text-sm uppercase text-neutral-600">
+          {`Contract `}
+          {/* {`${tokenSymbol}`} */}
         </span>
-        {contractAddress && (
-          <div className="flex items-center text-base text-neutral-600">
-            <span className="mx-2 inline-block rounded-sm">
-              {Helper.shortenString(contractAddress)}
-            </span>
-            <ButtonIcon
-              onClick={() => {
-                Helper.copyClipboard(contractAddress)
-                successToast(MESSAGES.copy)
-              }}
-              className="m-1 flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-700 bg-neutral-800"
-              icon={<ContentCopyRoundedIcon />}
-            />
-          </div>
-        )}
+        <WalletAddress contractAddress={contractAddress || ""} />
       </div>
-      <div className="absolute top-2 right-2">
+      <div className="absolute right-2 top-2">
         <KeyFramesRotate>
           <IStickerSolid
             width="70"

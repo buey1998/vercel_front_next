@@ -10,10 +10,11 @@ const useGetBlogDetails = (blog_id: string) => {
   } = useQuery({
     queryKey: ["getBlogDetails", blog_id],
     queryFn: () => getBlogDetail(blog_id),
-    staleTime: Infinity
+    staleTime: Infinity,
+    enabled: blog_id !== ""
   })
   return {
-    getBlogDetails,
+    getBlogDetails: getBlogDetails?.data,
     error,
     isLoading,
     isError

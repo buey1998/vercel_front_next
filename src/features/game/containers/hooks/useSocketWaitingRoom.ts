@@ -85,23 +85,39 @@ const useSocketWaitingRoom = (props: IPropsSocketWaiting) => {
   }
 
   useEffect(() => {
-    // check room time out
-    socketWaitingRoom.on(EVENTS.LISTENERS.WAITING_ROOM_TIMEOUT, () => {
-      if (gameData) {
-        errorToast(MESSAGES["room-expried"])
-        router.push(`/${router.query.typeGame}/${gameData.path}/roomlist`)
-      }
-    })
+    let load = false
+
+    if (!load) {
+      // check room time out
+      socketWaitingRoom.on(EVENTS.LISTENERS.WAITING_ROOM_TIMEOUT, () => {
+        if (gameData) {
+          errorToast(MESSAGES["room-expried"])
+          router.push(`/${router.query.typeGame}/${gameData.path}/roomlist`)
+        }
+      })
+    }
+
+    return () => {
+      load = true
+    }
   }, [errorToast, gameData, router, socketWaitingRoom])
 
   useEffect(() => {
-    // check owner kick
-    socketWaitingRoom.on(EVENTS.LISTENERS.WAITING_ROOM_KICK, () => {
-      if (gameData) {
-        errorToast(MESSAGES["you-were-kicked"])
-        router.push(`/${router.query.typeGame}/${gameData.path}/roomlist`)
-      }
-    })
+    let load = false
+
+    if (!load) {
+      // check owner kick
+      socketWaitingRoom.on(EVENTS.LISTENERS.WAITING_ROOM_KICK, () => {
+        if (gameData) {
+          errorToast(MESSAGES["you-were-kicked"])
+          router.push(`/${router.query.typeGame}/${gameData.path}/roomlist`)
+        }
+      })
+    }
+
+    return () => {
+      load = true
+    }
   }, [errorToast, gameData, router, socketWaitingRoom])
 
   /**
@@ -125,9 +141,9 @@ const useSocketWaitingRoom = (props: IPropsSocketWaiting) => {
     [socketWaitingRoom]
   )
 
-  const onSendMessage = async () => {
+  const onSendMessage = async (_message?: string) => {
     await socketWaitingRoom.emit(EVENTS.ACTION.CHAT_SEND_MESSAGE, {
-      message
+      message: message || _message
     })
     await setMessage("")
   }
@@ -171,7 +187,8 @@ const useSocketWaitingRoom = (props: IPropsSocketWaiting) => {
       }).then(async (_res: IBurnItemResponse) => {
         if (_res) {
           resolve(_res.status)
-          successToast(MESSAGES["you-burn-item"])
+          if (gameData?.play_to_earn_status !== "free")
+            successToast(MESSAGES["you-burn-item"])
         }
         reject(_res)
       })
@@ -253,10 +270,11 @@ const useSocketWaitingRoom = (props: IPropsSocketWaiting) => {
             resolve(false)
           }
         })
+      } else {
+        transactionAction(false)
+        waitingRoomItemBurnAction(player_id, true)
+        resolve(true)
       }
-      transactionAction(false)
-      waitingRoomItemBurnAction(player_id, true)
-      resolve(true)
     })
 
   const getPlayersCheckItemOfPlayerListen = useCallback(
@@ -291,11 +309,23 @@ const useSocketWaitingRoom = (props: IPropsSocketWaiting) => {
   )
 
   useEffect(() => {
-    getPlayersCheckRoomRollbackListen()
+    let load = false
+
+    if (!load) getPlayersCheckRoomRollbackListen()
+
+    return () => {
+      load = true
+    }
   }, [getPlayersCheckRoomRollbackListen, isConnected])
 
   useEffect(() => {
-    getPlayersCheckItemOfPlayerListen()
+    let load = false
+
+    if (!load) getPlayersCheckItemOfPlayerListen()
+
+    return () => {
+      load = true
+    }
   }, [getPlayersCheckItemOfPlayerListen, isConnected])
 
   return {

@@ -1,4 +1,9 @@
-import { IMenu, IMenuIcon } from "@interfaces/IMenu"
+import {
+  IMenu,
+  IMenuIcon,
+  IMenuMarketPlace,
+  ISelectDropDown
+} from "@interfaces/IMenu"
 import CONFIGS from "@configs/index"
 import EditProfileIcon from "@components/icons/MenunIcon/EditProfileIcon"
 import WishlistIcon from "@components/icons/MenunIcon/WishlistIcon"
@@ -8,13 +13,6 @@ import InventoryIcon from "@components/icons/MenunIcon/InventoryIcon"
 import ItemRewardIcon from "@components/icons/MenunIcon/ItemRewardIcon"
 import SupportIcon from "@components/icons/MenunIcon/SupportIcon"
 import IconDollar from "@components/icons/dollarIcon"
-import StoryBoardIcon from "@components/icons/StoryBoardIcon"
-import TournamentIcon from "@components/icons/TournamentIcon"
-import AttachMoneyIcon from "@mui/icons-material/AttachMoney"
-import MoneyOffIcon from "@mui/icons-material/MoneyOff"
-import MapOutlinedIcon from "@mui/icons-material/MapOutlined"
-import DiamondIcon from "@mui/icons-material/Diamond"
-import Diamond from "@components/icons/Diamond"
 import { IMAGES } from "@constants/images"
 import AboutUsIcon from "@components/icons/BlogIcon/AboutUsIcon"
 import Campfire from "@components/icons/Campfire"
@@ -26,22 +24,44 @@ import FireOutLineIcon from "@components/icons/BlogIcon/FireOutLineIcon"
 import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined"
 import AccessTimeIcon from "@mui/icons-material/AccessTime"
 import Inventory from "@components/icons/Inventory"
-import ItemReward from "@components/icons/ItemReward"
 import Support from "@components/icons/Support"
 import Profile from "@components/icons/Profile"
 import ICoupon from "@components/icons/Coupon"
 import IReferrals from "@components/icons/Referrals"
 import IStacking from "@components/icons/Stacking"
 import IconSwap from "@components/icons/SwapIcon"
-import GlobalIcon from "@components/icons/GlobalIcon"
-import BoltIcon from "@mui/icons-material/Bolt"
-import LanguageOutlinedIcon from "@mui/icons-material/LanguageOutlined"
 import SwapCallsIcon from "@mui/icons-material/SwapCalls"
 import LocalActivityOutlinedIcon from "@mui/icons-material/LocalActivityOutlined"
 import BlogIcon from "@components/icons/BlogIcon/BlogIcon"
 import WalletIcon from "@components/icons/MenunIcon/WalletIcon"
 import LaunchIcon from "@components/icons/MenunIcon/LaunchIcon"
 import TransactionIcon from "@components/icons/MenunIcon/TransactionIcon"
+import MyLandIcon from "@components/icons/Inventory/MyLandIcon"
+import TransactionIconMKP from "@components/icons/Inventory/TransactionIcon"
+import DollarIcon from "@components/icons/Referral/DollarIcon"
+import ProcessPaymentIcon from "@components/icons/Inventory/ProcessPaymentIcon"
+import { TType } from "@feature/marketplace/interfaces/IMarketService"
+import CommissionIcon from "@components/icons/MenunIcon/CommissionIcon"
+import IDiamond from "@components/icons/Diamond"
+import CalendarSolidIcon from "@components/icons/CalendarSolidIcon"
+import GameStoryIcon from "@components/icons/GameStoryIcon"
+import FreeToEarnIcon from "@components/icons/FreeToEarnIcon"
+import DesktopIcon from "@components/icons/DesktopIcon"
+import {
+  GameItemIcon,
+  LandIcon,
+  BuildingIcon,
+  MaterialIcon,
+  NakapunkIcon,
+  ArcadeGameIcon,
+  ReefIcon
+} from "@components/icons/MenunIcon/MarketIcon"
+
+// TODO: Open after launch V2
+// import GlobalIcon from "@components/icons/GlobalIcon"
+// import BoltIcon from "@mui/icons-material/Bolt"
+// import LanguageOutlinedIcon from "@mui/icons-material/LanguageOutlined"
+// import TournamentIcon from "@components/icons/TournamentIcon"
 
 export const MENU = [
   {
@@ -68,43 +88,56 @@ export const MENU = [
     },
     chide: [
       {
-        name: "Play To Earn Mode",
-        link: "/play-to-earn-games",
-        icon: AttachMoneyIcon
+        name: "Play To Earn Games",
+        link: "/play-to-earn",
+        icon: <IconDollar.Ori className="stroke-neutral-300" />
       },
       {
-        name: "Free Mode",
-        link: "/free-to-play-games",
-        icon: MoneyOffIcon,
+        name: "Free To Play Games",
+        link: "/free-to-play",
+        icon: <IconDollar.Mask className="stroke-neutral-300" />,
         textRight: "Free"
       },
       {
-        name: "Story Mode",
-        link: "/story-mode-games",
-        icon: MapOutlinedIcon,
+        name: "Free To Earn Games",
+        icon: <FreeToEarnIcon stroke="#E1E2E2" />,
+        link: "/free-to-earn",
         textRight: "Free"
       },
       {
-        name: "Tournament",
-        link: "/tournament",
-        icon: TournamentIcon
-      } /**
-       @description name svgIcon in forder menu in public (if icon is string) */,
-      {
-        name: "Partner Games",
-        link: "/partner-games",
-        icon: LanguageOutlinedIcon
+        name: "Story Mode Games",
+        link: "/story-mode",
+        icon: <GameStoryIcon stroke="#E1E2E2" />,
+        textRight: "Free"
       },
+      // TODO: Open after launch V2
+      // {
+      //   name: "Tournament",
+      //   link: "/tournament",
+      //   icon: TournamentIcon
+      // } /**
+      //  @description name svgIcon in forder menu in public (if icon is string) */,
+      // {
+      //   name: "Partner Games",
+      //   link: "/partner-games",
+      //   icon: LanguageOutlinedIcon
+      // },
       {
         name: "Arcade Emporium",
         link: "/arcade-emporium",
-        icon: DiamondIcon
+        icon: IDiamond
       },
       {
-        name: "NAKA Pass",
-        icon: BoltIcon,
-        link: "/naka-pass"
+        name: "Events",
+        link: "/events",
+        icon: CalendarSolidIcon
       }
+      // TODO: Open after launch V2
+      // {
+      //   name: "NAKA Pass",
+      //   icon: BoltIcon,
+      //   link: "/naka-pass"
+      // }
       // {
       //   name: "NFT Pass",
       //   link: "/nft-pass",
@@ -142,7 +175,7 @@ export const MENU = [
     ]
   },
   {
-    name: "Naka Ecosystems",
+    name: "NAKA Ecosystem",
     link: "/naka-ecosystems",
     isChide: true,
     left: "-180px !important",
@@ -154,6 +187,21 @@ export const MENU = [
     },
     chide: [
       {
+        name: "Marketplace",
+        link: `${CONFIGS.BASE_URL.MARKETPLACE}`,
+        icon: MarketPlaceIcon
+      },
+      {
+        name: "Nakaverse",
+        link: `${CONFIGS.BASE_URL.NAKAVERSE}`,
+        icon: NakaverseIcon
+      },
+      {
+        name: "Nakapunks",
+        link: `${CONFIGS.BASE_URL.MARKETPLACE}/naka-punk`,
+        icon: NakapunksIcon
+      },
+      {
         name: "Blog",
         link: "/blog",
         icon: BlogIcon
@@ -163,67 +211,82 @@ export const MENU = [
         link: "https://main.nakamoto.games",
         icon: AboutUsIcon
       },
+      // TODO: Open after launch V2
       {
-        name: "Marketplace",
-        link: "/marketplace",
-        icon: MarketPlaceIcon
-      },
-      { name: "Nakaverse", link: "/nakaverse", icon: NakaverseIcon },
-      { name: "Nakapunks", link: "/nakapunks", icon: NakapunksIcon }
+        name: "Become Developer",
+        link: "/become-developer",
+        icon: DesktopIcon
+      }
     ]
   }
 ]
 
 export const MENU_GUEST: IMenu[] = [
   {
-    id: "games",
-    label: "Play To Earn Mode",
+    id: "play-to-earn",
+    label: "Play To Earn Games",
     icon: <IconDollar.Ori className="stroke-neutral-300" />,
-    href: "/play-to-earn-games",
+    href: "/play-to-earn",
+    external: false
+  },
+  {
+    id: "free-to-play",
+    label: "Free To Play Games",
+    icon: <IconDollar.Mask className="stroke-neutral-300" />,
+    href: "/free-to-play",
     external: false
   },
   {
     id: "free-to-earn",
-    label: "Free Mode",
-    icon: <IconDollar.Mask className="stroke-neutral-300" />,
-    href: "/free-to-play-games",
+    label: "Free To Earn Games",
+    icon: <FreeToEarnIcon stroke="#E1E2E2" />,
+    href: "/free-to-earn",
     external: false
   },
   {
-    id: "free-to-play-games",
-    label: "Story Mode",
-    icon: <StoryBoardIcon className="stroke-neutral-300" />,
-    href: "/story-mode-games",
+    id: "story-mode",
+    label: "Story Mode Games",
+    icon: <GameStoryIcon stroke="#E1E2E2" />,
+    href: "/story-mode",
     external: false
   },
-  {
-    id: "tournament",
-    label: "Tournament",
-    icon: <TournamentIcon className="stroke-neutral-300" />,
-    href: "/tournament/636e5091feb7364211af6858/naka-runner-tournament-hosted-by-slayer",
-    external: false
-  },
-  {
-    id: "partner-games",
-    label: "Partner Games",
-    icon: <GlobalIcon className="stroke-neutral-300" />,
-    href: "/partner-games",
-    external: false
-  },
+  // TODO: Open after launch V2
+  // {
+  //   id: "tournament",
+  //   label: "Tournament",
+  //   icon: <TournamentIcon className="stroke-neutral-300" />,
+  //   href: "/tournament",
+  //   external: false
+  // },
+  // {
+  //   id: "partner-games",
+  //   label: "Partner Games",
+  //   icon: <GlobalIcon className="stroke-neutral-300" />,
+  //   href: "/partner-games",
+  //   external: false
+  // },
   {
     id: "arcade-emporium",
     label: "Arcade Emporium",
-    icon: <Diamond stroke="#E1E2E2" />,
+    icon: <IDiamond stroke="#E1E2E2" />,
     href: "/arcade-emporium",
     external: false
   },
   {
-    id: "naka-pass",
-    label: "NAKA Pass",
-    icon: <BoltIcon stroke="#E1E2E2" />,
-    href: "/naka-pass",
-    external: true
+    id: "events",
+    label: "Events",
+    icon: <CalendarSolidIcon stroke="#E1E2E2" />,
+    href: "/events",
+    external: false
   }
+  // TODO: Open after launch V2
+  // {
+  //   id: "naka-pass",
+  //   label: "NAKA Pass",
+  //   icon: <BoltIcon stroke="#E1E2E2" />,
+  //   href: "/naka-pass",
+  //   external: true
+  // }
 ]
 
 export const MENU_LOGGEDIN: IMenu[] = [
@@ -264,9 +327,16 @@ export const MENU_LOGGEDIN: IMenu[] = [
   },
   {
     id: "play-history",
-    label: "Play History",
+    label: "Played History",
     href: "/history",
     icon: <PlayHistoryIcon />,
+    external: false
+  },
+  {
+    id: "commission",
+    label: "Commission",
+    href: "/commission",
+    icon: <CommissionIcon />,
     external: false
   },
   {
@@ -338,6 +408,7 @@ export const MENU_PROFILE = [
     external: false
   }
 ]
+
 export const MENU_PROFILE_Datell: IMenu[] = [
   {
     id: "my profile",
@@ -377,7 +448,7 @@ export const MENU_PROFILE_Datell: IMenu[] = [
   {
     id: "item reward",
     label: "Item Reward",
-    icon: <ItemReward className="stroke-neutral-300" />,
+    icon: <ItemRewardIcon />,
     href: "/item-reward",
     external: false
   },
@@ -389,6 +460,7 @@ export const MENU_PROFILE_Datell: IMenu[] = [
     external: false
   }
 ]
+
 export const MENU_MAIN_PC: IMenuIcon[] = [
   {
     title: "P2P Trading",
@@ -409,28 +481,35 @@ export const MENU_BLOG: IMenu[] = [
     id: "about-us",
     label: "About Us",
     icon: <AboutUsIcon className="stroke-neutral-300" />,
-    href: "/",
+    href: "https://main.nakamoto.games/",
     external: false
   },
   {
     id: "marketplace",
     label: "Marketplace",
     icon: <MarketPlaceIcon className="stroke-neutral-300" />,
-    href: "/",
-    external: false
+    href: CONFIGS.BASE_URL.MARKETPLACE,
+    external: true
   },
   {
     id: "nakaverse",
     label: "Nakaverse",
     icon: <NakaverseIcon className="stroke-neutral-300" />,
-    href: "/",
-    external: false
+    href: `${CONFIGS.BASE_URL.NAKAVERSE}`,
+    external: true
   },
   {
     id: "nakapunks",
     label: "Nakapunks",
     icon: <NakapunksIcon className="stroke-neutral-300" />,
-    href: "/",
+    href: `${CONFIGS.BASE_URL.MARKETPLACE}/nakapunks`,
+    external: false
+  },
+  {
+    id: "become-developer",
+    label: "Become Developer",
+    icon: <DesktopIcon className="stroke-neutral-300" />,
+    href: "/become-developer",
     external: false
   }
 ]
@@ -520,11 +599,11 @@ export const MENU_SERVICES = [
   }
 ]
 
-export const MENU_MARKETPLACE = [
+export const MENU_MARKETPLACE: IMenuMarketPlace[] = [
   {
     name: "NAKA Market",
     link: "/marketplace",
-    isChilde: true,
+    isChilde: false,
     left: "180px !important",
     image: {
       src: IMAGES.tableCom.src,
@@ -536,17 +615,22 @@ export const MENU_MARKETPLACE = [
       {
         name: "Land",
         link: "/marketplace",
-        icon: MarketPlaceIcon
+        icon: LandIcon
       },
       {
-        name: "Building",
+        name: "Buildings",
         link: "/marketplace/building",
-        icon: MarketPlaceIcon
+        icon: BuildingIcon
       },
       {
-        name: "NAKA Punk",
+        name: "NAKA Punks",
         link: "/marketplace/naka-punk",
-        icon: MarketPlaceIcon
+        icon: NakapunkIcon
+      },
+      {
+        name: "Avatar Reef",
+        link: "/marketplace/avatar-reef",
+        icon: ReefIcon
       }
     ]
   },
@@ -563,45 +647,302 @@ export const MENU_MARKETPLACE = [
     chide: [
       {
         name: "Game Item",
-        link: "/marketplace/p2p/game",
-        icon: MarketPlaceIcon
+        link: "/marketplace/p2p/game-item",
+        icon: GameItemIcon
       },
       {
         name: "Land",
         link: "/marketplace/p2p/land",
-        icon: MarketPlaceIcon
+        icon: LandIcon
       },
       {
-        name: "Building",
+        name: "Buildings",
         link: "/marketplace/p2p/building",
-        icon: MarketPlaceIcon
+        icon: BuildingIcon
       },
       {
         name: "Material",
         link: "/marketplace/p2p/material",
-        icon: MarketPlaceIcon
+        icon: MaterialIcon
       },
       {
-        name: "NAKA Punk",
+        name: "NAKA Punks",
         link: "/marketplace/p2p/naka-punk",
-        icon: MarketPlaceIcon
+        icon: NakapunkIcon
+      },
+      {
+        name: "Arcade Game",
+        link: "/marketplace/p2p/arcade-game",
+        icon: ArcadeGameIcon
       }
-      // {
-      //   name: "NFT Game",
-      //   link: "/marketplace/p2p/nft",
-      //   icon: MarketPlaceIcon
-      // }
     ]
   },
   {
     name: "Nakaverse Map",
     link: "/marketplace/map",
-    isChide: false,
+    isChilde: true,
     image: {
       src: IMAGES.tableCom.src,
       widthImg: 240,
       height: 150,
       alt: "image-game"
     }
+  }
+]
+
+interface IMenuFilter {
+  page:
+    | "marketplace"
+    | "p2p"
+    | "inventory"
+    | "forsale"
+    | "rental"
+    | "process-payment"
+  child: { name: string; href: string }[]
+}
+
+export const MENU_MARKETPLACE_FILTERBOX: IMenuFilter[] = [
+  {
+    page: "p2p",
+    child: [
+      { name: "Game Item", href: "/marketplace/p2p/game-item" },
+      { name: "Land", href: "/marketplace/p2p/land" },
+      { name: "Buildings", href: "/marketplace/p2p/building" },
+      { name: "Material", href: "/marketplace/p2p/material" },
+      { name: "NAKA Punks", href: "/marketplace/p2p/naka-punk" },
+      { name: "Arcade Game", href: "/marketplace/p2p/arcade-game" }
+    ]
+  },
+  {
+    page: "forsale",
+    child: [
+      { name: "Game Item", href: "/marketplace/inventory/forsale/game-item" },
+      { name: "Material", href: "/marketplace/inventory/forsale/material" },
+      { name: "Land", href: "/marketplace/inventory/forsale/land" },
+      { name: "Buildings", href: "/marketplace/inventory/forsale/building" },
+      {
+        name: "Arcade Game",
+        href: "/marketplace/inventory/forsale/arcade-game"
+      },
+      { name: "NAKA Punks", href: "/marketplace/inventory/forsale/naka-punk" }
+    ]
+  },
+  {
+    page: "rental",
+    child: [
+      { name: "Land", href: "/marketplace/inventory/rental/land" },
+      { name: "Buildings", href: "/marketplace/inventory/rental/building" }
+    ]
+  },
+  {
+    page: "process-payment",
+    child: [
+      { name: "Land", href: "/marketplace/inventory/process-payment/land" },
+      {
+        name: "Building",
+        href: "/marketplace/inventory/process-payment/building"
+      }
+    ]
+  },
+  {
+    page: "inventory",
+    child: [
+      { name: "Game Item", href: "/marketplace/inventory/game-item" },
+      { name: "Land", href: "/marketplace/inventory/land" },
+      { name: "Building", href: "/marketplace/inventory/building" },
+      { name: "Material", href: "/marketplace/inventory/material" },
+      { name: "NAKA Punks", href: "/marketplace/inventory/naka-punk" },
+      { name: "Arcade Game", href: "/marketplace/inventory/arcade-game" },
+      { name: "Avatar Reef", href: "/marketplace/inventory/avatar-reef" }
+    ]
+  },
+  {
+    page: "marketplace",
+    child: [
+      { name: "Land", href: "/marketplace/land" },
+      { name: "Buildings", href: "/marketplace/building" },
+      { name: "NAKA Punks", href: "/marketplace/naka-punk" },
+      { name: "Avatar Reef", href: "/marketplace/avatar-reef" }
+    ]
+  }
+]
+
+export const MENU_MARKETPLACE_INVENTORY: IMenu[] = [
+  {
+    id: "inventory",
+    label: "Inventory",
+    icon: <InventoryIcon />,
+    href: "/marketplace/inventory",
+    external: false
+  },
+  {
+    id: "for-sale",
+    label: "For Sale",
+    icon: <DollarIcon />,
+    href: "/marketplace/inventory/forsale",
+    external: false
+  },
+  {
+    id: "rental",
+    label: "Rental",
+    icon: <DollarIcon />,
+    href: "/marketplace/inventory/rental",
+    external: false
+  },
+  {
+    id: "process-payment",
+    label: "Process Payment",
+    icon: <ProcessPaymentIcon />,
+    href: "/marketplace/inventory/process-payment",
+    external: false
+  },
+  {
+    id: "transaction",
+    label: "Transaction",
+    icon: <TransactionIconMKP />,
+    href: "/marketplace/inventory/transaction",
+    external: false
+  },
+  {
+    id: "my-land",
+    label: "My Land",
+    icon: <MyLandIcon />,
+    href: "/marketplace/inventory/my-land",
+    external: false
+  }
+]
+
+export const MENU_ROUTER_MARKETPLACE_TYPE: TType[] = [
+  "land",
+  "building",
+  "naka-punk",
+  "material",
+  "game-item",
+  "arcade-game"
+]
+
+export const MENU_ROUTER_INVENTORY_RENTAL: TType[] = ["land", "building"]
+
+export const INVENTORY_DROPDOWN = [
+  {
+    label: "Land",
+    href: "/marketplace/inventory/land"
+  },
+  {
+    label: "Buildings",
+    href: "/marketplace/inventory/building"
+  },
+  {
+    label: "Game Item",
+    href: "/marketplace/inventory/game-item"
+  },
+  {
+    label: "Material",
+    href: "/marketplace/inventory/material"
+  },
+  {
+    label: "NAKA Punks",
+    href: "/marketplace/inventory/naka-punk"
+  },
+  {
+    label: "Arcade Game",
+    href: "/marketplace/inventory/arcade-game"
+  },
+  {
+    label: "Avatar Reef",
+    href: "/marketplace/inventory/avatar-reef"
+  }
+]
+
+export const INVENTORY_DROPDOWN_FORSALE = [
+  {
+    label: "Land",
+    href: "/marketplace/inventory/forsale/land"
+  },
+  {
+    label: "Buildings",
+    href: "/marketplace/inventory/forsale/building"
+  },
+  {
+    label: "Game Item",
+    href: "/marketplace/inventory/forsale/game-item"
+  },
+  {
+    label: "Material",
+    href: "/marketplace/inventory/forsale/material"
+  },
+  {
+    label: "NAKA Punks",
+    href: "/marketplace/inventory/forsale/naka-punk"
+  },
+  {
+    label: "Arcade Game",
+    href: "/marketplace/inventory/forsale/arcade-game"
+  }
+]
+
+export const INVENTORY_DROPDOWN_RENTAL = [
+  {
+    label: "Land",
+    href: "/marketplace/inventory/rental/land"
+  },
+  {
+    label: "Buildings",
+    href: "/marketplace/inventory/rental/building"
+  }
+]
+
+export const INVENTORY_DROPDOWN_PROCESS = [
+  {
+    label: "Land",
+    href: "/marketplace/inventory/process-payment/land"
+  },
+  {
+    label: "Buildings",
+    href: "/marketplace/inventory/process-payment/building"
+  },
+  {
+    label: "Arcade Game",
+    href: "/marketplace/inventory/process-payment/arcade-game"
+  }
+]
+
+export const MARKET_FILTER_PRICE: ISelectDropDown[] = [
+  { label: "Lowest to Highest", value: 1 },
+  { label: "Highest to Lowest", value: -1 }
+]
+
+export const MARKET_FILTER_SELLINGTYPE: ISelectDropDown[] = [
+  {
+    label: "Installment",
+    value: "installment"
+  },
+  {
+    label: "Fullpayment",
+    value: "fullpayment"
+  },
+  {
+    label: "Rental",
+    value: "rental"
+  }
+]
+
+export const MARKET_FILTER_DATE: ISelectDropDown[] = [
+  { label: "New", value: -1 },
+  { label: "Oldest", value: 1 }
+]
+
+export const MARKET_FILTER_MAP: ISelectDropDown[] = [
+  {
+    label: "Owned",
+    value: "Owned"
+  },
+  {
+    label: "Occupied",
+    value: "Occupied"
+  },
+  {
+    label: "Avaliable for sale",
+    value: "Avaliable for sale"
   }
 ]

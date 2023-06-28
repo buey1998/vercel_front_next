@@ -26,9 +26,17 @@ const GameReviews = ({ gameType, gameId }: IGameReviewProps) => {
   const [average, setAverage] = useState<number>(0)
 
   useEffect(() => {
-    if (allReviewsData) {
-      setReview(allReviewsData.data)
-      setTotalCount(allReviewsData.info.totalCount)
+    let load = false
+
+    if (!load) {
+      if (allReviewsData) {
+        setReview(allReviewsData.data)
+        setTotalCount(allReviewsData.info.totalCount)
+      }
+    }
+
+    return () => {
+      load = true
     }
   }, [allReviewsData, setTotalCount])
 
@@ -36,13 +44,21 @@ const GameReviews = ({ gameType, gameId }: IGameReviewProps) => {
    * @description Calculate average rating
    */
   useEffect(() => {
-    if (review && review.length > 0) {
-      const total = review.reduce(
-        (acc, cur) => acc + parseFloat(cur.review_rate),
-        0
-      )
-      const _average = total / review.length
-      setAverage(_average)
+    let load = false
+
+    if (!load) {
+      if (review && review.length > 0) {
+        const total = review.reduce(
+          (acc, cur) => acc + parseFloat(cur.review_rate),
+          0
+        )
+        const _average = total / review.length
+        setAverage(_average)
+      }
+    }
+
+    return () => {
+      load = true
     }
   }, [review])
 
@@ -63,10 +79,10 @@ const GameReviews = ({ gameType, gameId }: IGameReviewProps) => {
                       width="200"
                       height="200"
                       alt={_item.user.username}
-                      className="h-[58px] w-full rounded-sm object-fill object-center"
+                      className="h-[58px] w-full rounded-sm object-cover object-center"
                     />
                   </div>
-                  <div className="review--item__content__header flex flex-wrap items-center lg:min-w-[300px] lg:justify-between">
+                  <div className="review--item__content__header flex w-full flex-wrap items-center lg:justify-between">
                     <div className="review--item__content-username">
                       {_item.user.username}
                     </div>
@@ -115,7 +131,7 @@ const GameReviews = ({ gameType, gameId }: IGameReviewProps) => {
                 setPage={setPage}
               />
             </div>
-            <div className="relative z-10 mt-5 mb-7">
+            <div className="relative z-10 mb-7 mt-5">
               {stateProfile ? (
                 <GoogleReCaptchaProvider
                   reCaptchaKey={`${process.env.NEXT_PUBLIC_KEY_RECAPTCHA}`}

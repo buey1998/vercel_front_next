@@ -3,19 +3,19 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations"
 import dynamic from "next/dynamic"
 
 const BlogLayout = dynamic(() => import("@components/templates/BlogLayout"), {
-  suspense: true
+  suspense: true,
+  ssr: false
 })
 const BlogListPage = dynamic(() => import("@feature/page/BlogListPage"), {
-  suspense: true
+  suspense: true,
+  ssr: false
 })
 
 export default function BlogPage() {
   return (
-    <>
-      <article className="h-full w-full">
-        <BlogListPage />
-      </article>
-    </>
+    <article className="h-full w-full">
+      <BlogListPage />
+    </article>
   )
 }
 

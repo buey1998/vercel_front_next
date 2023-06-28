@@ -2,18 +2,26 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations"
 import React, { ReactElement } from "react"
 import dynamic from "next/dynamic"
 
-const MarketplaceLayoutWithoutFilter = dynamic(
-  () =>
-    import("@components/templates/marketplace/MarketplaceLayoutWithoutFilter"),
+const MarketplaceFullMap = dynamic(
+  () => import("@feature/page/marketplace/MarketplaceFullMap"),
   {
-    suspense: true
+    suspense: true,
+    ssr: false
   }
 )
 
-const Map = () => <div>index</div>
+const MarketplaceLayoutInventory = dynamic(
+  () => import("@components/templates/marketplace/MarketplaceLayoutInventory"),
+  {
+    suspense: true,
+    ssr: false
+  }
+)
+
+const Map = () => <MarketplaceFullMap />
 
 Map.getLayout = function getLayout(page: ReactElement) {
-  return <MarketplaceLayoutWithoutFilter>{page}</MarketplaceLayoutWithoutFilter>
+  return <MarketplaceLayoutInventory>{page}</MarketplaceLayoutInventory>
 }
 
 export async function getServerSideProps({ locale }: { locale: string }) {

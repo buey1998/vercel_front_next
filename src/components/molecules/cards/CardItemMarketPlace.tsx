@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import ILogoMaster from "@components/icons/LogoMaster"
 import { Chip, Typography } from "@mui/material"
@@ -9,6 +9,14 @@ import { useToast } from "@feature/toast/containers"
 import { MESSAGES } from "@constants/messages"
 import { Image } from "@components/atoms/image"
 import Video from "@components/atoms/Video"
+import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAlt"
+import SentimentDissatisfiedIcon from "@mui/icons-material/SentimentDissatisfied"
+import SentimentVeryDissatisfiedIcon from "@mui/icons-material/SentimentVeryDissatisfied"
+import Link from "next/link"
+import { TType } from "@feature/marketplace/interfaces/IMarketService"
+import { isMobile } from "@hooks/useGlobal"
+// eslint-disable-next-line import/no-extraneous-dependencies
+import copy from "copy-to-clipboard"
 
 // motion
 const imgMotion = {
@@ -33,7 +41,7 @@ const imgMotion = {
 }
 
 interface IProp {
-  cardType: "game" | "land" | "building" | "material" | "naka-punk"
+  cardType: TType
   id?: string
   itemAmount?: number
   itemTotal?: number
@@ -50,9 +58,30 @@ interface IProp {
   itemName?: string
   itemSize?: string
   itemLevel?: string | number
-  sellingType?: string
+  percentage?: number
+  sellingType?: {
+    title?: string
+    color?:
+      | "default"
+      | "info"
+      | "primary"
+      | "secondary"
+      | "error"
+      | "success"
+      | "warning"
+  }
   price?: number
   nakaPrice?: number
+  href?: string
+  keyType?: string // "owner"
+  rental?: {
+    totalPeriod: number
+    totalBalancePeriod: number
+    totalPrice: number
+    exp: Date
+    owner?: string
+    buyer?: string
+  }
 }
 
 const CardItemMarketPlace = ({
@@ -65,48 +94,112 @@ const CardItemMarketPlace = ({
   itemName,
   itemSize,
   itemLevel,
+  percentage,
   sellingType,
   price,
-  nakaPrice
+  nakaPrice,
+  href,
+  keyType,
+  rental
 }: IProp) => {
   const { copyClipboard, formatNumber } = Helper
   const { successToast } = useToast()
 
+  // "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning"
+
+  const [size, setSize] = useState<Blob>()
+
+  useEffect(() => {
+    if (itemImage && itemName === "Bullet" && !size) {
+      fetch(itemImage?.src)
+        .then((response) => response.blob())
+        .then((blob) => {
+          setSize(blob)
+          // Further operations with the blob object
+        })
+        .catch(() => {})
+    }
+  }, [itemName, itemImage, size])
+
+  const handleColor = () => {
+    if (percentage)
+      switch (true) {
+        case percentage >= 80:
+          return "success"
+        case percentage >= 40:
+          return "warning"
+        default:
+          return "error"
+      }
+  }
+
+  const handleIcon = () => {
+    if (percentage)
+      switch (true) {
+        case percentage >= 80:
+          return <SentimentSatisfiedAltIcon sx={{ color: "#3DCD95" }} />
+        case percentage >= 40:
+          return <SentimentDissatisfiedIcon sx={{ color: "#E1D35A" }} />
+        default:
+          return <SentimentVeryDissatisfiedIcon sx={{ color: "#F42728" }} />
+      }
+  }
+
   return (
-    // <Link href={`/marketplace/`}>
-    <motion.div
-      whileHover="hover"
-      className="group relative h-fit w-[218px] cursor-pointer rounded-2xl border border-neutral-700 bg-neutral-780 p-2 hover:bg-neutral-900"
-    >
-      <div className="relative">
-        <div className="pointer-events-auto absolute z-20 m-[5px] flex">
-          {id && (
+    <div className="relative justify-self-center">
+      <div className="pointer-events-auto absolute z-20 m-[14px] mt-[18px] flex gap-2">
+        {itemAmount && (
+          <Chip
+            label={`${itemAmount}${itemTotal ? ` / ${itemTotal}` : ""}`}
+            variant="outlined"
+            size="small"
+            className="ml-1 cursor-pointer uppercase"
+            icon={
+              <GridViewRoundedIcon
+                sx={{
+                  width: 16,
+                  height: 16
+                }}
+                className="pb-[2px] !text-neutral-400"
+              />
+            }
+          />
+        )}
+        {id && !rental && (
+          <Chip
+            label={id}
+            variant="outlined"
+            size="small"
+            className="pointer-events-auto z-10 w-fit cursor-pointer truncate uppercase"
+            deleteIcon={
+              <ContentCopySharpIcon
+                sx={{
+                  width: 16,
+                  height: 16
+                }}
+                className="pb-[2px] !text-neutral-400"
+              />
+            }
+            // onDelete={() => {
+            //   copyClipboard(id)
+            //   successToast(MESSAGES.copy)
+            // }}
+            // onClick={handleDeleteClick}
+            onDelete={() => {
+              copy(id, {
+                debug: true,
+                message: successToast(MESSAGES.copy)
+              })
+            }}
+          />
+        )}
+        {itemLevel && (
+          <div className="flex w-[135px] justify-between sm:w-[190px]">
             <Chip
-              label={id}
+              label={`LV. : ${itemLevel}`}
               variant="outlined"
               size="small"
-              className="pointer-events-auto w-[93px] cursor-pointer truncate uppercase"
-              deleteIcon={
-                <ContentCopySharpIcon
-                  sx={{
-                    width: 16,
-                    height: 16
-                  }}
-                  className="pb-[2px] !text-neutral-400"
-                />
-              }
-              onDelete={() => {
-                copyClipboard(id)
-                successToast(MESSAGES.copy)
-              }}
-            />
-          )}
-          {itemAmount && (
-            <Chip
-              label={`${itemAmount}${itemTotal ? ` / ${itemTotal}` : ""}`}
-              variant="outlined"
-              size="small"
-              className="ml-1 cursor-pointer uppercase"
+              className="cursor-pointer uppercase"
               icon={
                 <GridViewRoundedIcon
                   sx={{
@@ -117,103 +210,256 @@ const CardItemMarketPlace = ({
                 />
               }
             />
-          )}
-        </div>
-
-        {itemImage && (
-          <div
-            className={`flex h-[202px] items-center justify-center rounded-lg border border-neutral-700 bg-neutral-900 ${
-              cardType !== "naka-punk" ? "p-6" : "p-0"
-            } group-hover:border-secondary-main`}
-          >
-            <motion.div
-              transition={{ type: "spring", stiffness: 100, damping: 6 }}
-              variants={cardType !== "naka-punk" ? imgMotion : undefined}
-              className="relative flex items-center justify-center"
-            >
-              <Image
-                src={itemImage.src}
-                alt={itemImage.alt}
-                className={`"object-contain ${
-                  cardType === "naka-punk" && "rounded-lg"
-                }`}
-                width={itemImage.width}
-                height={itemImage.height}
-              />
-            </motion.div>
           </div>
         )}
-        {/* land */}
-        {itemVideo && (
-          <div className="relative h-[202px] w-full overflow-hidden">
-            <Video
-              src={itemVideo.src}
-              poster={itemVideo.poster}
-              className="rounded-2xl"
-            />
-          </div>
-        )}
-      </div>
-      <div className="mx-2 mt-[14px] flex items-center justify-between">
-        <Typography className="text-sm uppercase text-white-default">
-          {itemName}
-        </Typography>
-        <div className="flex flex-col justify-end gap-2">
-          {itemSize && (
-            <Chip
-              label={`Size ${itemSize}`}
-              variant="filled"
-              size="small"
-              className="cursor-pointer uppercase"
-              color="error"
-            />
-          )}
-          {itemLevel && (
-            <Chip
-              label={`level : ${itemLevel}`}
-              variant="filled"
-              size="small"
-              className="cursor-pointer uppercase"
-              color="error"
-            />
-          )}
-          {sellingType && (
-            <Chip
-              label={sellingType}
-              variant="filled"
-              size="small"
-              className="cursor-pointer uppercase"
-              color="info"
-            />
-          )}
-        </div>
-      </div>
-      {/* <div className="" /> */}
-      <div className="my-[10px] border-b border-neutral-700 border-opacity-80" />
-      <div className="mx-2 flex items-center justify-between">
-        <div className="flex items-center">
-          <ILogoMaster
-            width="24"
-            height="11"
-            color="#ffff"
-          />
-          <Typography className="ml-[11px] text-sm uppercase text-white-default">
-            {formatNumber(price as number, { maximumFractionDigits: 4 })}
-          </Typography>
-        </div>
-        {nakaPrice && (
+        {percentage && (
           <Chip
-            label={`= ${formatNumber(nakaPrice, {
-              maximumFractionDigits: 4
-            })} usd`}
-            variant="outlined"
+            label={`${percentage} %`}
+            variant="filled"
             size="small"
-            className="cursor-pointer uppercase"
+            className="absolute top-[110px] cursor-pointer uppercase sm:top-[160px]"
+            color={handleColor()}
+            icon={handleIcon()}
           />
         )}
+        {rental && keyType && (
+          <div className="flex justify-between">
+            <Chip
+              label={
+                keyType.toLowerCase() === "owner" ? rental.buyer : rental.owner
+              }
+              variant="outlined"
+              size="small"
+              className="pointer-events-auto absolute left-4 top-4 z-10 w-[93px] cursor-pointer truncate uppercase"
+              deleteIcon={
+                <ContentCopySharpIcon
+                  sx={{
+                    width: 16,
+                    height: 16
+                  }}
+                  className="pb-[2px] !text-neutral-400"
+                />
+              }
+              onDelete={() => {
+                if (keyType.toLowerCase() === "owner" && rental.buyer)
+                  copyClipboard(rental.buyer)
+                if (keyType.toLowerCase() !== "owner" && rental.owner)
+                  copyClipboard(rental.owner)
+                successToast(MESSAGES.copy)
+              }}
+            />
+            <Chip
+              label={keyType}
+              variant="filled"
+              size="small"
+              className="cursor-pointer uppercase"
+              color={keyType.toLowerCase() === "owner" ? "secondary" : "error"}
+            />
+          </div>
+        )}
       </div>
-    </motion.div>
-    // </Link>
+
+      <Link href={href || "/"}>
+        <motion.div
+          whileHover="hover"
+          className="group relative h-fit w-[164px] cursor-pointer rounded-2xl
+           border border-neutral-700 bg-neutral-780 p-2 hover:bg-neutral-900 sm:h-fit sm:w-[218px]"
+        >
+          <div className="relative">
+            {itemImage && (
+              <div
+                className={`flex h-[148px] items-center justify-center rounded-lg border border-neutral-700 bg-neutral-900 sm:h-[202px] ${
+                  cardType !== "naka-punk" ? "p-6" : "p-0"
+                } group-hover:border-secondary-main`}
+              >
+                {/* mobile */}
+                <motion.div
+                  transition={{ type: "spring", stiffness: 100, damping: 6 }}
+                  variants={cardType !== "naka-punk" ? imgMotion : undefined}
+                  className="relative flex items-center justify-center sm:hidden"
+                >
+                  <Image
+                    src={itemImage.src}
+                    alt={itemImage.alt}
+                    className={`!m-0 !h-[80px] w-auto object-contain !p-0 ${
+                      cardType === "naka-punk"
+                        ? "rounded-lg"
+                        : cardType === "building" && "!h-[200px]"
+                    }`}
+                    // width={
+                    //   itemName?.includes("Bullet") &&
+                    //   Number(itemImage.width) > 60
+                    //     ? 30
+                    //     : itemImage.width
+                    // }
+                    // height={
+                    //   itemName?.includes("Bullet") &&
+                    //   Number(itemImage.height) > 60
+                    //     ? 30
+                    //     : itemImage.height
+                    // }
+                    width={itemName?.includes("Bullet") ? 40 : itemImage.width}
+                    height={
+                      itemName?.includes("Bullet") ? 40 : itemImage.height
+                    }
+                    // sizes="height: 100vw, width: 100vw"
+                    // sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                </motion.div>
+                {/* destop */}
+                <motion.div
+                  transition={{ type: "spring", stiffness: 100, damping: 6 }}
+                  variants={cardType !== "naka-punk" ? imgMotion : undefined}
+                  className="relative  hidden items-center justify-center sm:block"
+                >
+                  <Image
+                    src={itemImage.src}
+                    alt={itemImage.alt}
+                    className={`object-contain ${
+                      cardType === "naka-punk"
+                        ? "h-full w-full rounded-lg"
+                        : cardType === "building" && "image-building"
+                    } ${
+                      size && size.size <= 1765
+                        ? `h-[120px] !w-auto`
+                        : `h-[100px] !w-auto`
+                    }`}
+                    // layout="fill"
+                    // objectFit="contain"
+                    width={itemName?.includes("Bullet") ? 40 : 148}
+                    height={itemName?.includes("Bullet") ? 40 : 148}
+                  />
+                </motion.div>
+              </div>
+            )}
+            {/* land */}
+            {itemVideo && (
+              <div
+                className={
+                  isMobile
+                    ? `h-[148px] w-[148px]`
+                    : `relative h-[202px] w-full overflow-hidden`
+                }
+              >
+                <Video
+                  src={itemVideo.src}
+                  poster={itemVideo.poster}
+                  className={`rounded-2xl ${
+                    cardType === "avatar-reef"
+                      ? "h-full w-full object-cover"
+                      : ""
+                  }`}
+                />
+              </div>
+            )}
+          </div>
+          <div
+            className={`mx-2 ${
+              isMobile ? `mt-[8px]` : `mt-[14px]`
+            } flex items-center justify-between`}
+          >
+            <Typography
+              className={`${
+                isMobile && `truncate`
+              } truncate text-sm uppercase text-white-default`}
+            >
+              {itemName}
+            </Typography>
+            <div className="flex flex-col justify-end gap-2">
+              {itemSize && (
+                <Chip
+                  label={`Size ${itemSize}`}
+                  variant="filled"
+                  size="small"
+                  className="cursor-pointer uppercase"
+                  color="error"
+                />
+              )}
+
+              {sellingType &&
+                (cardType === "land" ||
+                  cardType === "building" ||
+                  cardType === "arcade-game") && (
+                  <Chip
+                    label={sellingType.title}
+                    variant="filled"
+                    size="small"
+                    className="cursor-pointer uppercase"
+                    color={sellingType.color || "info"}
+                  />
+                )}
+            </div>
+          </div>
+          <div
+            className={`${
+              isMobile ? `my-[8px]` : `my-[10px]`
+            } border-b border-neutral-700 border-opacity-80`}
+          />
+          {rental ? (
+            <div className="flex flex-col">
+              <div className="mx-2 flex items-center justify-between">
+                <div className="flex items-center">
+                  <Typography className="ml-[11px] text-sm uppercase text-neutral-500">
+                    {formatNumber(rental.totalPrice as number, {
+                      maximumFractionDigits: 4
+                    })}{" "}
+                    NAKA/DAY
+                  </Typography>
+                </div>
+                <Chip
+                  label={`= ${formatNumber(rental.totalBalancePeriod, {
+                    maximumFractionDigits: 4
+                  })} NAKA`}
+                  variant="outlined"
+                  size="small"
+                  className="cursor-pointer uppercase"
+                />
+              </div>
+              <div className="mx-2 flex items-center justify-between">
+                <div className="flex items-center">
+                  <Typography className="ml-[11px] text-sm uppercase text-neutral-500">
+                    EXPIRE ON
+                  </Typography>
+                </div>
+                <Chip
+                  label={rental.totalPeriod}
+                  variant="outlined"
+                  size="small"
+                  className="cursor-pointer uppercase"
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="mx-2 flex-wrap items-center justify-between sm:flex">
+              {price && (
+                <div className="flex items-center">
+                  <ILogoMaster
+                    width="24"
+                    height="11"
+                    color="#ffff"
+                  />
+                  <Typography className="ml-[11px] text-sm uppercase text-white-default">
+                    {formatNumber(price as number, {
+                      maximumFractionDigits: 4
+                    })}
+                  </Typography>
+                </div>
+              )}
+              {nakaPrice && (
+                <Chip
+                  label={`= ${formatNumber(nakaPrice, {
+                    maximumFractionDigits: 4
+                  })} usd`}
+                  variant="outlined"
+                  size="small"
+                  className="cursor-pointer uppercase"
+                />
+              )}
+            </div>
+          )}
+        </motion.div>
+      </Link>
+    </div>
   )
 }
 

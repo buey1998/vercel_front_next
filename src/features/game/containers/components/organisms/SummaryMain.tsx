@@ -40,8 +40,9 @@ const SummaryMain = ({ summaryData }: IProp) => {
         textColor="text-error-contrastText font-bold text-[12px]"
         text="Thanks for playing Nanamoto.games with us. It was a lot of fun!"
         className="left-[200px] top-10 !my-0 hidden rotate-[30deg] overflow-hidden lg:block"
+        show={false}
       />
-      <div className="m-[10px] flex flex-row lg:mt-[-23px]">
+      <div className="m-[10px] flex flex-row">
         <Typography
           className="relative flex h-[328px] rotate-180 items-center justify-between rounded border border-neutral-800 bg-transparent"
           sx={{
@@ -109,11 +110,11 @@ const SummaryMain = ({ summaryData }: IProp) => {
             />
             <SummaryGameDetail
               title="asset:"
-              value={playerSummary.detail_used_items.name}
+              value={`${playerSummary.detail_used_items.name}  ${playerSummary.detail_used_items.item_size}`}
             />
             <SummaryGameDetail
               title="game reward:"
-              value={`${playerSummary.naka_for_player} Naka`}
+              value={`${playerSummary?.naka_for_player ?? 0} Naka`}
             />
           </div>
           <div className="flex w-full flex-col items-center justify-center gap-[10px] rounded border border-neutral-800 bg-neutral-800 p-[10px] text-sm">
@@ -132,7 +133,7 @@ const SummaryMain = ({ summaryData }: IProp) => {
               text="Withdraw"
               className="btn-green-rainbow bg-green-lemon font-bold text-neutral-900"
               // wait for wallet page then chnage to path/wallet
-              handleClick={() => router.push("/")}
+              handleClick={() => router.push("/wallet")}
               type="button"
             />
           </div>
@@ -140,7 +141,7 @@ const SummaryMain = ({ summaryData }: IProp) => {
       </div>
     </div>
   ) : (
-    <>Loading...</>
+    <>Please login</>
   )
 }
 

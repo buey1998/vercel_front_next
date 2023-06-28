@@ -27,7 +27,10 @@ const MessageFooter = () => {
   }
 
   return (
-    <Box className="message-input relative flex w-full items-center">
+    <Box
+      component="div"
+      className="message-input relative flex w-[-webkit-fill-available] items-center"
+    >
       <TextField
         className="w-full"
         required
@@ -42,7 +45,9 @@ const MessageFooter = () => {
         placeholder="Message Here"
         size="medium"
         value={message}
-        onKeyPress={handleInputChat}
+        onKeyPress={(e) => {
+          handleInputChat(e)
+        }}
         onChange={(e) => setMessage(e.target.value)}
         autoComplete="off"
       />
@@ -51,10 +56,11 @@ const MessageFooter = () => {
         whileHover="hover"
         transition={{ type: "spring", stiffness: 400, damping: 4 }}
         icon={<SendIcon />}
-        className="absolute right-4 flex h-[18px] w-[18px] cursor-pointer items-center justify-center rounded-lg bg-transparent"
+        className="absolute right-4 z-[999] flex h-[18px] w-[18px] cursor-pointer items-center justify-center rounded-lg bg-transparent"
         aria-label="send-button"
         onClick={() => {
-          onSendMessage()
+          onSendMessage(message)
+          setMessage("")
         }}
       />
     </Box>
