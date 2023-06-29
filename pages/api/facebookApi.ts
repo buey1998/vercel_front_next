@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import CONFIGS from "@configs/index"
 import axios from "axios"
 
@@ -15,7 +16,7 @@ export default function handler(req, res) {
         }
       })
       .then((response) => {
-        const data = response.data
+        const { data } = response
         res.status(200).json(data)
       })
       .catch((error) => {
