@@ -5,7 +5,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await axios.get(
-      `https://graph.facebook.com/${userId}?fields=id,name&access_token=${accessToken}`
+      `https://graph.facebook.com/v17.0/me?fields=id,name&access_token=${accessToken}`
     )
     const { data } = response
 
