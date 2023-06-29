@@ -585,9 +585,10 @@ const FormRegister = () => {
                         appId={`${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`}
                         autoLoad
                         fields="name,email,picture"
-                        callback={(e) => facebookLogin(e, watch("referralId"))}
+                        callback={(e) =>
+                          facebookLogin(e as any, watch("referralId"))
+                        }
                         cssClass="my-facebook-button-class"
-                        textButton={null}
                         icon={<FacebookIcon />}
                       />
                     ) : (

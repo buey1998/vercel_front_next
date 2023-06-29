@@ -201,7 +201,6 @@ const FormLogin = () => {
                   fields="name,email,picture"
                   callback={facebookLogin}
                   cssClass="my-facebook-button-class"
-                  textButton={null}
                   icon={<FacebookIcon />}
                 />
               ) : (
@@ -255,7 +254,6 @@ const FormLogin = () => {
         fields="name,email,picture"
         callback={facebookLogin}
         cssClass="my-facebook-button-class"
-        textButton={null}
         icon={<FacebookIcon />}
       />
     </>

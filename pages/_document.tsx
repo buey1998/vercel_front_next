@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable func-names */
 import CONFIGS from "@configs/index"
 import { getBlogDetail } from "@feature/blog/containers/services/blog.service"
 import { IBlogDetailResponse } from "@feature/blog/interfaces/IBlogService"
