@@ -1,8 +1,7 @@
 import { getProfileByEmail } from "@feature/profile/containers/services/profile.service"
-import { IProfile } from "@src/types/profile"
 import useProfileStore from "@stores/profileStore"
-// import { useEffect } from "react"
 import useGameStore from "@stores/game"
+import { IProfile } from "@feature/profile/interfaces/IProfileService"
 import useRefreshProfile from "./useRefreshProfile"
 
 const useRefreshStamina = () => {

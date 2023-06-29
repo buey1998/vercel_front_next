@@ -39,11 +39,11 @@ const HeadProfileMobile = () => {
     setOpenSyncAccount: setToggleSyncAccount
   } = useDrawerControllerMobileStore()
 
-  const { isHideSyncTelegram } = useGlobalControllerMobile()
+  const { isShowSyncTelegram } = useGlobalControllerMobile()
 
   return (
     <header className="header bg-[#F32429] pb-[55px]">
-      {isHideSyncTelegram && (
+      {isShowSyncTelegram() && (
         <HeaderSyncAccount
           target="Telegram"
           open={toggleSyncAccount}
