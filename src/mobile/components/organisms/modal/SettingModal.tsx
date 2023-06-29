@@ -19,10 +19,10 @@ import { ImageCustom } from "@components/atoms/image/Image"
 import { StyledAvatar } from "@mobile/components/atoms/headerMenu/HeadProfileMobile"
 import ArrowBackIcon from "@mobile/components/atoms/icons/ArrowBackIcon"
 import useDrawerControllerMobile from "@mobile/features/game/containers/hooks/useDrawerControllerMobile"
-import { TelegramWidget } from "@components/atoms/TelegramWidget"
-import useSyncProfile from "@mobile/features/game/containers/hooks/useSyncProfile"
+import { TelegramWidget } from "@components/atoms/button/TelegramWidget"
+import useSyncProfile from "@mobile/features/profile/containers/useSyncProfileController"
 import useGlobalControllerMobile from "@mobile/features/game/containers/hooks/useGlobalControllerMobile"
-import FacebookLoginButton from "@components/atoms/FacebookLoginWidget"
+import ButtonSyncFacebook from "@components/atoms/button/ButtonSyncFacebook"
 import LogoutModal from "./LogoutModal"
 import ProfileSettingModal from "./ProfileSettingModal"
 import PlayedHistoryModal from "./PlayedHistoryModal"
@@ -42,7 +42,7 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
   const { t } = useTranslation()
   const { clearAllDrawer } = useDrawerControllerMobile()
   const { handleSyncTelegramId } = useSyncProfile()
-  const { isHideSyncTelegram } = useGlobalControllerMobile()
+  const { isShowSyncTelegram, isShowSyncFacebook } = useGlobalControllerMobile()
 
   return (
     <SwipeableDrawer
@@ -230,7 +230,7 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
             title={t("Support")}
           />
         </Box>
-        {isHideSyncTelegram && (
+        {isShowSyncTelegram() && (
           <>
             <TelegramWidget
               dataOnAuth={handleSyncTelegramId}
@@ -240,10 +240,12 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
           </>
         )}
 
-        <>
-          <FacebookLoginButton />
-          <Divider className="my-6 !block border-b border-[#35383F]" />
-        </>
+        {isShowSyncFacebook() && (
+          <>
+            <ButtonSyncFacebook />
+            <Divider className="my-6 !block border-b border-[#35383F]" />
+          </>
+        )}
 
         <CardHeader
           onClick={() => setToggleLogout(!toggleLogout)}

@@ -1,15 +1,18 @@
-// import CONFIGS from "@configs/index"
 import axios from "axios"
 
-export const fetchFacebookData = async () => {
-  try {
-    const response = await axios.get("/api/facebookData")
-
-    const { data } = response
-    // Do something with the data
-    return data
-  } catch (error) {
-    // Handle error
-    return error
-  }
+export interface IFacebookDataProfile {
+  id: string
+  name: string
 }
+
+export const fetchFacebookData = () =>
+  new Promise<IFacebookDataProfile>((resolve, reject) => {
+    axios
+      .get<IFacebookDataProfile>("/api/facebookAuth")
+      .then((res) => {
+        resolve(res.data)
+      })
+      .catch((error: Error) => {
+        reject(error)
+      })
+  })

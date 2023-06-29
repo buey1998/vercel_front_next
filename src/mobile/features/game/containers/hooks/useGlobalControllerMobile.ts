@@ -14,8 +14,26 @@ const useGlobalControllerMobile = () => {
     typeof navigator !== "undefined" &&
     /iPad|iPhone|iPod/.test(navigator.userAgent)
 
-  const isHideSyncTelegram =
-    profile && !profile.telegram_id && paramFromTelegram.user_id
+  /**
+   * @description Variable to hide sync telegram button
+   *
+   */
+  const isShowSyncTelegram = () => {
+    if (profile && !profile.telegram_id && paramFromTelegram.user_id) {
+      return true
+    }
+    return false
+  }
+
+  /**
+   * @description Variable to hide sync facebook button
+   */
+  const isShowSyncFacebook = () => {
+    if (profile && !profile.facebook_id) {
+      return true
+    }
+    return false
+  }
 
   const handleClickOpenLoading = useCallback(() => {
     // do something
@@ -29,7 +47,8 @@ const useGlobalControllerMobile = () => {
     setLimit,
     iOS,
     handleClickOpenLoading,
-    isHideSyncTelegram
+    isShowSyncTelegram,
+    isShowSyncFacebook
   }
 }
 

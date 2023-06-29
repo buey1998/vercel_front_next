@@ -1,30 +1,19 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable max-len */
-/* eslint-disable no-console */
-import React, { useCallback, useState } from "react"
+import React, { useState } from "react"
 import { Box, Button, Divider, Typography } from "@mui/material"
 import CardNoReward from "@feature/game/containers/components/atoms/CardNoReward"
 import TwitterIcon from "@components/icons/SocialIcon/TwitterIcon"
 import useLoginTypeStore from "@stores/loginTypes"
-// import FacebookLogin from "react-facebook-login"
+import FacebookLogin from "react-facebook-login"
 import LogoNakaBigIcon from "@components/icons/LogoNakaBigIcon"
 import GoogleColorIcon from "@components/icons/SocialIcon/GoogleColorIcon"
 import FacebookColorIcon from "@components/icons/SocialIcon/FacebookColorIcon"
 import useFormLoginController from "@feature/authentication/containers/hooks/useFormLoginController"
 import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3"
-// import { signIn } from "next-auth/react"
-// import { IProfileFaceBook } from "@src/types/profile"
-import { fetchFacebookData } from "@feature/profile/containers/services/facebook.service"
 import LoginModal from "../organisms/modal/LoginModal"
 import CreateAccountModal from "../organisms/modal/CreateAccountModal"
 
 const SignInLayout = () => {
-  // facebookLogin,
-  const { googleLogin, twitterLogin } = useFormLoginController()
-
-  // const handleLoginFacebook = (response: IProfileFaceBook) => {
-  //   alert(JSON.stringify(response))
-  // }
+  const { facebookLogin, googleLogin, twitterLogin } = useFormLoginController()
 
   const {
     getClickLoginFacebook: toggleFacebookLogin,
@@ -34,13 +23,6 @@ const SignInLayout = () => {
   const [openModalLogin, setOpenModalLogin] = useState<boolean>(false)
   const [openModalCreateAccount, setOpenModalCreateAccount] =
     useState<boolean>(false)
-
-  const handleButtonClick = useCallback(async () => {
-    const result = await fetchFacebookData()
-    if (result) {
-      console.log("result", result)
-    }
-  }, [])
 
   return (
     <>
@@ -57,40 +39,7 @@ const SignInLayout = () => {
         <Typography className="my-8 text-center font-urbanist text-3xl font-bold uppercase text-red-card">
           Welcome Back
         </Typography>
-        {/* {!session && (
-          <Box component="div">
-            <Button
-              variant="contained"
-              className="mb-[1.125rem] h-[50px] w-[293px] rounded-2xl border border-solid border-neutral-690 !bg-neutral-800"
-              onClick={(e) => {
-                e.preventDefault()
-                signIn()
-              }}
-            >
-              <div className="flex items-center font-urbanist text-base font-medium">
-                <span className="pr-2">
-                  <FacebookColorIcon />
-                </span>
-                <span>Sign in with Facebook</span>
-              </div>
-            </Button>
-          </Box>
-        )} */}
         <Box component="div">
-          <Button
-            variant="contained"
-            className="mb-[1.125rem] h-[50px] w-[293px] rounded-2xl border border-solid border-neutral-690 !bg-neutral-800"
-            onClick={handleButtonClick}
-          >
-            <div className="flex items-center font-urbanist text-base font-medium">
-              <span className="pr-2">
-                <FacebookColorIcon />
-              </span>
-              <span>Sign in with Facebook API</span>
-            </div>
-          </Button>
-        </Box>
-        {/* <Box component="div">
           <Button
             variant="contained"
             className="mb-[1.125rem] h-[50px] w-[293px] rounded-2xl border border-solid border-neutral-690 !bg-neutral-800"
@@ -103,9 +52,9 @@ const SignInLayout = () => {
                     appId={`${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`}
                     autoLoad
                     fields="name,email,picture"
-                    callback={handleLoginFacebook}
+                    callback={facebookLogin}
                     cssClass="my-facebook-button-class"
-                    // textButton={null}
+                    textButton={null}
                     icon={<FacebookColorIcon />}
                   />
                 ) : (
@@ -115,7 +64,7 @@ const SignInLayout = () => {
               <span>Sign in with Facebook</span>
             </div>
           </Button>
-        </Box> */}
+        </Box>
         <Box component="div">
           <Button
             variant="contained"

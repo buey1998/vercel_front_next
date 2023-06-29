@@ -213,6 +213,7 @@ class MyDocument extends Document {
               window.fbAsyncInit = function () {
                 FB.init({
                   appId: `${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`,
+                  autoLogAppEvents: true,
                   xfbml: true,
                   version: "v17.0"
                 })

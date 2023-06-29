@@ -19,8 +19,6 @@ import createEmotionCache from "@utils/createEmotionCache"
 import { metaData } from "@src/meta/meta"
 import Head from "next/head"
 import BaseProvider from "@providers/BaseProvider"
-import { SessionProvider } from "next-auth/react"
-import type { Session } from "next-auth"
 
 const Loading = dynamic(() => import("@components/molecules/Loading"), {
   suspense: true,
@@ -37,11 +35,10 @@ type NextPageWithLayout = NextPage & {
 
 type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout
-  session: Session
 }
 
 const MyApp = (props) => {
-  const { Component, pageProps, session }: AppPropsWithLayout = props
+  const { Component, pageProps }: AppPropsWithLayout = props
   const getLayout = Component.getLayout ?? ((page) => page)
   const emotionCache: EmotionCache = clientSideEmotionCache
   const queryClient = new QueryClient()
@@ -55,22 +52,20 @@ const MyApp = (props) => {
       </Head>
       <Loading />
 
-      <SessionProvider session={session}>
-        <QueryClientProvider client={queryClient}>
-          <Web3Provider>
-            <CacheProvider value={emotionCache}>
-              <ThemeProvider theme={customTheme}>
-                <ProviderApp>
-                  <BaseProvider>
-                    {getLayout(<Component {...pageProps} />)}
-                  </BaseProvider>
-                </ProviderApp>
-              </ThemeProvider>
-            </CacheProvider>
-          </Web3Provider>
-          <ReactQueryDevtools initialIsOpen />
-        </QueryClientProvider>
-      </SessionProvider>
+      <QueryClientProvider client={queryClient}>
+        <Web3Provider>
+          <CacheProvider value={emotionCache}>
+            <ThemeProvider theme={customTheme}>
+              <ProviderApp>
+                <BaseProvider>
+                  {getLayout(<Component {...pageProps} />)}
+                </BaseProvider>
+              </ProviderApp>
+            </ThemeProvider>
+          </CacheProvider>
+        </Web3Provider>
+        <ReactQueryDevtools initialIsOpen />
+      </QueryClientProvider>
     </>
   )
 }

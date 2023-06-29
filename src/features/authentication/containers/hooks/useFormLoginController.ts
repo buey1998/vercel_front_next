@@ -18,7 +18,7 @@ import { IError } from "@src/types/contract"
 import useConnectMetamaskAction from "@utils/useConnectMetamesk"
 import { useWeb3Provider } from "@providers/Web3Provider"
 import Web3 from "web3"
-import useSyncProfile from "@mobile/features/game/containers/hooks/useSyncProfile"
+import useSyncProfile from "@mobile/features/profile/containers/useSyncProfileController"
 import useSignIn from "./useSignIn"
 import useLoginMetamask from "./useLoginMetamask"
 
