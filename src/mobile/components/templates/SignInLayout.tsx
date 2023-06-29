@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState } from "react"
 import { Box, Button, Divider, Typography } from "@mui/material"
 import CardNoReward from "@feature/game/containers/components/atoms/CardNoReward"
@@ -39,7 +40,7 @@ const SignInLayout = () => {
         <Typography className="my-8 text-center font-urbanist text-3xl font-bold uppercase text-red-card">
           Welcome Back
         </Typography>
-        <Box component="div">
+        {/* <Box component="div">
           <Button
             variant="contained"
             className="mb-[1.125rem] h-[50px] w-[293px] rounded-2xl border border-solid border-neutral-690 !bg-neutral-800"
@@ -64,7 +65,7 @@ const SignInLayout = () => {
               <span>Sign in with Facebook</span>
             </div>
           </Button>
-        </Box>
+        </Box> */}
         <Box component="div">
           <Button
             variant="contained"

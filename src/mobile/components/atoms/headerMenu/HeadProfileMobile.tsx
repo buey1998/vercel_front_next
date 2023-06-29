@@ -9,6 +9,7 @@ import NotificationModal from "@mobile/components/organisms/modal/NotificationMo
 import ProfileSettingModal from "@mobile/components/organisms/modal/ProfileSettingModal"
 import useDrawerControllerMobile from "@mobile/features/game/containers/hooks/useDrawerControllerMobile"
 import useDrawerControllerMobileStore from "@stores/drawerControllerMobile"
+import useGlobalControllerMobile from "@mobile/features/game/containers/hooks/useGlobalControllerMobile"
 import HeaderSyncAccount from "./HeaderSyncAccount"
 
 export const StyledAvatar = {
@@ -38,9 +39,11 @@ const HeadProfileMobile = () => {
     setOpenSyncAccount: setToggleSyncAccount
   } = useDrawerControllerMobileStore()
 
+  const { isHideSyncTelegram } = useGlobalControllerMobile()
+
   return (
     <header className="header bg-[#F32429] pb-[55px]">
-      {profile && !profile.telegram_id && (
+      {isHideSyncTelegram && (
         <HeaderSyncAccount
           target="Telegram"
           open={toggleSyncAccount}

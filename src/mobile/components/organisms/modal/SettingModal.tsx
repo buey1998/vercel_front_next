@@ -21,6 +21,8 @@ import ArrowBackIcon from "@mobile/components/atoms/icons/ArrowBackIcon"
 import useDrawerControllerMobile from "@mobile/features/game/containers/hooks/useDrawerControllerMobile"
 import { TelegramWidget } from "@components/atoms/TelegramWidget"
 import useSyncProfile from "@mobile/features/game/containers/hooks/useSyncProfile"
+import useGlobalControllerMobile from "@mobile/features/game/containers/hooks/useGlobalControllerMobile"
+import FacebookLoginButton from "@components/atoms/FacebookLoginWidget"
 import LogoutModal from "./LogoutModal"
 import ProfileSettingModal from "./ProfileSettingModal"
 import PlayedHistoryModal from "./PlayedHistoryModal"
@@ -40,6 +42,7 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
   const { t } = useTranslation()
   const { clearAllDrawer } = useDrawerControllerMobile()
   const { handleSyncTelegramId } = useSyncProfile()
+  const { isHideSyncTelegram } = useGlobalControllerMobile()
 
   return (
     <SwipeableDrawer
@@ -227,7 +230,7 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
             title={t("Support")}
           />
         </Box>
-        {profile && !profile.telegram_id && (
+        {isHideSyncTelegram && (
           <>
             <TelegramWidget
               dataOnAuth={handleSyncTelegramId}
@@ -236,6 +239,11 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
             <Divider className="my-6 !block border-b border-[#35383F]" />
           </>
         )}
+
+        <>
+          <FacebookLoginButton />
+          <Divider className="my-6 !block border-b border-[#35383F]" />
+        </>
 
         <CardHeader
           onClick={() => setToggleLogout(!toggleLogout)}

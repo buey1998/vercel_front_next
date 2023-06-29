@@ -249,6 +249,15 @@ const FormLogin = () => {
           )}
         </div>
       </Grid>
+      <FacebookLogin
+        appId={`${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`}
+        autoLoad
+        fields="name,email,picture"
+        callback={facebookLogin}
+        cssClass="my-facebook-button-class"
+        textButton={null}
+        icon={<FacebookIcon />}
+      />
     </>
   )
 }
