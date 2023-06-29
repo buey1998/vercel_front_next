@@ -51,10 +51,30 @@ export const authOptions: NextAuthOptions = {
   theme: {
     colorScheme: "light"
   },
+  secret: CONFIGS.NEXTAUTH_SECRET,
   callbacks: {
-    async jwt({ token }) {
-      token.userRole = "admin"
+    async jwt({ token, account }) {
+      if (account) {
+        token.accessToken = account.access_token
+      }
       return token
+    },
+    // eslint-disable-next-line no-unused-vars
+    async session({ session, token, user }: any) {
+      session.accessToken = token.accessToken
+      return session
+    },
+    async signIn({ user, account, profile, email, credentials }) {
+      // eslint-disable-next-line no-console
+      console.log(
+        "user, account, profile, email, credentials",
+        user,
+        account,
+        profile,
+        email,
+        credentials
+      )
+      return true
     }
   }
 }
