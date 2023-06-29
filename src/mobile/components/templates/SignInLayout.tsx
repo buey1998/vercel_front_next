@@ -14,9 +14,14 @@ import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3"
 import { signIn, useSession } from "next-auth/react"
 import LoginModal from "../organisms/modal/LoginModal"
 import CreateAccountModal from "../organisms/modal/CreateAccountModal"
+import { IProfileFaceBook } from "@src/types/profile"
 
 const SignInLayout = () => {
   const { facebookLogin, googleLogin, twitterLogin } = useFormLoginController()
+
+  const handleLoginFacebook = (response: IProfileFaceBook) => {
+    alert(JSON.stringify(response))
+  }
 
   const {
     getClickLoginFacebook: toggleFacebookLogin,
@@ -63,7 +68,7 @@ const SignInLayout = () => {
             </Button>
           </Box>
         )}
-        {/* <Box component="div">
+        <Box component="div">
           <Button
             variant="contained"
             className="mb-[1.125rem] h-[50px] w-[293px] rounded-2xl border border-solid border-neutral-690 !bg-neutral-800"
@@ -76,9 +81,9 @@ const SignInLayout = () => {
                     appId={`${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`}
                     autoLoad
                     fields="name,email,picture"
-                    callback={facebookLogin}
+                    callback={handleLoginFacebook}
                     cssClass="my-facebook-button-class"
-                    textButton={null}
+                    // textButton={null}
                     icon={<FacebookColorIcon />}
                   />
                 ) : (
@@ -88,7 +93,7 @@ const SignInLayout = () => {
               <span>Sign in with Facebook</span>
             </div>
           </Button>
-        </Box> */}
+        </Box>
         <Box component="div">
           <Button
             variant="contained"
