@@ -1,18 +1,29 @@
+import CONFIGS from "@configs/index"
 import axios from "axios"
 
-export default async function handler(req, res) {
-  const { userId, accessToken } = req.query
+export default function handler(req, res) {
+  const { method } = req
 
-  try {
-    const response = await axios.get(
-      `https://graph.facebook.com/v17.0/me?fields=id,name&access_token=${accessToken}`
-    )
-    const { data } = response
+  if (method === "GET") {
+    const fields = "id,name"
 
-    // Do something with the data
-
-    res.status(200).json(data)
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch data from Facebook API" })
+    // Make the API request to Facebook Graph API
+    axios
+      .get(`https://graph.facebook.com/me?fields=${fields}`, {
+        headers: {
+          "Authorization": `Bearer ${CONFIGS.FACEBOOK_ACCESS_TOKEN}` // Replace with your access token
+        }
+      })
+      .then((response) => {
+        const data = response.data
+        res.status(200).json(data)
+      })
+      .catch((error) => {
+        res
+          .status(500)
+          .json({ error: "Failed to fetch data from Facebook API" })
+      })
+  } else {
+    res.status(405).json({ error: "Method Not Allowed" })
   }
 }
