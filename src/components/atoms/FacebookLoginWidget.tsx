@@ -2,7 +2,7 @@ import CONFIGS from "@configs/index"
 import React from "react"
 import FacebookLogin from "react-facebook-login"
 
-const FacebookLoginButton = () => {
+const FacebookLoginWidget = () => {
   const responseFacebook = (response) => {
     // eslint-disable-next-line no-console
     console.log("response", response) // Handle the response from Facebook
@@ -18,4 +18,4 @@ const FacebookLoginButton = () => {
   )
 }
 
-export default FacebookLoginButton
+export default FacebookLoginWidget

@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-console */
 import _ from "lodash"
 import { MESSAGES } from "@constants/messages"
 import { useToast } from "@feature/toast/containers"
@@ -88,24 +90,25 @@ const useFormLoginController = () => {
       response.userID !== null &&
       response.userID !== undefined
     ) {
-      mutateLoginProvider({
-        _email: response.email,
-        _provider: "facebook",
-        _prevPath: "/",
-        _providerUUID: response.userID,
-        _referral: ""
-      })
-        .then((_res) => {
-          if (_res) {
-            successToast(MESSAGES.logged_in_successfully)
+      console.log("facebookLogin", response)
+      // mutateLoginProvider({
+      //   _email: response.email,
+      //   _provider: "facebook",
+      //   _prevPath: "/",
+      //   _providerUUID: response.userID,
+      //   _referral: ""
+      // })
+      //   .then((_res) => {
+      //     if (_res) {
+      //       successToast(MESSAGES.logged_in_successfully)
 
-            // Save user Facebook id to database
-            handleSyncFacebookId(response.userID)
-          }
-        })
-        .catch((_error: IError) => {
-          errorToast(MESSAGES.logged_in_unsuccessfully || _error.message)
-        })
+      //       // Save user Facebook id to database
+      //       handleSyncFacebookId(response.userID)
+      //     }
+      //   })
+      //   .catch((_error: IError) => {
+      //     errorToast(MESSAGES.logged_in_unsuccessfully || _error.message)
+      //   })
     }
   }
 

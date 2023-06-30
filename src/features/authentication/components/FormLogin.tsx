@@ -20,16 +20,15 @@ import FacebookIcon from "@components/icons/SocialIcon/FacebookIcon"
 import TwitterIcon from "@components/icons/SocialIcon/TwitterIcon"
 import GoogleIcon from "@components/icons/SocialIcon/GoogleIcon"
 import MetaMarkIcon from "@components/icons/SocialIcon/Metamask"
-import FacebookLogin from "react-facebook-login"
 import useLoginTypeStore from "@stores/loginTypes"
 import { useTranslation } from "react-i18next"
 import { isMobile } from "@hooks/useGlobal"
+import FacebookLoginWidget from "@components/atoms/FacebookLoginWidget"
 import FromForgotPassword from "./FromForgotPassword"
 import useFormLoginController from "../containers/hooks/useFormLoginController"
 
 const FormLogin = () => {
   const {
-    facebookLogin,
     googleLogin,
     twitterLogin,
     metaMarkLogin,
@@ -194,18 +193,7 @@ const FormLogin = () => {
             }}
             onClick={() => setToggleFacebookLogin(true)}
             icon={
-              toggleFacebookLogin ? (
-                <FacebookLogin
-                  appId={`${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`}
-                  autoLoad
-                  fields="name,email,picture"
-                  callback={facebookLogin}
-                  cssClass="my-facebook-button-class"
-                  icon={<FacebookIcon />}
-                />
-              ) : (
-                <FacebookIcon />
-              )
+              toggleFacebookLogin ? <FacebookLoginWidget /> : <FacebookIcon />
             }
             className={`flex h-[40px] w-[75px] justify-center rounded-lg border border-neutral-700 bg-neutral-800 ${
               toggleFacebookLogin ? "items-end" : "items-center"
@@ -248,14 +236,6 @@ const FormLogin = () => {
           )}
         </div>
       </Grid>
-      <FacebookLogin
-        appId={`${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`}
-        autoLoad
-        fields="name,email,picture"
-        callback={facebookLogin}
-        cssClass="my-facebook-button-class"
-        icon={<FacebookIcon />}
-      />
     </>
   )
 }
