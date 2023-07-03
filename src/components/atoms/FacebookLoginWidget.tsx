@@ -1,4 +1,4 @@
-import CONFIGS from "@configs/index"
+// import CONFIGS from "@configs/index"
 import React from "react"
 import FacebookLogin from "react-facebook-login"
 
@@ -10,8 +10,8 @@ const FacebookLoginWidget = () => {
 
   return (
     <FacebookLogin
-      appId={CONFIGS.FACEBOOK_APP_ID}
-      autoLoad={false}
+      appId="1866929160193121"
+      autoLoad
       fields="name,email,picture"
       callback={responseFacebook}
     />

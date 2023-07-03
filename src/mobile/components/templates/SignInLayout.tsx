@@ -1,10 +1,9 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable max-len */
 import React, { useState } from "react"
 import { Box, Button, Divider, Typography } from "@mui/material"
 import CardNoReward from "@feature/game/containers/components/atoms/CardNoReward"
 import TwitterIcon from "@components/icons/SocialIcon/TwitterIcon"
 import useLoginTypeStore from "@stores/loginTypes"
+import FacebookLogin from "react-facebook-login"
 import LogoNakaBigIcon from "@components/icons/LogoNakaBigIcon"
 import GoogleColorIcon from "@components/icons/SocialIcon/GoogleColorIcon"
 import FacebookColorIcon from "@components/icons/SocialIcon/FacebookColorIcon"
@@ -15,7 +14,7 @@ import LoginModal from "../organisms/modal/LoginModal"
 import CreateAccountModal from "../organisms/modal/CreateAccountModal"
 
 const SignInLayout = () => {
-  const { googleLogin, twitterLogin } = useFormLoginController()
+  const { facebookLogin, googleLogin, twitterLogin } = useFormLoginController()
 
   const {
     getClickLoginFacebook: toggleFacebookLogin,
@@ -42,7 +41,7 @@ const SignInLayout = () => {
           Welcome Back
         </Typography>
         <FacebookLoginWidget />
-        {/* <Box component="div">
+        <Box component="div">
           <Button
             variant="contained"
             className="mb-[1.125rem] h-[50px] w-[293px] rounded-2xl border border-solid border-neutral-690 !bg-neutral-800"
@@ -51,7 +50,15 @@ const SignInLayout = () => {
             <div className="flex items-center font-urbanist text-base font-medium">
               <span className="pr-2">
                 {toggleFacebookLogin ? (
-                  <FacebookLoginWidget />
+                  <FacebookLogin
+                    appId={`${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`}
+                    autoLoad
+                    fields="name,email,picture"
+                    callback={facebookLogin}
+                    cssClass="my-facebook-button-class"
+                    // textButton={null}
+                    icon={<FacebookColorIcon />}
+                  />
                 ) : (
                   <FacebookColorIcon />
                 )}
@@ -59,7 +66,7 @@ const SignInLayout = () => {
               <span>Sign in with Facebook</span>
             </div>
           </Button>
-        </Box> */}
+        </Box>
         <Box component="div">
           <Button
             variant="contained"
@@ -92,7 +99,6 @@ const SignInLayout = () => {
             </div>
           </Button>
         </Box>
-
         <Box
           component="div"
           className="py-4"

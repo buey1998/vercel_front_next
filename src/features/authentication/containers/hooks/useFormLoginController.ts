@@ -84,13 +84,13 @@ const useFormLoginController = () => {
   }
 
   const facebookLogin = async (response: IProfileFaceBook) => {
+    console.log("facebookLogin", response)
     if (
       response.email !== null &&
       response.email !== undefined &&
       response.userID !== null &&
       response.userID !== undefined
     ) {
-      console.log("facebookLogin", response)
       // mutateLoginProvider({
       //   _email: response.email,
       //   _provider: "facebook",
@@ -101,7 +101,6 @@ const useFormLoginController = () => {
       //   .then((_res) => {
       //     if (_res) {
       //       successToast(MESSAGES.logged_in_successfully)
-
       //       // Save user Facebook id to database
       //       handleSyncFacebookId(response.userID)
       //     }
