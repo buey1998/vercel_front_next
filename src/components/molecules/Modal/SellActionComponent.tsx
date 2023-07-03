@@ -21,7 +21,7 @@ import {
 } from "@mui/material"
 import FormattedInputs from "@feature/marketplace/components/molecules/CurrencyTextField"
 import Helper from "@utils/helper"
-import React, { memo, useEffect, useState } from "react"
+import React, { memo, useCallback, useEffect, useState } from "react"
 import { v4 as uuidv4 } from "uuid"
 
 interface IProps {
@@ -35,6 +35,7 @@ interface IProps {
   setPeriod: (_period: number) => void
   maxPeriod: number
   isRentout?: boolean
+  isRenting?: boolean
 }
 
 const SellActionComponent = ({
@@ -47,7 +48,8 @@ const SellActionComponent = ({
   period,
   setPeriod,
   maxPeriod,
-  isRentout = false
+  isRentout = false,
+  isRenting
 }: IProps) => {
   const { formatNumber } = Helper
   const { onCheckApprovalForAllNFT } = useGlobalMarket()
@@ -71,24 +73,25 @@ const SellActionComponent = ({
     else setPeriod(_value)
   }
 
+  const onGetApproval = useCallback(async () => {
+    if (nftType && onCheckApprovalForAllNFT && selling) {
+      await onCheckApprovalForAllNFT(nftType, selling)
+        .then((response) => {
+          setIsApproved(response)
+        })
+        .catch((error) => console.error(error))
+    }
+  }, [nftType, onCheckApprovalForAllNFT, selling])
+
   useEffect(() => {
     let load = false
-
     if (!load) {
-      const onGetApproval = async () => {
-        await onCheckApprovalForAllNFT(nftType, selling)
-          .then((response) => {
-            setIsApproved(response)
-          })
-          .catch((error) => console.error(error))
-      }
-      if (nftType && selling) onGetApproval()
+      onGetApproval()
     }
-
     return () => {
       load = true
     }
-  }, [nftType, onCheckApprovalForAllNFT, selling])
+  }, [onGetApproval])
 
   return (
     <Stack
@@ -122,7 +125,9 @@ const SellActionComponent = ({
               minHeight: 40
             }}
           >
-            {MARKET_SELLING.map((m) => (
+            {MARKET_SELLING.filter(
+              (m) => !isRenting || m.value === "fullpayment"
+            ).map((m) => (
               <MenuItem
                 key={uuidv4()}
                 value={m.value}

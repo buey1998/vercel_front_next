@@ -41,7 +41,8 @@ const MarketplaceOwnerDetail = () => {
               profile.data.address &&
               invenItemData.wallet_address &&
               profile.data.address === invenItemData.wallet_address &&
-              !invenItemData.marketplaces_data && (
+              !invenItemData.marketplaces_data &&
+              invenItemData.type !== "nft_avatar" && (
                 <div className="px-8">
                   <TransferBox
                     _tokenId={invenItemData.id}
@@ -79,7 +80,8 @@ const MarketplaceOwnerDetail = () => {
               profile.data.address &&
               invenItemData.wallet_address &&
               profile.data.address === invenItemData.wallet_address &&
-              !invenItemData.marketplaces_data && (
+              !invenItemData.marketplaces_data &&
+              invenItemData.type !== "nft_avatar" && (
                 <div className="px-8">
                   <TransferBox
                     _tokenId={invenItemData.id}
@@ -90,8 +92,10 @@ const MarketplaceOwnerDetail = () => {
               )
             }
           >
-            {!invenItemData.installments_data &&
-            invenItemData.owner_id === invenItemData.player_id &&
+            {profile.data &&
+            !invenItemData.installments_data &&
+            (invenItemData.owner_id === profile.data.id ||
+              invenItemData.owner_id === profile.data.address) &&
             invenItemData.type !== "nft_avatar" ? (
               <div className="flex w-full items-center justify-between gap-x-2">
                 <MarketplaceButton
@@ -104,14 +108,16 @@ const MarketplaceOwnerDetail = () => {
                   amount={invAmount || 1}
                   maxAmount={invenItemData.totalAmount}
                   period={invPeriod}
-                  maxPeriod={365}
                   setPeriod={onInvPeriodChange}
                   marketplaces_data={invenItemData.marketplaces_data}
                   showRentBtn={
                     !invenItemData.marketplaces_data &&
                     (invenItemData.type === "nft_land" ||
-                      invenItemData.type === "nft_building")
+                      invenItemData.type === "nft_building") &&
+                    invenItemData.owner_id === profile.data.id &&
+                    !invenItemData.rentals_data
                   }
+                  isRenting={!!invenItemData.rentals_data}
                 />
               </div>
             ) : null}
@@ -129,6 +135,7 @@ const MarketplaceOwnerDetail = () => {
             invenItemData.rentals_data ? invenItemData.rentals_data : undefined
           }
           history={invenItemData.history || []}
+          type={invenItemData.type}
         />
       ) : null}
     </div>

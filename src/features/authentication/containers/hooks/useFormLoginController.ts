@@ -1,5 +1,5 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
+/* eslint-disable no-unused-vars */
 import _ from "lodash"
 import { MESSAGES } from "@constants/messages"
 import { useToast } from "@feature/toast/containers"
@@ -20,7 +20,7 @@ import { IError } from "@src/types/contract"
 import useConnectMetamaskAction from "@utils/useConnectMetamesk"
 import { useWeb3Provider } from "@providers/Web3Provider"
 import Web3 from "web3"
-import useSyncProfile from "@mobile/features/profile/containers/useSyncProfileController"
+import useSyncProfile from "@mobile/features/game/containers/hooks/useSyncProfile"
 import useSignIn from "./useSignIn"
 import useLoginMetamask from "./useLoginMetamask"
 
@@ -84,13 +84,13 @@ const useFormLoginController = () => {
   }
 
   const facebookLogin = async (response: IProfileFaceBook) => {
-    console.log("facebookLogin", response)
     if (
       response.email !== null &&
       response.email !== undefined &&
       response.userID !== null &&
       response.userID !== undefined
     ) {
+      console.log("response", response)
       // mutateLoginProvider({
       //   _email: response.email,
       //   _provider: "facebook",
@@ -101,6 +101,7 @@ const useFormLoginController = () => {
       //   .then((_res) => {
       //     if (_res) {
       //       successToast(MESSAGES.logged_in_successfully)
+
       //       // Save user Facebook id to database
       //       handleSyncFacebookId(response.userID)
       //     }

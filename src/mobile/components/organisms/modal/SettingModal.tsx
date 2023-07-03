@@ -19,13 +19,12 @@ import { ImageCustom } from "@components/atoms/image/Image"
 import { StyledAvatar } from "@mobile/components/atoms/headerMenu/HeadProfileMobile"
 import ArrowBackIcon from "@mobile/components/atoms/icons/ArrowBackIcon"
 import useDrawerControllerMobile from "@mobile/features/game/containers/hooks/useDrawerControllerMobile"
+import useSyncProfile from "@mobile/features/game/containers/hooks/useSyncProfile"
 import { TelegramWidget } from "@components/atoms/button/TelegramWidget"
-import useSyncProfile from "@mobile/features/profile/containers/useSyncProfileController"
 import useGlobalControllerMobile from "@mobile/features/game/containers/hooks/useGlobalControllerMobile"
-import ButtonSyncFacebook from "@components/atoms/button/ButtonSyncFacebook"
-import LogoutModal from "./LogoutModal"
 import ProfileSettingModal from "./ProfileSettingModal"
 import PlayedHistoryModal from "./PlayedHistoryModal"
+import LogoutModal from "./LogoutModal"
 
 interface ISettingModalProps {
   open: boolean
@@ -42,7 +41,7 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
   const { t } = useTranslation()
   const { clearAllDrawer } = useDrawerControllerMobile()
   const { handleSyncTelegramId } = useSyncProfile()
-  const { isShowSyncTelegram, isShowSyncFacebook } = useGlobalControllerMobile()
+  const { isShowSyncTelegram } = useGlobalControllerMobile()
 
   return (
     <SwipeableDrawer
@@ -74,7 +73,7 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
           aria-hidden="true"
         >
           <ArrowBackIcon />
-          Setting
+          Settings
         </h2>
         <CardHeader
           sx={{
@@ -152,11 +151,11 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
               </Avatar>
             }
             action={
-              <IconButton aria-label="played history">
+              <IconButton aria-label="All played games">
                 <NavigateNextIcon className="text-white-default" />
               </IconButton>
             }
-            title={t("Played History")}
+            title={t("History")}
           />
           {/* <CardHeader
             sx={{
@@ -234,15 +233,8 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
           <>
             <TelegramWidget
               dataOnAuth={handleSyncTelegramId}
-              botName="NakaGameMBot"
+              botName="NakaGameBot"
             />
-            <Divider className="my-6 !block border-b border-[#35383F]" />
-          </>
-        )}
-
-        {isShowSyncFacebook() && (
-          <>
-            <ButtonSyncFacebook />
             <Divider className="my-6 !block border-b border-[#35383F]" />
           </>
         )}
@@ -290,7 +282,6 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
         setProfileSetting={() => setToggleProflie(false)}
         type="edit"
       />
-      {/* Played History Modal */}
       <PlayedHistoryModal
         open={togglePlayedHistory}
         setOpenPlayedHistory={() => setTogglePlayedHistory(false)}

@@ -29,27 +29,18 @@ const HeadProfileMobile = () => {
   const profile = useProfileStore((state) => state.profile.data)
   const { count } = useNotiStore()
   const { openNotification, setOpenNotification } = useDrawerControllerMobile()
+  const { isShowSyncTelegram } = useGlobalControllerMobile()
 
   const {
     openProfileCreate: toggleProfileCreate,
     setOpenProfileCreate: setToggleProfileCreate,
     openProfileSetting: toggleProfileSetting,
-    setOpenProfileSetting: setToggleProfileSetting,
-    openSyncAccount: toggleSyncAccount,
-    setOpenSyncAccount: setToggleSyncAccount
+    setOpenProfileSetting: setToggleProfileSetting
   } = useDrawerControllerMobileStore()
-
-  const { isShowSyncTelegram } = useGlobalControllerMobile()
 
   return (
     <header className="header bg-[#F32429] pb-[55px]">
-      {isShowSyncTelegram() && (
-        <HeaderSyncAccount
-          target="Telegram"
-          open={toggleSyncAccount}
-          setOpenSyncAccount={(_toggle) => setToggleSyncAccount(_toggle)}
-        />
-      )}
+      {isShowSyncTelegram() && <HeaderSyncAccount target="Telegram" />}
       <div className="flex items-center justify-between px-5 py-10">
         <Box
           component="div"

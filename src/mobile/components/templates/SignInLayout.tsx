@@ -9,7 +9,6 @@ import GoogleColorIcon from "@components/icons/SocialIcon/GoogleColorIcon"
 import FacebookColorIcon from "@components/icons/SocialIcon/FacebookColorIcon"
 import useFormLoginController from "@feature/authentication/containers/hooks/useFormLoginController"
 import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3"
-import FacebookLoginWidget from "@components/atoms/FacebookLoginWidget"
 import LoginModal from "../organisms/modal/LoginModal"
 import CreateAccountModal from "../organisms/modal/CreateAccountModal"
 
@@ -40,7 +39,6 @@ const SignInLayout = () => {
         <Typography className="my-8 text-center font-urbanist text-3xl font-bold uppercase text-red-card">
           Welcome Back
         </Typography>
-        <FacebookLoginWidget />
         <Box component="div">
           <Button
             variant="contained"
@@ -56,7 +54,7 @@ const SignInLayout = () => {
                     fields="name,email,picture"
                     callback={facebookLogin}
                     cssClass="my-facebook-button-class"
-                    // textButton={null}
+                    textButton={null}
                     icon={<FacebookColorIcon />}
                   />
                 ) : (
@@ -99,6 +97,7 @@ const SignInLayout = () => {
             </div>
           </Button>
         </Box>
+
         <Box
           component="div"
           className="py-4"

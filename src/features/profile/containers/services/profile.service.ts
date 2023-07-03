@@ -143,9 +143,9 @@ export const linkToTelegram = (data: {
   player_id: string
   telegram_id: number
 }) =>
-  new Promise<IProfile>((resolve, reject) => {
+  new Promise<any>((resolve, reject) => {
     services
-      .put<IProfile>(`${CONFIGS.BASE_URL.API}/profile/link-profile-telegram/`, {
+      .put<any>(`${CONFIGS.BASE_URL.API}/profile/link-profile-telegram/`, {
         ...data
       })
       .then((res) => {
@@ -156,10 +156,13 @@ export const linkToTelegram = (data: {
       })
   })
 
-export const linkToFacebook = (data: { facebook_id: string }) =>
-  new Promise<IProfile>((resolve, reject) => {
+export const linkToFacebook = (data: {
+  player_id: string
+  facebook_id: string
+}) =>
+  new Promise<any>((resolve, reject) => {
     services
-      .put<IProfile>(`${CONFIGS.BASE_URL.API}/profile/link-facebook-profile/`, {
+      .put<any>(`${CONFIGS.BASE_URL.API}/profile/link-facebook-profile/`, {
         ...data
       })
       .then((res) => {

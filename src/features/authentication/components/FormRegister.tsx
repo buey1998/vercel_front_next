@@ -388,10 +388,12 @@ const FormRegister = () => {
                 </motion.div>
               )}
               <TextField
-                className="mt-[5px] w-full"
+                className={`w-full ${
+                  errors.confirmPassword ? "mt-[5px]" : "mt-[18px]"
+                }`}
                 type={showConfirmPassword ? "text" : "password"}
                 placeholder={`${t("confirm_password")}`}
-                label={t("helperText_login")}
+                label={errors.confirmPassword ? t("helperText_login") : ""}
                 autoComplete="new-password'"
                 onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
                   e.target.value = e.target.value.slice(0, 128)
@@ -585,10 +587,9 @@ const FormRegister = () => {
                         appId={`${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`}
                         autoLoad
                         fields="name,email,picture"
-                        callback={(e) =>
-                          facebookLogin(e as any, watch("referralId"))
-                        }
+                        callback={(e) => facebookLogin(e, watch("referralId"))}
                         cssClass="my-facebook-button-class"
+                        textButton={null}
                         icon={<FacebookIcon />}
                       />
                     ) : (
