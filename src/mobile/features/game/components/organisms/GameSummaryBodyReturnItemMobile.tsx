@@ -1,9 +1,9 @@
 import React from "react"
 import _ from "lodash"
 import { ISummaryItemUsedProps } from "@feature/game/containers/components/molecules/SummaryItemUsed"
-import CardSummaryMain from "@feature/game/containers/components/molecules/CardSummaryMain"
 import GameSummaryRewardFooter from "@feature/game/containers/components/templates/GameSummaryRewardFooter"
 import SummaryGameData from "@feature/game/containers/components/molecules/SummaryGameData"
+import CardSummaryMainMobile from "../molecules/CardSummaryMainMobile"
 
 interface IGameSummaryBodyReturnItemMobile extends ISummaryItemUsedProps {
   date: string | Date
@@ -19,7 +19,7 @@ const GameSummaryBodyReturnItemMobile = ({
   ...props
 }: IGameSummaryBodyReturnItemMobile) => (
   <div className="flex-[1_1_100%] overflow-hidden">
-    <CardSummaryMain
+    <CardSummaryMainMobile
       title="Return Used Item"
       value={props.usedAmount}
       date={date}
