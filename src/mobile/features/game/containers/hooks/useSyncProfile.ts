@@ -10,7 +10,7 @@ import { ELocalKey } from "@interfaces/ILocal"
 import useProfileStore from "@stores/profileStore"
 import Helper from "@utils/helper"
 import { useCallback } from "react"
-import { IProfileFaceBook } from "@src/types/profile"
+import { IProfileFaceBook } from "@feature/profile/interfaces/IProfileService"
 
 const useSyncProfile = () => {
   const profile = useProfileStore((state) => state.profile.data)

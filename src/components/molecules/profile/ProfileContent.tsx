@@ -48,6 +48,7 @@ import useGlobalControllerMobile from "@mobile/features/game/containers/hooks/us
 import { TelegramWidget } from "@components/atoms/button/TelegramWidget"
 import FacebookLogin from "react-facebook-login"
 import FacebookColorIcon from "@components/icons/SocialIcon/FacebookColorIcon"
+import CONFIGS from "@configs/index"
 import EditProfileModal from "./EditProfileModal"
 import SliderBadges from "./SliderBadges"
 import SideSocialShare from "../SideSocialShare"
@@ -475,7 +476,7 @@ const ProfileContent = () => {
           {isShowSyncFacebook() && (
             <>
               <FacebookLogin
-                appId={`${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`}
+                appId={`${CONFIGS.FACEBOOK_APP_ID}`}
                 autoLoad
                 fields="name,email,picture"
                 callback={handleSyncFacebookId}

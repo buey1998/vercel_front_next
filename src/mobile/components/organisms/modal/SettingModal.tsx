@@ -24,6 +24,7 @@ import { TelegramWidget } from "@components/atoms/button/TelegramWidget"
 import useGlobalControllerMobile from "@mobile/features/game/containers/hooks/useGlobalControllerMobile"
 import FacebookLogin from "react-facebook-login"
 import FacebookColorIcon from "@components/icons/SocialIcon/FacebookColorIcon"
+import CONFIGS from "@configs/index"
 import ProfileSettingModal from "./ProfileSettingModal"
 import PlayedHistoryModal from "./PlayedHistoryModal"
 import LogoutModal from "./LogoutModal"
@@ -208,7 +209,7 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
         {isShowSyncFacebook() && (
           <>
             <FacebookLogin
-              appId={`${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`}
+              appId={`${CONFIGS.FACEBOOK_APP_ID}`}
               autoLoad
               fields="name,email,picture"
               callback={handleSyncFacebookId}
