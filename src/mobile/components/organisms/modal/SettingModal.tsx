@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import {
   Avatar,
   Box,
+  Button,
   CardHeader,
   Divider,
   IconButton,
@@ -22,6 +23,8 @@ import useDrawerControllerMobile from "@mobile/features/game/containers/hooks/us
 import useSyncProfile from "@mobile/features/game/containers/hooks/useSyncProfile"
 import { TelegramWidget } from "@components/atoms/button/TelegramWidget"
 import useGlobalControllerMobile from "@mobile/features/game/containers/hooks/useGlobalControllerMobile"
+import FacebookLogin from "react-facebook-login"
+import FacebookColorIcon from "@components/icons/SocialIcon/FacebookColorIcon"
 import ProfileSettingModal from "./ProfileSettingModal"
 import PlayedHistoryModal from "./PlayedHistoryModal"
 import LogoutModal from "./LogoutModal"
@@ -40,8 +43,8 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
 
   const { t } = useTranslation()
   const { clearAllDrawer } = useDrawerControllerMobile()
-  const { handleSyncTelegramId } = useSyncProfile()
-  const { isShowSyncTelegram } = useGlobalControllerMobile()
+  const { handleSyncTelegramId, handleSyncFacebookId } = useSyncProfile()
+  const { isShowSyncTelegram, isShowSyncFacebook } = useGlobalControllerMobile()
 
   return (
     <SwipeableDrawer
@@ -235,6 +238,29 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
               dataOnAuth={handleSyncTelegramId}
               botName="NakaGameBot"
             />
+            <Divider className="my-6 !block border-b border-[#35383F]" />
+          </>
+        )}
+        {isShowSyncFacebook() && (
+          <>
+            <Button
+              variant="contained"
+              className="h-[50px] w-[293px] rounded-2xl border border-solid border-neutral-690 !bg-neutral-800"
+            >
+              <div className="flex items-center font-urbanist text-base font-medium">
+                <span className="pr-2">
+                  <FacebookLogin
+                    appId={`${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`}
+                    autoLoad
+                    fields="name,email,picture"
+                    callback={handleSyncFacebookId}
+                    cssClass="my-facebook-button-class flex gap-2 items-center"
+                    icon={<FacebookColorIcon />}
+                    textButton="Sync with Facebook"
+                  />
+                </span>
+              </div>
+            </Button>
             <Divider className="my-6 !block border-b border-[#35383F]" />
           </>
         )}

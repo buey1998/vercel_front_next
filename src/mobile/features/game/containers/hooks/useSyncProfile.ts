@@ -10,6 +10,7 @@ import { ELocalKey } from "@interfaces/ILocal"
 import useProfileStore from "@stores/profileStore"
 import Helper from "@utils/helper"
 import { useCallback } from "react"
+import { IProfileFaceBook } from "@src/types/profile"
 
 const useSyncProfile = () => {
   const profile = useProfileStore((state) => state.profile.data)
@@ -23,7 +24,7 @@ const useSyncProfile = () => {
    * @description Handle check user already exist in website, then sync data Facebook
    */
   const handleSyncFacebookId = useCallback(
-    (facebook_id: string) => {
+    (response: IProfileFaceBook) => {
       if (profile && profile.facebook_id) {
         errorToast(MESSAGES.sync_facebook_already)
         return
@@ -32,7 +33,7 @@ const useSyncProfile = () => {
         // If user not exist in website, then create new user in website
         mutateLinkToFacebook({
           player_id: profile.id,
-          facebook_id
+          facebook_id: response.userID
         }).then(async (res) => {
           if (res?.data?.facebook_id) {
             successToast(MESSAGES.sync_facebook_success)

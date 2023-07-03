@@ -54,7 +54,6 @@ const SignInLayout = () => {
                     fields="name,email,picture"
                     callback={facebookLogin}
                     cssClass="my-facebook-button-class"
-                    textButton={null}
                     icon={<FacebookColorIcon />}
                   />
                 ) : (
