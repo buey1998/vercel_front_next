@@ -15,11 +15,12 @@ import { IError } from "@src/types/contract"
 import useConnectMetamaskAction from "@utils/useConnectMetamesk"
 import { useWeb3Provider } from "@providers/Web3Provider"
 import Web3 from "web3"
-import useSyncProfile from "@mobile/features/game/containers/hooks/useSyncProfile"
 import { useCallback } from "react"
 import { IProfileFaceBook } from "@feature/profile/interfaces/IProfileService"
 import useSignIn from "./useSignIn"
 import useLoginMetamask from "./useLoginMetamask"
+import { useLinkToFacebook } from "@feature/profile/containers/hook/useSyncProfileQuery"
+import useProfileStore from "@stores/profileStore"
 
 export interface TFormData {
   email: string
@@ -39,7 +40,8 @@ const useFormLoginController = () => {
   const web3 = new Web3(Web3.givenProvider)
   const { address: account } = useWeb3Provider()
   const { getSignature } = useConnectMetamaskAction()
-  const { handleSyncFacebookId } = useSyncProfile()
+  const { mutateLinkToFacebook } = useLinkToFacebook()
+  const { onSetProfileData } = useProfileStore()
 
   const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_APIKEY,
@@ -99,7 +101,16 @@ const useFormLoginController = () => {
               successToast(MESSAGES.logged_in_successfully)
               console.error("_res", _res)
               // Save user Facebook id to user's account
-              handleSyncFacebookId(response)
+              mutateLinkToFacebook({
+                player_id: _res.id,
+                facebook_id: response.userID
+              }).then((res) => {
+                if (res.facebook_id) {
+                  successToast(MESSAGES.sync_facebook_success)
+                  // Update profile to store
+                  onSetProfileData(res)
+                }
+              })
             }
           })
           .catch((_error: IError) => {
@@ -108,7 +119,13 @@ const useFormLoginController = () => {
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     },
-    [errorToast, mutateLoginProvider, successToast, handleSyncFacebookId]
+    [
+      errorToast,
+      mutateLoginProvider,
+      successToast,
+      mutateLinkToFacebook,
+      onSetProfileData
+    ]
   )
 
   /**
