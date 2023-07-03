@@ -108,7 +108,7 @@ const useFormLoginController = () => {
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     },
-    [errorToast, handleSyncFacebookId, mutateLoginProvider, successToast]
+    [errorToast, mutateLoginProvider, successToast, handleSyncFacebookId]
   )
 
   /**

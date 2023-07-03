@@ -25,6 +25,7 @@ const useSyncProfile = () => {
    */
   const handleSyncFacebookId = useCallback(
     (response: IProfileFaceBook) => {
+      console.error("response", response, profile && !profile.facebook_id)
       if (profile && profile.facebook_id) {
         errorToast(MESSAGES.sync_facebook_already)
         return
