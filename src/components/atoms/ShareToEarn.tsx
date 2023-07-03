@@ -8,7 +8,7 @@ import ModalHeader from "@components/molecules/Modal/ModalHeader"
 import { iconmotion } from "@components/organisms/Footer"
 import { useRouter } from "next/router"
 import { useToast } from "@feature/toast/containers"
-import useGlobal, { isMobile } from "@hooks/useGlobal"
+import useGlobal from "@hooks/useGlobal"
 import useShareToEarn from "@feature/game/containers/hooks/useShareToEarn"
 import Helper from "@utils/helper"
 import { ELocalKey } from "@interfaces/ILocal"
@@ -68,22 +68,18 @@ const ShareToEarn = (props: IProps) => {
 
   return (
     <>
-      {isMobile ? (
-        <ShareIcon onClick={handleOpen} />
-      ) : (
-        <div className="flex items-center justify-end ">
-          <Button
-            className="md flex !min-w-[6.25rem] flex-[1_1_150px] items-center justify-center text-sm text-neutral-400 md:flex-none"
-            onClick={() => handleOpen()}
-          >
-            <ShareIcon
-              color="#FFFFFF"
-              className="mr-2"
-            />
-            {t("share")}
-          </Button>
-        </div>
-      )}
+      <div className="flex items-center justify-end ">
+        <Button
+          className="md flex !min-w-[6.25rem] flex-[1_1_150px] items-center justify-center text-sm text-neutral-400 md:flex-none"
+          onClick={() => handleOpen()}
+        >
+          <ShareIcon
+            color="#FFFFFF"
+            className="mr-2"
+          />
+          {t("share")}
+        </Button>
+      </div>
       <ModalCustom
         open={openForm}
         onClose={onCloseModalCustom}

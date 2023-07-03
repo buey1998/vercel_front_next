@@ -97,11 +97,9 @@ const useFormLoginController = () => {
           .then((_res) => {
             if (_res) {
               successToast(MESSAGES.logged_in_successfully)
-
-              if (!_res.facebook_id) {
-                // Save user Facebook id to user's account
-                handleSyncFacebookId(response)
-              }
+              console.error("_res", _res)
+              // Save user Facebook id to user's account
+              handleSyncFacebookId(response)
             }
           })
           .catch((_error: IError) => {
