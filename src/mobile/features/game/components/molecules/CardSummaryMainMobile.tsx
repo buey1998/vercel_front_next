@@ -8,12 +8,10 @@ interface IGameCardSummaryMainProps {
   value?: number
   gameName?: string
   gameURLtoShare?: string
-  date?: string | Date
 }
 
 const CardSummaryMainMobile = ({
   title,
-  date,
   gameName,
   gameURLtoShare,
   value
