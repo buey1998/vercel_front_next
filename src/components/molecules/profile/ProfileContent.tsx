@@ -6,7 +6,7 @@ import ShapeIcon from "@components/icons/ShapeIcon"
 import TableIcon from "@components/icons/TableIcon"
 import ButtonToggleIcon from "@components/molecules/gameSlide/ButtonToggleIcon"
 import Tagline from "@components/molecules/tagline/Tagline"
-import { Box, Button, Typography } from "@mui/material"
+import { Box, Button, Divider, Typography } from "@mui/material"
 import useProfileStore from "@stores/profileStore"
 import { IPlayerInfoResponse } from "@src/types/profile"
 import { RandomReveal } from "react-random-reveal"
@@ -48,6 +48,11 @@ import SliderBadges from "./SliderBadges"
 import SideSocialShare from "../SideSocialShare"
 import TotalCardContent from "./TotalCardContent"
 import StatProfile from "../statProfile/StatProfile"
+import useSyncProfile from "@mobile/features/game/containers/hooks/useSyncProfile"
+import useGlobalControllerMobile from "@mobile/features/game/containers/hooks/useGlobalControllerMobile"
+import { TelegramWidget } from "@components/atoms/button/TelegramWidget"
+import FacebookLogin from "react-facebook-login"
+import FacebookColorIcon from "@components/icons/SocialIcon/FacebookColorIcon"
 
 const ProfileContent = () => {
   const { onClickLogout } = useGlobal()
@@ -85,6 +90,8 @@ const ProfileContent = () => {
   const { handleConnectWallet } = useWalletContoller()
   const { hasMetamask, disabledConnectButton } = useWeb3Provider()
   const { mutateLinkToTelegram } = useLinkToTelegram()
+  const { handleSyncTelegramId, handleSyncFacebookId } = useSyncProfile()
+  const { isShowSyncTelegram, isShowSyncFacebook } = useGlobalControllerMobile()
 
   useEffect(() => {
     if (isError) {
@@ -454,6 +461,41 @@ const ProfileContent = () => {
               `}
             </Script>
           </div>
+
+          {/* ====== */}
+          {isShowSyncTelegram() && (
+            <>
+              <TelegramWidget
+                dataOnAuth={handleSyncTelegramId}
+                botName="NakaGameMBot"
+              />
+              <Divider className="my-6 !block border-b border-[#35383F]" />
+            </>
+          )}
+          {isShowSyncFacebook() && (
+            <>
+              <Button
+                variant="contained"
+                className="h-[50px] w-[293px] rounded-2xl border border-solid border-neutral-690 !bg-neutral-800"
+              >
+                <div className="flex items-center font-urbanist text-base font-medium">
+                  <span className="pr-2">
+                    <FacebookLogin
+                      appId={`${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`}
+                      autoLoad
+                      fields="name,email,picture"
+                      callback={handleSyncFacebookId}
+                      cssClass="my-facebook-button-class flex gap-2 items-center"
+                      icon={<FacebookColorIcon />}
+                      textButton="Sync with Facebook"
+                    />
+                  </span>
+                </div>
+              </Button>
+              <Divider className="my-6 !block border-b border-[#35383F]" />
+            </>
+          )}
+          {/* ====== */}
           <SideSocialShare hidden="hidden lg:block" />
           <div className="relative">
             <Box
