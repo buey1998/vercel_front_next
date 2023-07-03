@@ -17,10 +17,10 @@ import { useWeb3Provider } from "@providers/Web3Provider"
 import Web3 from "web3"
 import { useCallback } from "react"
 import { IProfileFaceBook } from "@feature/profile/interfaces/IProfileService"
-import useSignIn from "./useSignIn"
-import useLoginMetamask from "./useLoginMetamask"
 import { useLinkToFacebook } from "@feature/profile/containers/hook/useSyncProfileQuery"
 import useProfileStore from "@stores/profileStore"
+import useSignIn from "./useSignIn"
+import useLoginMetamask from "./useLoginMetamask"
 
 export interface TFormData {
   email: string
