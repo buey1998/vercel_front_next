@@ -26,23 +26,22 @@ const useSyncProfile = () => {
   const handleSyncFacebookId = useCallback(
     (response: IProfileFaceBook) => {
       console.error("response", response, profile && !profile.facebook_id)
+      if (!profile) return
       if (profile && profile.facebook_id) {
         errorToast(MESSAGES.sync_facebook_already)
         return
       }
-      if (profile && !profile.facebook_id) {
-        // If user not exist in website, then create new user in website
-        mutateLinkToFacebook({
-          player_id: profile.id,
-          facebook_id: response.userID
-        }).then((res) => {
-          if (res.facebook_id) {
-            successToast(MESSAGES.sync_facebook_success)
-            // Update profile to store
-            onSetProfileData(res)
-          }
-        })
-      }
+      // If user not exist in website, then create new user in website
+      mutateLinkToFacebook({
+        player_id: profile.id,
+        facebook_id: response.userID
+      }).then((res) => {
+        if (res.facebook_id) {
+          successToast(MESSAGES.sync_facebook_success)
+          // Update profile to store
+          onSetProfileData(res)
+        }
+      })
     },
     [profile, errorToast, mutateLinkToFacebook, successToast, onSetProfileData]
   )
