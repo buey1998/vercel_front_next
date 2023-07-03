@@ -14,7 +14,7 @@ const useRefreshStamina = () => {
   const refreshStamina = () => {
     if (profile && data && data.game_mode !== "play-to-earn") {
       getProfileByEmail(profile?.data?.email || "")
-        .then((__res: IProfile) => {
+        .then((__res) => {
           onSetProfileData(__res)
         })
         .catch((err) => {
