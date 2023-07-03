@@ -239,14 +239,19 @@ const FormLogin = () => {
             }}
             onClick={() => setToggleFacebookLogin(true)}
             icon={
-              <FacebookLogin
-                appId={`${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`}
-                autoLoad
-                fields="name,email,picture"
-                callback={facebookLogin}
-                cssClass="my-facebook-button-class"
-                icon={<FacebookIcon />}
-              />
+              toggleFacebookLogin ? (
+                <FacebookLogin
+                  appId={`${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`}
+                  autoLoad
+                  fields="name,email,picture"
+                  callback={facebookLogin}
+                  cssClass="my-facebook-button-class"
+                  textButton=""
+                  icon={<FacebookIcon />}
+                />
+              ) : (
+                <FacebookIcon />
+              )
             }
             className={`flex h-[40px] w-[75px] justify-center rounded-lg border border-neutral-700 bg-neutral-800 ${
               toggleFacebookLogin ? "items-end" : "items-center"

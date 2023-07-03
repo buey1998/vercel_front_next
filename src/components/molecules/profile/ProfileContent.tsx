@@ -474,24 +474,15 @@ const ProfileContent = () => {
           )}
           {isShowSyncFacebook() && (
             <>
-              <Button
-                variant="contained"
-                className="h-[50px] w-[293px] rounded-2xl border border-solid border-neutral-690 !bg-neutral-800"
-              >
-                <div className="flex items-center font-urbanist text-base font-medium">
-                  <span className="pr-2">
-                    <FacebookLogin
-                      appId={`${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`}
-                      autoLoad
-                      fields="name,email,picture"
-                      callback={handleSyncFacebookId}
-                      cssClass="my-facebook-button-class flex gap-2 items-center"
-                      icon={<FacebookColorIcon />}
-                      textButton="Sync with Facebook"
-                    />
-                  </span>
-                </div>
-              </Button>
+              <FacebookLogin
+                appId={`${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`}
+                autoLoad
+                fields="name,email,picture"
+                callback={handleSyncFacebookId}
+                cssClass="my-facebook-button-class flex gap-2 items-center h-[50px] w-[293px] rounded-2xl border border-solid border-neutral-690 !bg-neutral-800"
+                icon={<FacebookColorIcon />}
+                textButton="Sync with Facebook"
+              />
               <Divider className="my-6 !block border-b border-[#35383F]" />
             </>
           )}

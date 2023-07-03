@@ -2,7 +2,6 @@ import React, { useState } from "react"
 import {
   Avatar,
   Box,
-  Button,
   CardHeader,
   Divider,
   IconButton,
@@ -160,41 +159,6 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
             }
             title={t("History")}
           />
-          {/* <CardHeader
-            sx={{
-              padding: "0px",
-              "& .MuiCardHeader-action": {
-                alignSelf: "center"
-              },
-              "& .MuiCardHeader-title": {
-                color: "#fff",
-                fontSize: "20px",
-                fontFamily: "Urbanist",
-                fontWeight: "700"
-              },
-              "& .MuiCardHeader-subheader": {
-                color: "#E0E0E0",
-                fontSize: "16px",
-                fontFamily: "Urbanist",
-                fontWeight: "500"
-              }
-            }}
-            avatar={
-              <Avatar
-                className="bg-error-100"
-                sx={{ width: 56, height: 56 }}
-                aria-label="recipe"
-              >
-                <Profile2Icon />
-              </Avatar>
-            }
-            action={
-              <IconButton aria-label="profile">
-                <NavigateNextIcon className="text-white-default" />
-              </IconButton>
-            }
-            title="Profile"
-          /> */}
           <CardHeader
             onClick={() => openInNewTab("https://t.me/NakamotoGames")}
             sx={{
@@ -243,24 +207,15 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
         )}
         {isShowSyncFacebook() && (
           <>
-            <Button
-              variant="contained"
-              className="h-[50px] w-[293px] rounded-2xl border border-solid border-neutral-690 !bg-neutral-800"
-            >
-              <div className="flex items-center font-urbanist text-base font-medium">
-                <span className="pr-2">
-                  <FacebookLogin
-                    appId={`${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`}
-                    autoLoad
-                    fields="name,email,picture"
-                    callback={handleSyncFacebookId}
-                    cssClass="my-facebook-button-class flex gap-2 items-center"
-                    icon={<FacebookColorIcon />}
-                    textButton="Sync with Facebook"
-                  />
-                </span>
-              </div>
-            </Button>
+            <FacebookLogin
+              appId={`${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`}
+              autoLoad
+              fields="name,email,picture"
+              callback={handleSyncFacebookId}
+              cssClass="my-facebook-button-class flex gap-2 items-center h-[50px] w-[293px] rounded-2xl border border-solid border-neutral-690 !bg-neutral-800"
+              icon={<FacebookColorIcon />}
+              textButton="Sync with Facebook"
+            />
             <Divider className="my-6 !block border-b border-[#35383F]" />
           </>
         )}

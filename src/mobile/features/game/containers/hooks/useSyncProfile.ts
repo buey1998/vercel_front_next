@@ -34,24 +34,16 @@ const useSyncProfile = () => {
         mutateLinkToFacebook({
           player_id: profile.id,
           facebook_id: response.userID
-        }).then(async (res) => {
-          if (res?.data?.facebook_id) {
+        }).then((res) => {
+          if (res.facebook_id) {
             successToast(MESSAGES.sync_facebook_success)
-            if (dataProfile) {
-              onSetProfileData(dataProfile)
-            }
+            // Update profile to store
+            onSetProfileData(res)
           }
         })
       }
     },
-    [
-      profile,
-      errorToast,
-      mutateLinkToFacebook,
-      successToast,
-      dataProfile,
-      onSetProfileData
-    ]
+    [profile, errorToast, mutateLinkToFacebook, successToast, onSetProfileData]
   )
 
   /**
