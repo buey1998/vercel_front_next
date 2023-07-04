@@ -48,6 +48,7 @@ export interface IGetUserById {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any // IGetUserByIdData[]
 }
+
 export interface IGetUserByIdData {
   _id: string
   status: number

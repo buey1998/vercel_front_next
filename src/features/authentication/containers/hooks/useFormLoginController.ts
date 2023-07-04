@@ -18,7 +18,7 @@ import Web3 from "web3"
 import { useCallback } from "react"
 import { IProfileFaceBook } from "@feature/profile/interfaces/IProfileService"
 import { useLinkToFacebook } from "@feature/profile/containers/hook/useSyncProfileQuery"
-import useProfileStore from "@stores/profileStore"
+import useProfileController from "@feature/profile/containers/hook/useProfileController"
 import useSignIn from "./useSignIn"
 import useLoginMetamask from "./useLoginMetamask"
 
@@ -41,7 +41,7 @@ const useFormLoginController = () => {
   const { address: account } = useWeb3Provider()
   const { getSignature } = useConnectMetamaskAction()
   const { mutateLinkToFacebook } = useLinkToFacebook()
-  const { onSetProfileData } = useProfileStore()
+  const { fetchProfile } = useProfileController()
 
   const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_APIKEY,
@@ -107,8 +107,8 @@ const useFormLoginController = () => {
               }).then((res) => {
                 if (res.facebook_id) {
                   successToast(MESSAGES.sync_facebook_success)
-                  // Update profile to store
-                  onSetProfileData(res)
+                  // Fetch profile without reloading page
+                  fetchProfile(_res, false)
                 }
               })
             }
@@ -124,7 +124,7 @@ const useFormLoginController = () => {
       mutateLoginProvider,
       successToast,
       mutateLinkToFacebook,
-      onSetProfileData
+      fetchProfile
     ]
   )
 
