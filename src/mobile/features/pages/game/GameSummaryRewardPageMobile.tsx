@@ -92,7 +92,6 @@ const GameSummaryRewardPageMobile = () => {
           <GameSummaryBodyReturnItemMobile
             gameImage={gameData?.image_category_list || ""}
             gameName={gameData?.name || ""}
-            date={notificationItem?.createdAt || ""}
             itemImage={usedItem.images}
             usedAmount={usedItem.usedAmount}
             itemName={usedItem.name}
