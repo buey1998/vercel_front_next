@@ -19,6 +19,7 @@ import createEmotionCache from "@utils/createEmotionCache"
 import { metaData } from "@src/meta/meta"
 import Head from "next/head"
 import BaseProvider from "@providers/BaseProvider"
+import { SessionProvider } from "next-auth/react"
 
 const Loading = dynamic(() => import("@components/molecules/Loading"), {
   suspense: true,
@@ -38,7 +39,10 @@ type AppPropsWithLayout = AppProps & {
 }
 
 const MyApp = (props) => {
-  const { Component, pageProps }: AppPropsWithLayout = props
+  const {
+    Component,
+    pageProps: { session, ...pageProps }
+  }: AppPropsWithLayout = props
   const getLayout = Component.getLayout ?? ((page) => page)
   const emotionCache: EmotionCache = clientSideEmotionCache
   const queryClient = new QueryClient()
@@ -56,11 +60,13 @@ const MyApp = (props) => {
         <Web3Provider>
           <CacheProvider value={emotionCache}>
             <ThemeProvider theme={customTheme}>
-              <ProviderApp>
-                <BaseProvider>
-                  {getLayout(<Component {...pageProps} />)}
-                </BaseProvider>
-              </ProviderApp>
+              <SessionProvider session={session}>
+                <ProviderApp>
+                  <BaseProvider>
+                    {getLayout(<Component {...pageProps} />)}
+                  </BaseProvider>
+                </ProviderApp>
+              </SessionProvider>
             </ThemeProvider>
           </CacheProvider>
         </Web3Provider>

@@ -10,7 +10,8 @@ import {
   Typography,
   CircularProgress,
   Grid,
-  Alert
+  Alert,
+  Button
 } from "@mui/material"
 import LoginIcon from "@mui/icons-material/Login"
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined"
@@ -29,6 +30,7 @@ import useLoginTypeStore from "@stores/loginTypes"
 import { useTranslation } from "react-i18next"
 import { isMobile } from "@hooks/useGlobal"
 import CONFIGS from "@configs/index"
+import { signIn, signOut, useSession } from "next-auth/react"
 import FromForgotPassword from "./FromForgotPassword"
 import useFormLoginController from "../containers/hooks/useFormLoginController"
 import { ISignIn } from "../interfaces/IAuthService"
@@ -44,6 +46,7 @@ const FormLogin = () => {
   } = useFormLoginController()
 
   const { t } = useTranslation()
+  const { data: session } = useSession()
 
   const {
     getClickLoginFacebook: toggleFacebookLogin,
@@ -211,6 +214,24 @@ const FormLogin = () => {
         </ButtonGroup>
       </form>
       <FromForgotPassword />
+      <Button
+        className="items-center justify-center rounded-[10px] bg-secondary-main p-4"
+        onClick={() => signIn("discord")}
+      >
+        Login
+      </Button>
+      {/* )} */}
+      {/* <>
+            You&apos;re signed in! Congratulations! <br />
+            <Button onClick={() => signOut()}>Sign out</Button>
+          </> */}
+      <div className="text-secondary-main">
+        <h1>Welcome, {session?.user?.email}</h1>
+        {/* <img
+                src={session.user.image}
+                alt="Profile Image"
+              /> */}
+      </div>
       <Grid
         item
         container
