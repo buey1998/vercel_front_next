@@ -43,7 +43,7 @@ const FormLogin = () => {
   const { t } = useTranslation()
   const { data: session } = useSession()
 
-  console.log("session", session)
+  // console.log("session", session)
 
   const {
     getClickLoginFacebook: toggleFacebookLogin,
