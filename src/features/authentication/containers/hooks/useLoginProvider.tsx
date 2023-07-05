@@ -1,3 +1,4 @@
+import { IProfile } from "@feature/profile/interfaces/IProfileService"
 import useProfileStore from "@stores/profileStore"
 import { useMutation } from "@tanstack/react-query"
 import { loginProvider } from "../services/auth.service"
@@ -15,9 +16,9 @@ const useLoginProvider = () => {
     mutationKey: ["LoginProvider"],
     retry: false,
     onSuccess(res) {
-      onSetProfileData(res)
+      onSetProfileData(res as IProfile)
       onSetProfileAddress("")
-      onSetProfileJWT(res.jwtToken)
+      onSetProfileJWT((res as IProfile).jwtToken)
     }
   })
 

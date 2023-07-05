@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import ILogoMaster from "@components/icons/LogoMaster"
 import { Chip, Typography } from "@mui/material"
@@ -17,9 +17,6 @@ import { TType } from "@feature/marketplace/interfaces/IMarketService"
 import { isMobile } from "@hooks/useGlobal"
 // eslint-disable-next-line import/no-extraneous-dependencies
 import copy from "copy-to-clipboard"
-import { useRouter } from "next/router"
-
-import { IGameItemData } from "@feature/gameItem/interfaces/IGameItemService"
 
 // motion
 const imgMotion = {
@@ -85,9 +82,6 @@ interface IProp {
     owner?: string
     buyer?: string
   }
-  firstData?: IGameItemData
-  // | IInventoryItemList
-  // IMarketDetail
 }
 
 const CardItemMarketPlace = ({
@@ -106,18 +100,26 @@ const CardItemMarketPlace = ({
   nakaPrice,
   href,
   keyType,
-  rental,
-  firstData
+  rental
 }: IProp) => {
   const { copyClipboard, formatNumber } = Helper
   const { successToast } = useToast()
 
   // "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning"
 
-  const router = useRouter()
-  const pathCheck = router.pathname.includes("p2p")
-    ? firstData?.item_data.image
-    : firstData?.img
+  const [size, setSize] = useState<Blob>()
+
+  useEffect(() => {
+    if (itemImage && itemName === "Bullet" && !size) {
+      fetch(itemImage?.src)
+        .then((response) => response.blob())
+        .then((blob) => {
+          setSize(blob)
+          // Further operations with the blob object
+        })
+        .catch(() => {})
+    }
+  }, [itemName, itemImage, size])
 
   const handleColor = () => {
     if (percentage)
@@ -145,11 +147,7 @@ const CardItemMarketPlace = ({
 
   return (
     <div className="relative justify-self-center">
-      <div
-        className={`pointer-events-auto absolute z-20 m-[14px] mt-[18px] flex ${
-          keyType && "flex-wrap"
-        } gap-2`}
-      >
+      <div className="pointer-events-auto absolute z-20 m-[14px] mt-[18px] flex gap-2">
         {itemAmount && (
           <Chip
             label={`${itemAmount}${itemTotal ? ` / ${itemTotal}` : ""}`}
@@ -196,11 +194,7 @@ const CardItemMarketPlace = ({
           />
         )}
         {itemLevel && (
-          <div
-            className={`flex ${
-              keyType ? "" : "w-[135px] justify-between sm:w-[190px]"
-            } `}
-          >
+          <div className="flex w-[135px] justify-between sm:w-[190px]">
             <Chip
               label={`LV. : ${itemLevel}`}
               variant="outlined"
@@ -228,15 +222,15 @@ const CardItemMarketPlace = ({
             icon={handleIcon()}
           />
         )}
-        {rental && id && (
+        {rental && keyType && (
           <div className="flex justify-between">
             <Chip
-              label={id}
+              label={
+                keyType.toLowerCase() === "owner" ? rental.buyer : rental.owner
+              }
               variant="outlined"
               size="small"
-              className={`pointer-events-auto flex-1 ${
-                keyType ? "mr-2" : "absolute left-4 top-4 z-10"
-              }  w-[93px] cursor-pointer truncate uppercase`}
+              className="pointer-events-auto absolute left-4 top-4 z-10 w-[93px] cursor-pointer truncate uppercase"
               deleteIcon={
                 <ContentCopySharpIcon
                   sx={{
@@ -247,9 +241,19 @@ const CardItemMarketPlace = ({
                 />
               }
               onDelete={() => {
-                copyClipboard(id)
+                if (keyType.toLowerCase() === "owner" && rental.buyer)
+                  copyClipboard(rental.buyer)
+                if (keyType.toLowerCase() !== "owner" && rental.owner)
+                  copyClipboard(rental.owner)
                 successToast(MESSAGES.copy)
               }}
+            />
+            <Chip
+              label={keyType}
+              variant="filled"
+              size="small"
+              className="cursor-pointer uppercase"
+              color={keyType.toLowerCase() === "owner" ? "secondary" : "error"}
             />
           </div>
         )}
@@ -275,21 +279,31 @@ const CardItemMarketPlace = ({
                   className="relative flex items-center justify-center sm:hidden"
                 >
                   <Image
-                    src={
-                      itemName === "Bullet"
-                        ? (pathCheck as string)
-                        : itemImage.src
-                    }
+                    src={itemImage.src}
                     alt={itemImage.alt}
                     className={`!m-0 !h-[80px] w-auto object-contain !p-0 ${
                       cardType === "naka-punk"
                         ? "rounded-lg"
                         : cardType === "building" && "!h-[200px]"
                     }`}
+                    // width={
+                    //   itemName?.includes("Bullet") &&
+                    //   Number(itemImage.width) > 60
+                    //     ? 30
+                    //     : itemImage.width
+                    // }
+                    // height={
+                    //   itemName?.includes("Bullet") &&
+                    //   Number(itemImage.height) > 60
+                    //     ? 30
+                    //     : itemImage.height
+                    // }
                     width={itemName?.includes("Bullet") ? 40 : itemImage.width}
                     height={
                       itemName?.includes("Bullet") ? 40 : itemImage.height
                     }
+                    // sizes="height: 100vw, width: 100vw"
+                    // sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 </motion.div>
                 {/* destop */}
@@ -299,19 +313,19 @@ const CardItemMarketPlace = ({
                   className="relative  hidden items-center justify-center sm:block"
                 >
                   <Image
-                    src={
-                      itemName === "Bullet"
-                        ? (pathCheck as string)
-                        : itemImage.src
-                    }
-                    // firstData.item_data?.item_data
-                    // firstData.item_data.image ||
+                    src={itemImage.src}
                     alt={itemImage.alt}
                     className={`object-contain ${
                       cardType === "naka-punk"
                         ? "h-full w-full rounded-lg"
                         : cardType === "building" && "image-building"
+                    } ${
+                      size && size.size <= 1765
+                        ? `h-[120px] !w-auto`
+                        : `h-[100px] !w-auto`
                     }`}
+                    // layout="fill"
+                    // objectFit="contain"
                     width={itemName?.includes("Bullet") ? 40 : 148}
                     height={itemName?.includes("Bullet") ? 40 : 148}
                   />

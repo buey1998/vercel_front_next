@@ -1,21 +1,18 @@
 import { ImageCustom } from "@components/atoms/image/Image"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import RefreshIcon from "@mui/icons-material/Refresh"
 
 interface ICardBuyItemHeaderProps {
   image: string
   name: string
   itemSize: string
   title?: string
-  refresh?: () => void
 }
 const CardBuyItemHeader = ({
   image,
   name,
   itemSize,
-  title,
-  refresh
+  title
 }: ICardBuyItemHeaderProps) => {
   const { t } = useTranslation()
 
@@ -37,12 +34,6 @@ const CardBuyItemHeader = ({
             <span className="ml-1">{itemSize}</span>
             <span className="ml-1">{t(name)}</span>
           </div>
-          {refresh && (
-            <RefreshIcon
-              className="m-auto cursor-pointer"
-              onClick={refresh}
-            />
-          )}
           {/* {t("bag")} */}
         </div>
       </div>

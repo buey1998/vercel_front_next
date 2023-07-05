@@ -36,7 +36,7 @@ export const MuiTextfield: Components<
       "& .MuiFormHelperText-root": {
         color: PaletteCustom.neutral[600],
         marginLeft: 0,
-        fontSize: 12,
+        fontSize: 10,
         fontWeight: 700,
         textTransform: "uppercase",
         "&.Mui-error": {

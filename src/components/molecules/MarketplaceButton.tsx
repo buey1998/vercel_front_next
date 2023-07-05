@@ -47,12 +47,10 @@ interface IProps {
   position?: IPosition
   period?: number
   maxPeriod?: number
-  setPeriod?: (_value: number) => void
   amount?: number
   maxAmount?: number
   marketplaces_data?: IMarketData | null
   showRentBtn?: boolean
-  isRenting?: boolean
 }
 
 const MarketplaceButton = ({
@@ -65,12 +63,10 @@ const MarketplaceButton = ({
   position,
   period,
   maxPeriod,
-  setPeriod,
   amount,
   maxAmount,
   marketplaces_data,
-  showRentBtn = false,
-  isRenting
+  showRentBtn = false
 }: IProps) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [curAction, setCurAction] = useState<TMarketAction | undefined>(
@@ -257,8 +253,7 @@ const MarketplaceButton = ({
         img={img}
         vdo={vdo}
         periodValue={period}
-        maxPeriod={marketplaces_data?.period_amount || maxPeriod}
-        setPeriod={setPeriod}
+        maxPeriod={maxPeriod}
         amount={amount}
         maxAmount={maxAmount}
         itemId={itemId}
@@ -271,7 +266,6 @@ const MarketplaceButton = ({
         sellingType={
           curAction === "rent_out" ? "rental" : marketplaces_data?.selling_type
         }
-        isRenting={isRenting}
         orderPrice={marketplaces_data?.price}
       />
     </div>

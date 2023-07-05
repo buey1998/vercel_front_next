@@ -34,7 +34,6 @@ import FacebookLogin from "react-facebook-login"
 import useRegisterAvatarStore from "@stores/registerAvater"
 import { useTranslation } from "react-i18next"
 import { isMobile } from "@hooks/useGlobal"
-import CONFIGS from "@configs/index"
 import useFormRegisterController from "../containers/hooks/useFormRegisterController"
 import useFormController from "../containers/hooks/useFormController"
 
@@ -389,12 +388,10 @@ const FormRegister = () => {
                 </motion.div>
               )}
               <TextField
-                className={`w-full ${
-                  errors.confirmPassword ? "mt-[5px]" : "mt-[18px]"
-                }`}
+                className="mt-[5px] w-full"
                 type={showConfirmPassword ? "text" : "password"}
                 placeholder={`${t("confirm_password")}`}
-                label={errors.confirmPassword ? t("helperText_login") : ""}
+                label={t("helperText_login")}
                 autoComplete="new-password'"
                 onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
                   e.target.value = e.target.value.slice(0, 128)
@@ -585,13 +582,12 @@ const FormRegister = () => {
                   icon={
                     toggleFacebookRegister ? (
                       <FacebookLogin
-                        appId={`${CONFIGS.FACEBOOK_APP_ID}`}
+                        appId={`${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`}
                         autoLoad
                         fields="name,email,picture"
-                        callback={(e: any) =>
-                          facebookLogin(e, watch("referralId"))
-                        }
+                        callback={(e) => facebookLogin(e, watch("referralId"))}
                         cssClass="my-facebook-button-class"
+                        textButton={null}
                         icon={<FacebookIcon />}
                       />
                     ) : (

@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-curly-brace-presence */
 import React from "react"
 import { IVerticalThumbCardSlideProps } from "@feature/slider/interfaces/ISlides"
 import { CardMedia } from "@mui/material"
@@ -9,7 +8,11 @@ import { isMobile } from "@hooks/useGlobal"
 const VerticalThumbSmallCardSlide = ({
   item
 }: IVerticalThumbCardSlideProps) => (
-  <div className={"verticalSmallThumb-slide__item relative my-[2px]"}>
+  <div
+    className={`verticalSmallThumb-slide__item relative ${
+      isMobile ? "px-5" : "my-[2px]"
+    }`}
+  >
     <div className="verticalSmallThumb-slide__item__image h-[70px] w-[70px] cursor-pointer transition-all hover:opacity-70">
       {item.type === "video" && !isMobile && (
         <div className="absolute flex h-full w-full items-center justify-center">

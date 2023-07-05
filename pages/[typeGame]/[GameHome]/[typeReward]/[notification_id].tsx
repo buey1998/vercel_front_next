@@ -130,7 +130,7 @@ export default function Notification_id() {
             <TabProvider>
               <GameTabsVertical
                 gameId={gameDataState.id}
-                gameType={getGameMode(gameDataState)}
+                gameType="arcade-emporium"
               />
             </TabProvider>
           </FullWidthContent>

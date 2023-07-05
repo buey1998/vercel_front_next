@@ -140,7 +140,7 @@ export default function SummaryDetails() {
             <TabProvider>
               <GameTabsVertical
                 gameId={gameDataState.id}
-                gameType={getGameMode(gameDataState)}
+                gameType={gameDataState.game_mode}
               />
             </TabProvider>
           </FullWidthContent>

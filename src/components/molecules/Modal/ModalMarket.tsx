@@ -54,7 +54,6 @@ interface IProps {
   periodValue?: number
   amount?: number
   maxPeriod?: number
-  setPeriod?: (_value: number) => void
   maxAmount?: number
   tokenId?: string
   marketId?: string
@@ -64,7 +63,6 @@ interface IProps {
   sellerType?: TSellerType
   sellingType?: TSellingType
   plot?: IPosition
-  isRenting?: boolean
 }
 
 const ModalMarket = ({
@@ -76,7 +74,6 @@ const ModalMarket = ({
   img,
   vdo,
   orderPrice,
-  periodValue,
   maxPeriod = 1,
   maxAmount = 0,
   tokenId,
@@ -86,9 +83,7 @@ const ModalMarket = ({
   sellerId,
   sellerType = "user",
   sellingType,
-  plot,
-  setPeriod,
-  isRenting
+  plot
 }: IProps) => {
   const currencyRef = useRef<boolean>(false)
   const { getPriceNakaCurrent, convertNFTTypeToTType } = Helper
@@ -107,17 +102,14 @@ const ModalMarket = ({
   const {
     invenItemData,
     invPrice,
-    // invPeriod,
+    invPeriod,
     invAmount,
-    // setInvPeriod,
+    setInvPeriod,
     updateInvenNFTMarketData
   } = useInventoryProvider()
 
-  const {
-    // marketPeriod,
-    marketAmount
-    // , setMarketPeriod
-  } = useMarketplaceProvider()
+  const { marketPeriod, marketAmount, setMarketPeriod } =
+    useMarketplaceProvider()
 
   const onPriceChange = (value: string) => {
     setSellNFTPrice(value)
@@ -125,26 +117,9 @@ const ModalMarket = ({
 
   const onPeriodChange = (value: number) => {
     const _value = value > 0 ? value : 1
-    // if (setInvPeriod) setInvPeriod(_value)
-    // if (setMarketPeriod) setMarketPeriod(_value)
-    if (setPeriod) {
-      setPeriod(_value)
-    }
+    if (setInvPeriod) setInvPeriod(_value)
+    if (setMarketPeriod) setMarketPeriod(_value)
   }
-
-  const _period = useMemo(() => {
-    let _value: number | undefined
-    if (
-      nftType !== "game_item" &&
-      nftType !== "nft_material" &&
-      nftType !== "nft_naka_punk" &&
-      nftType !== "nft_avatar"
-    ) {
-      if (action === "cancel") _value = maxPeriod
-      else _value = periodValue
-    }
-    return _value
-  }, [nftType, action, maxPeriod, periodValue])
 
   useEffect(() => {
     const onSetCurrency = async () => {
@@ -288,7 +263,7 @@ const ModalMarket = ({
           sellerType &&
           orderId &&
           marketAmount &&
-          periodValue &&
+          marketPeriod &&
           orderPrice
         ) {
           await onExecuteOrder(
@@ -300,7 +275,7 @@ const ModalMarket = ({
             orderId,
             orderPrice,
             marketAmount,
-            periodValue
+            marketPeriod
           ).then((_res) => {
             if (_res)
               return router.replace(
@@ -313,7 +288,7 @@ const ModalMarket = ({
           })
         } else
           console.error(
-            `id: ${marketId}, idItem: ${itemId}, selllerAcc: ${sellerId}, order: ${orderId}, orderPeriod: ${periodValue}`
+            `id: ${marketId}, idItem: ${itemId}, selllerAcc: ${sellerId}, order: ${orderId}, orderPeriod: ${marketPeriod}`
           )
         break
       case "mint":
@@ -344,7 +319,7 @@ const ModalMarket = ({
           itemId &&
           invAmount &&
           (Number(sellNFTPrice) > 0 || invPrice) &&
-          periodValue
+          invPeriod
         ) {
           const _price =
             Number(sellNFTPrice) > 0 ? Number(sellNFTPrice) : invPrice || 0
@@ -356,7 +331,7 @@ const ModalMarket = ({
             tokenId,
             invAmount,
             _price,
-            periodValue
+            invPeriod
           ).then((_res) => {
             if (router.asPath.includes("/inventory")) {
               return
@@ -453,13 +428,14 @@ const ModalMarket = ({
                     selling={selling}
                     setSelling={setSelling}
                     currency={currency}
+                    // price={invPrice || undefined}
+                    // onPriceChange={onPriceChange}
                     price={sellNFTPrice}
                     onPriceChange={onPriceChange}
-                    period={periodValue || 1}
+                    period={invPeriod || 1}
                     setPeriod={onPeriodChange}
-                    maxPeriod={action === "rent_out" ? 365 : maxPeriod}
+                    maxPeriod={365}
                     isRentout={action === "rent_out"}
-                    isRenting={isRenting}
                   />
                 ) : null}
                 {action === "buy" &&
@@ -474,7 +450,7 @@ const ModalMarket = ({
                     selling={selling}
                     currency={currency}
                     price={orderPrice}
-                    period={periodValue || 0}
+                    period={marketPeriod || 0}
                     setPeriod={onPeriodChange}
                     maxPeriod={maxPeriod}
                     displayPrice={calcNakaPrice(orderPrice, marketAmount)}
@@ -510,7 +486,14 @@ const ModalMarket = ({
                         ? undefined
                         : selling
                     }
-                    period={_period}
+                    period={
+                      nftType === "game_item" ||
+                      nftType === "nft_material" ||
+                      nftType === "nft_naka_punk" ||
+                      nftType === "nft_avatar"
+                        ? undefined
+                        : invPeriod || marketPeriod
+                    }
                     action={action}
                     displayPrice={calcNakaPrice(
                       action !== "sell" && orderPrice

@@ -54,11 +54,7 @@ const useMarketNFT = () => {
     onCheckPolygonChain,
     onCheckOwnerNFT
   } = useGlobalMarket()
-  const {
-    updateInvenNFTMarketData,
-    fetchInvenNFTItemDataById,
-    fetchInvenItemDataById
-  } = useInventoryProvider()
+  const { updateInvenNFTMarketData } = useInventoryProvider()
   const { errorToast } = useToast()
 
   // get order by id
@@ -164,20 +160,9 @@ const useMarketNFT = () => {
               _sellerType: "user",
               _sellingType: "fullpayment"
             }
-            try {
-              const { data } = await mutateMarketCreateOrder(_data)
-              if (data && updateInvenNFTMarketData)
-                updateInvenNFTMarketData(data, _NFTtype)
-            } catch (error) {
-              // fetch data
-              if (
-                (_NFTtype === "game_item" || _NFTtype === "nft_material") &&
-                fetchInvenItemDataById
-              )
-                await fetchInvenItemDataById()
-              else if (fetchInvenNFTItemDataById)
-                await fetchInvenNFTItemDataById()
-            }
+            const { data } = await mutateMarketCreateOrder(_data)
+            if (data && updateInvenNFTMarketData)
+              updateInvenNFTMarketData(data, _NFTtype)
             _status = true
           }
         })
@@ -259,18 +244,7 @@ const useMarketNFT = () => {
               _orderId: _resultEvent[0],
               _txHash: _res.transactionHash
             }
-            try {
-              await mutateMarketCancelOrder(data)
-            } catch (error) {
-              // fetch data
-              if (
-                (_NFTtype === "game_item" || _NFTtype === "nft_material") &&
-                fetchInvenItemDataById
-              )
-                await fetchInvenItemDataById()
-              else if (fetchInvenNFTItemDataById)
-                await fetchInvenNFTItemDataById()
-            }
+            await mutateMarketCancelOrder(data)
             _status = true
           }
         })

@@ -5,8 +5,7 @@ import {
   IInstallData,
   IInstallPeriod,
   IMarketHistory,
-  IRentalData,
-  TNFTType
+  IRentalData
 } from "@feature/marketplace/interfaces/IMarketService"
 import { Box, Button, Chip, Link, Tab, Tabs } from "@mui/material"
 import React, { useMemo, useState } from "react"
@@ -44,7 +43,6 @@ interface IProps {
   installmentData?: IInstallData
   rentalData?: IRentalData
   history: IMarketHistory[]
-  type: TNFTType
 }
 
 const tabSx = {
@@ -59,12 +57,7 @@ const tabSx = {
 const tabClassName =
   "!min-h-10 !rounded-lg bg-neutral-800 !text-sm !capitalize text-neutral-500 !opacity-100"
 
-const NFTDetailTable = ({
-  installmentData,
-  rentalData,
-  history,
-  type
-}: IProps) => {
+const NFTDetailTable = ({ installmentData, rentalData, history }: IProps) => {
   let _initValue: string = "history"
   if (installmentData) {
     _initValue = "bill"
@@ -449,14 +442,9 @@ const NFTDetailTable = ({
         ) : null}
         {rentalData &&
         profile.data &&
-        profile.data.address === rentalData.seller_address &&
-        !rentalData.period.every((p) => p.claim_status) ? (
+        profile.data.address === rentalData.seller_address ? (
           <Button
-            disabled={
-              !rentalData.period.some(
-                (p) => dayjs().isAfter(dayjs(p.due_date)) && !p.claim_status
-              )
-            }
+            disabled={!!rentalData.period.find((p) => p.claim_status)}
             variant="contained"
             color="secondary"
             sx={{
@@ -464,7 +452,7 @@ const NFTDetailTable = ({
               fontSize: "12px"
             }}
             onClick={() => {
-              onClaimNFTRentOrder(type, rentalData.order_id)
+              onClaimNFTRentOrder(rentalData.order_id)
             }}
           >
             Claim Rental

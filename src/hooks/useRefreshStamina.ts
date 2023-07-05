@@ -1,5 +1,7 @@
 import { getProfileByEmail } from "@feature/profile/containers/services/profile.service"
+import { IProfile } from "@src/types/profile"
 import useProfileStore from "@stores/profileStore"
+// import { useEffect } from "react"
 import useGameStore from "@stores/game"
 import useRefreshProfile from "./useRefreshProfile"
 
@@ -12,7 +14,7 @@ const useRefreshStamina = () => {
   const refreshStamina = () => {
     if (profile && data && data.game_mode !== "play-to-earn") {
       getProfileByEmail(profile?.data?.email || "")
-        .then((__res) => {
+        .then((__res: IProfile) => {
           onSetProfileData(__res)
         })
         .catch((err) => {
@@ -21,6 +23,15 @@ const useRefreshStamina = () => {
         })
     }
   }
+  // useEffect(() => {
+  //   let load = false
+  //   // TODO Yui GET Stamina one time
+  //   if (!load) refreshStamina()
+  //   return () => {
+  //     load = true
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [])
 
   return { refreshStamina }
 }

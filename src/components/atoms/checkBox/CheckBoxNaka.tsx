@@ -66,17 +66,15 @@ const CheckBoxNaka = ({
           <Image
             src={img}
             alt="icons"
-            width={24}
-            height={24}
-            style={{ width: 24, height: 24 }}
-            className={`cursor-pointer object-contain ${
+            width={20}
+            height={20}
+            style={{ width: 20, height: 20 }}
+            className={`mr-2 cursor-pointer object-cover ${
               router.asPath.includes("/building") && "scale-[1.5]"
             }`}
           />
         )}
-        <Typography
-          className={`ml-2 cursor-pointer font-neue-machina ${fontStyle}`}
-        >
+        <Typography className={`cursor-pointer font-neue-machina ${fontStyle}`}>
           {text ?? ""}
         </Typography>
       </label>

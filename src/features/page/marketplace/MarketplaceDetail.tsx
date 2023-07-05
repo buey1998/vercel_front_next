@@ -2,7 +2,7 @@ import CardWriterDetails from "@components/molecules/Inventory/CardWriterDetails
 import CardContentDetails from "@feature/marketplace/components/organisms/CardContentDetails"
 import RightDetailsMarketplace from "@feature/marketplace/components/organisms/RightDetailsMarketplace"
 import CONFIGS from "@configs/index"
-import React, { useMemo } from "react"
+import React from "react"
 import dynamic from "next/dynamic"
 import {
   TNFTType,
@@ -13,8 +13,6 @@ import { useMarketplaceProvider } from "@providers/MarketplaceProvider"
 import useGlobal from "@hooks/useGlobal"
 import { Typography } from "@mui/material"
 import Breadcrumb from "@components/molecules/Breadcrumb"
-import useMarketCategTypes from "@stores/marketCategTypes"
-import Helper from "@utils/helper"
 
 const MarketplaceButton = dynamic(
   () => import("@components/molecules/MarketplaceButton"),
@@ -32,30 +30,9 @@ const MarketplaceDetail = () => {
     imageNFT,
     vdoNFT,
     marketAmount,
-    marketPeriod,
-    setMarketPeriod
+    marketPeriod
   } = useMarketplaceProvider()
   const { marketType } = useGlobal()
-  const { NFTMintAble, fetchStatus } = useMarketCategTypes()
-  const { textWithDots } = Helper
-
-  const _hiddenMarketbtn = useMemo(() => {
-    let _disable: boolean = false
-    if (marketOrder && marketOrder.seller_type === "system" && fetchStatus) {
-      if (marketType === "nft_land" && !NFTMintAble.nft_land) {
-        _disable = true
-      } else if (marketType === "nft_building" && !NFTMintAble.nft_building) {
-        _disable = true
-      }
-    }
-    return _disable
-  }, [
-    NFTMintAble.nft_building,
-    NFTMintAble.nft_land,
-    fetchStatus,
-    marketOrder,
-    marketType
-  ])
 
   const handleColorSellingType = (selling_type: TSellingType) => {
     if (selling_type === "fullpayment") {
@@ -67,16 +44,12 @@ const MarketplaceDetail = () => {
     return "warning"
   }
 
-  const onMarketPeriodChange = (_value: number) => {
-    if (setMarketPeriod) setMarketPeriod(_value)
-  }
-
   return marketOrder ? (
     <>
       <div className="block">
         <Breadcrumb />
         <div className="flex w-full flex-col gap-x-[30px] px-10 py-4 sm:flex-row sm:gap-y-0 sm:px-0 sm:py-0 md:gap-x-[60px] lg:gap-x-[120px]">
-          <div className="hidden w-full max-w-[480px] sm:block">
+          <div className="hidden sm:block">
             <CardContentDetails
               detail={
                 marketOrder.land_data?.details ??
@@ -104,14 +77,14 @@ const MarketplaceDetail = () => {
                   textHead="create by"
                   name="nakamoto.games"
                   date={String(marketOrder.created_at)}
-                  link={textWithDots(CONFIGS.CONTRACT_ADDRESS.NAKA, 6)}
+                  link={CONFIGS.CONTRACT_ADDRESS.NAKA}
                 />
                 {marketOrder.seller_id && (
                   <CardWriterDetails
                     textHead="Owned by"
                     name={marketOrder.land_data?.name}
                     date={String(marketOrder.created_at)}
-                    link={textWithDots(marketOrder.seller_id, 6)}
+                    link={marketOrder.seller_id}
                     image={marketOrder.land_data?.image}
                     alt={marketOrder.land_data?.type}
                   />
@@ -129,17 +102,13 @@ const MarketplaceDetail = () => {
               position={marketOrder.land_data?.position}
               price={marketOrder.price}
               qrCode={marketOrder.land_data?.qrcode_image}
-              count={
-                marketType !== "nft_naka_punk"
-                  ? {
-                      helperText: `Total supply : ${marketOrder.item_amount}`,
-                      label: "Supply in market",
-                      min: 1,
-                      max: marketOrder.item_amount || 1,
-                      count: 1
-                    }
-                  : undefined
-              }
+              count={{
+                helperText: `Total supply : ${marketOrder.item_amount}`,
+                label: "Supply in market",
+                min: 1,
+                max: marketOrder.item_amount || 1,
+                count: 1
+              }}
               sellingType={
                 marketOrder.selling_type && marketOrder.seller_type !== "system"
                   ? {
@@ -153,39 +122,36 @@ const MarketplaceDetail = () => {
               image={imageNFT}
               video={vdoNFT}
             >
-              {_hiddenMarketbtn ? null : (
-                <MarketplaceButton
-                  nftType={marketOrder.type}
-                  name={nameNFT || ""}
-                  itemId={marketOrder.item_id}
-                  img={imageNFT || ""}
-                  tokenId={tokenNFT || ""}
-                  position={marketOrder.land_data?.position}
-                  amount={marketAmount || 1}
-                  maxAmount={marketOrder.item_amount}
-                  period={marketPeriod}
-                  maxPeriod={marketOrder.period_amount}
-                  setPeriod={onMarketPeriodChange}
-                  marketplaces_data={{
-                    item_amount: marketOrder.item_amount,
-                    order_id: marketOrder.order_id,
-                    seller_id: marketOrder.seller_id,
-                    seller_type: marketOrder.seller_type,
-                    selling_type: marketOrder.selling_type,
-                    item_total: marketOrder.item_total,
-                    is_active: marketOrder.is_active,
-                    type: marketOrder.type,
-                    item_id: marketOrder.item_id,
-                    _id: marketOrder._id,
-                    price: marketOrder.price,
-                    real_land: false,
-                    buyer_details: [],
-                    updated_at: marketOrder.created_at,
-                    current_time: marketOrder.created_at,
-                    created_at: marketOrder.created_at
-                  }}
-                />
-              )}
+              <MarketplaceButton
+                nftType={marketOrder.type}
+                name={nameNFT || ""}
+                itemId={marketOrder.item_id}
+                img={imageNFT || ""}
+                tokenId={tokenNFT || ""}
+                position={marketOrder.land_data?.position}
+                amount={marketAmount || 1}
+                maxAmount={marketOrder.item_amount}
+                period={marketPeriod}
+                maxPeriod={marketOrder.period_amount}
+                marketplaces_data={{
+                  item_amount: marketOrder.item_amount,
+                  order_id: marketOrder.order_id,
+                  seller_id: marketOrder.seller_id,
+                  seller_type: marketOrder.seller_type,
+                  selling_type: marketOrder.selling_type,
+                  item_total: marketOrder.item_total,
+                  is_active: marketOrder.is_active,
+                  type: marketOrder.type,
+                  item_id: marketOrder.item_id,
+                  _id: marketOrder._id,
+                  price: marketOrder.price,
+                  real_land: false,
+                  buyer_details: [],
+                  updated_at: marketOrder.created_at,
+                  current_time: marketOrder.created_at,
+                  created_at: marketOrder.created_at
+                }}
+              />
             </RightDetailsMarketplace>
           </div>
           <div className="block sm:hidden">

@@ -3,7 +3,6 @@ import {
   Avatar,
   Box,
   CardHeader,
-  Divider,
   IconButton,
   SwipeableDrawer
 } from "@mui/material"
@@ -19,15 +18,9 @@ import { ImageCustom } from "@components/atoms/image/Image"
 import { StyledAvatar } from "@mobile/components/atoms/headerMenu/HeadProfileMobile"
 import ArrowBackIcon from "@mobile/components/atoms/icons/ArrowBackIcon"
 import useDrawerControllerMobile from "@mobile/features/game/containers/hooks/useDrawerControllerMobile"
-import useSyncProfile from "@mobile/features/game/containers/hooks/useSyncProfile"
-import { TelegramWidget } from "@components/atoms/button/TelegramWidget"
-import useGlobalControllerMobile from "@mobile/features/game/containers/hooks/useGlobalControllerMobile"
-import FacebookLogin from "react-facebook-login"
-import FacebookColorIcon from "@components/icons/SocialIcon/FacebookColorIcon"
-import CONFIGS from "@configs/index"
+import LogoutModal from "./LogoutModal"
 import ProfileSettingModal from "./ProfileSettingModal"
 import PlayedHistoryModal from "./PlayedHistoryModal"
-import LogoutModal from "./LogoutModal"
 
 interface ISettingModalProps {
   open: boolean
@@ -43,8 +36,6 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
 
   const { t } = useTranslation()
   const { clearAllDrawer } = useDrawerControllerMobile()
-  const { handleSyncTelegramId, handleSyncFacebookId } = useSyncProfile()
-  const { isShowSyncTelegram, isShowSyncFacebook } = useGlobalControllerMobile()
 
   return (
     <SwipeableDrawer
@@ -76,7 +67,7 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
           aria-hidden="true"
         >
           <ArrowBackIcon />
-          Settings
+          Setting
         </h2>
         <CardHeader
           sx={{
@@ -154,12 +145,47 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
               </Avatar>
             }
             action={
-              <IconButton aria-label="All played games">
+              <IconButton aria-label="played history">
                 <NavigateNextIcon className="text-white-default" />
               </IconButton>
             }
-            title={t("History")}
+            title={t("Played History")}
           />
+          {/* <CardHeader
+            sx={{
+              padding: "0px",
+              "& .MuiCardHeader-action": {
+                alignSelf: "center"
+              },
+              "& .MuiCardHeader-title": {
+                color: "#fff",
+                fontSize: "20px",
+                fontFamily: "Urbanist",
+                fontWeight: "700"
+              },
+              "& .MuiCardHeader-subheader": {
+                color: "#E0E0E0",
+                fontSize: "16px",
+                fontFamily: "Urbanist",
+                fontWeight: "500"
+              }
+            }}
+            avatar={
+              <Avatar
+                className="bg-error-100"
+                sx={{ width: 56, height: 56 }}
+                aria-label="recipe"
+              >
+                <Profile2Icon />
+              </Avatar>
+            }
+            action={
+              <IconButton aria-label="profile">
+                <NavigateNextIcon className="text-white-default" />
+              </IconButton>
+            }
+            title="Profile"
+          /> */}
           <CardHeader
             onClick={() => openInNewTab("https://t.me/NakamotoGames")}
             sx={{
@@ -197,30 +223,6 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
             title={t("Support")}
           />
         </Box>
-        {isShowSyncTelegram() && (
-          <>
-            <TelegramWidget
-              dataOnAuth={handleSyncTelegramId}
-              botName="NakaGameMBot"
-            />
-            <Divider className="my-6 !block border-b border-[#35383F]" />
-          </>
-        )}
-        {isShowSyncFacebook() && (
-          <>
-            <FacebookLogin
-              appId={`${CONFIGS.FACEBOOK_APP_ID}`}
-              autoLoad
-              fields="name,email,picture"
-              callback={handleSyncFacebookId}
-              cssClass="my-facebook-button-class flex gap-2 items-center h-[50px] w-[293px] rounded-2xl border border-solid border-neutral-690 !bg-neutral-800"
-              icon={<FacebookColorIcon />}
-              textButton="Sync with Facebook"
-            />
-            <Divider className="my-6 !block border-b border-[#35383F]" />
-          </>
-        )}
-
         <CardHeader
           onClick={() => setToggleLogout(!toggleLogout)}
           sx={{
@@ -264,6 +266,7 @@ const SettingModal = ({ open, setOpenSetting }: ISettingModalProps) => {
         setProfileSetting={() => setToggleProflie(false)}
         type="edit"
       />
+      {/* Played History Modal */}
       <PlayedHistoryModal
         open={togglePlayedHistory}
         setOpenPlayedHistory={() => setTogglePlayedHistory(false)}

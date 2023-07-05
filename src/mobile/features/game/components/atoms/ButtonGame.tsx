@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-curly-brace-presence */
 import { Box, Typography } from "@mui/material"
 import { memo, ReactNode } from "react"
 import Ellipse from "@components/icons/Ellipse/Ellipse"
@@ -6,6 +5,7 @@ import { useRouter } from "next/router"
 import ButtonPlayer from "@feature/game/components/atoms/ButtonPlayer"
 import ButtonCountdown from "@feature/game/components/atoms/ButtonCountdown"
 import HighlightOffIcon from "@mui/icons-material/HighlightOff"
+import { isMobile } from "@hooks/useGlobal"
 
 interface IProp {
   description?: string
@@ -90,9 +90,9 @@ const ButtonGame = ({
             }}
             text={
               <Typography
-                className={
-                  "w-full font-neue-machina text-2xl uppercase text-primary-main"
-                }
+                className={`w-full font-neue-machina uppercase text-primary-main ${
+                  isMobile ? "text-sm" : "text-2xl"
+                }`}
               >
                 {textButton}
               </Typography>
@@ -101,7 +101,9 @@ const ButtonGame = ({
               disabled
                 ? "btn-green-rainbow bg-neutral-680 text-primary-main"
                 : classCssButton
-            } h-[60px] w-[194px] font-bold capitalize`}
+            } font-bold capitalize ${
+              isMobile ? "h-[44px] w-[130px]" : "h-[60px] w-[194px]"
+            }`}
           />
         )}
       </Box>

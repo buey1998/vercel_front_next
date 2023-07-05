@@ -6,7 +6,7 @@ export const MESSAGES = {
   "please_connect_metamask": "Please connect to MetaMask.",
   "logged_in_successfully": "Logged in successfully",
   "logged_in_unsuccessfully": "Logged in unsuccessfully",
-  "sign_in_success": "Successfully signed in",
+  "sign_in_success": "Sign in successfully",
   "success_get_code": "Codes sent to your email. Please check and fill in.",
   "code_number_not_expired": "Code number not expired",
   "edit_profile_success": "Updated",
@@ -76,11 +76,5 @@ export const MESSAGES = {
   "support_polygon_only": "This function only supports Polygon Network",
   "check_owner_nft_error": "You are't owner this NFT",
   "check_order_error": "Order isn't founded!.",
-  "network_error": "RPC or Network are offline!, Please try again later.",
-  "sync_telegram_success": "Sync telegram success",
-  "sync_telegram_error": "Sync telegram error",
-  "sync_telegram_already": "Sync telegram already",
-  "sync_facebook_success": "Sync Facebook success",
-  "sync_facebook_error": "Sync Facebook error",
-  "sync_facebook_already": "Sync Facebook already"
+  "network_error": "RPC or Network are offline!, Please try again later."
 }

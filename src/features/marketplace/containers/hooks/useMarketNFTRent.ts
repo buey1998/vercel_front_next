@@ -62,12 +62,8 @@ const useMarketNFTRent = () => {
     onCheckPolygonChain,
     onCheckOwnerNFT
   } = useGlobalMarket()
-  const {
-    updateInvenNFTMarketData,
-    updateClaimRentalTable,
-    fetchInvenItemDataById,
-    fetchInvenNFTItemDataById
-  } = useInventoryProvider()
+  const { updateInvenNFTMarketData, updateClaimRentalTable } =
+    useInventoryProvider()
   const { errorToast } = useToast()
 
   // get rent detail by rentId
@@ -185,14 +181,9 @@ const useMarketNFTRent = () => {
               _sellingType: "rental",
               _periodAmount: Number(_resultEvent[4].toString())
             }
-            try {
-              const { data } = await mutateMarketCreateOrder(_data)
-              if (data && updateInvenNFTMarketData)
-                updateInvenNFTMarketData(data, _NFTtype)
-            } catch (error) {
-              // fetch data
-              if (fetchInvenNFTItemDataById) await fetchInvenNFTItemDataById()
-            }
+            const { data } = await mutateMarketCreateOrder(_data)
+            if (data && updateInvenNFTMarketData)
+              updateInvenNFTMarketData(data, _NFTtype)
             _status = true
           }
         })
@@ -269,18 +260,7 @@ const useMarketNFTRent = () => {
               _orderId: _resultEvent[0],
               _txHash: _res.transactionHash
             }
-            try {
-              await mutateMarketCancelOrder(data)
-            } catch (error) {
-              // fetch data
-              if (
-                (_NFTtype === "game_item" || _NFTtype === "nft_material") &&
-                fetchInvenItemDataById
-              )
-                await fetchInvenItemDataById()
-              else if (fetchInvenNFTItemDataById)
-                await fetchInvenNFTItemDataById()
-            }
+            await mutateMarketCancelOrder(data)
             _status = true
           }
         })
@@ -430,7 +410,7 @@ const useMarketNFTRent = () => {
         })
     })
 
-  const onClaimNFTRentOrder = async (_NFTtype: TNFTType, _orderId: string) => {
+  const onClaimNFTRentOrder = async (_orderId: string) => {
     setOpen(MESSAGES.transaction_processing_order)
     if (signer && address) {
       const _checkChain = await onCheckPolygonChain(marketNFTRentContract)
@@ -470,14 +450,9 @@ const useMarketNFTRent = () => {
             const _data: { _txHash: string } = {
               _txHash: _res.transactionHash
             }
-            try {
-              const data = await mutateClaimRentNFT(_data)
-              if (data && updateClaimRentalTable) {
-                updateClaimRentalTable(data)
-              }
-            } catch (error) {
-              // fetch data
-              if (fetchInvenNFTItemDataById) await fetchInvenNFTItemDataById()
+            const data = await mutateClaimRentNFT(_data)
+            if (data && updateClaimRentalTable) {
+              updateClaimRentalTable(data)
             }
           }
         })

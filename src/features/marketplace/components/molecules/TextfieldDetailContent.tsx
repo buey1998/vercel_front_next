@@ -106,8 +106,16 @@ const TextfieldDetailContent = ({
     return () => {
       load = true
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [invAmount, invPrice, isUSD, marketAmount, price])
+  }, [
+    calcNakaPrice,
+    calcUSDPrice,
+    formatNumber,
+    invAmount,
+    invPrice,
+    isUSD,
+    marketAmount,
+    price
+  ])
 
   return (
     <div
@@ -168,9 +176,9 @@ const TextfieldDetailContent = ({
       type === "nft_avatar" ||
       type === "nft_game" ? (
         <FormattedInputs
-          label={count && invPrice ? "PRICE (NAKA) : 1 item" : "PRICE (NAKA)"}
+          label="PRICE (NAKA)"
           className="!w-[131px] sm:!w-[232px]"
-          values={count && invPrice ? String(invPrice) : sellPriceNaKa}
+          values={sellPriceNaKa}
           onSetValues={onPriceChange}
           disabled={!!price}
           propsInput={{
@@ -183,11 +191,7 @@ const TextfieldDetailContent = ({
               </InputAdornment>
             )
           }}
-          helperText={
-            count && invPrice
-              ? `Total ${sellPriceNaKa} NAKA = ${sellPriceUSD} USD`
-              : `= ${sellPriceUSD} USD`
-          }
+          helperText={`= ${sellPriceUSD} USD`}
         />
       ) : null}
     </div>

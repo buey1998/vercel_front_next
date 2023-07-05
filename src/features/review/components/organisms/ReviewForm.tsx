@@ -64,7 +64,7 @@ const ReviewForm = ({ avatar, username }: IReviewFormProps) => {
               defaultValue={0}
               precision={0.5}
               value={rate}
-              onChange={(e, newValue) => {
+              onChange={(newValue) => {
                 setRate(Number(newValue))
               }}
             />

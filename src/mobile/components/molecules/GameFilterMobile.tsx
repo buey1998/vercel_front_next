@@ -25,21 +25,21 @@ const GameFilterMobile = ({
       component="div"
       className="section-filter__title flex flex-wrap gap-[12px] whitespace-nowrap text-[90%]"
     >
-      {/* <ButtonOutlineTemplate
+      <ButtonOutlineTemplate
         onClick={() => {
           setActiveMenu("all")
           setSelectedCategory("all")
         }}
       >
         All
-      </ButtonOutlineTemplate> */}
+      </ButtonOutlineTemplate>
       <ButtonOutlineTemplate
         onClick={() => {
-          setActiveMenu("free-to-play")
+          setActiveMenu("play-to-earn")
           setSelectedCategory("all")
         }}
       >
-        Top Games
+        Top game
       </ButtonOutlineTemplate>
       <ButtonOutlineTemplate
         onClick={() => setOpen(true)}

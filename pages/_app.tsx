@@ -18,7 +18,6 @@ import rt from "dayjs/plugin/relativeTime"
 import createEmotionCache from "@utils/createEmotionCache"
 import { metaData } from "@src/meta/meta"
 import Head from "next/head"
-import BaseProvider from "@providers/BaseProvider"
 import { SessionProvider } from "next-auth/react"
 
 const Loading = dynamic(() => import("@components/molecules/Loading"), {
@@ -62,9 +61,7 @@ const MyApp = (props) => {
             <ThemeProvider theme={customTheme}>
               <SessionProvider session={session}>
                 <ProviderApp>
-                  <BaseProvider>
-                    {getLayout(<Component {...pageProps} />)}
-                  </BaseProvider>
+                  {getLayout(<Component {...pageProps} />)}
                 </ProviderApp>
               </SessionProvider>
             </ThemeProvider>

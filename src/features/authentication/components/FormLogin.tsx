@@ -1,7 +1,4 @@
 import React, { memo, useState } from "react"
-import * as yup from "yup"
-import { yupResolver } from "@hookform/resolvers/yup"
-import { motion } from "framer-motion"
 import {
   Box,
   ButtonGroup,
@@ -10,7 +7,6 @@ import {
   Typography,
   CircularProgress,
   Grid,
-  Alert,
   Button
 } from "@mui/material"
 import LoginIcon from "@mui/icons-material/Login"
@@ -29,11 +25,9 @@ import FacebookLogin from "react-facebook-login"
 import useLoginTypeStore from "@stores/loginTypes"
 import { useTranslation } from "react-i18next"
 import { isMobile } from "@hooks/useGlobal"
-import CONFIGS from "@configs/index"
 import { signIn, signOut, useSession } from "next-auth/react"
 import FromForgotPassword from "./FromForgotPassword"
 import useFormLoginController from "../containers/hooks/useFormLoginController"
-import { ISignIn } from "../interfaces/IAuthService"
 
 const FormLogin = () => {
   const {
@@ -42,11 +36,14 @@ const FormLogin = () => {
     twitterLogin,
     metaMarkLogin,
     isLoading,
-    onSubmitLogin
+    onSubmitLogin,
+    onError
   } = useFormLoginController()
 
   const { t } = useTranslation()
   const { data: session } = useSession()
+
+  console.log("session", session)
 
   const {
     getClickLoginFacebook: toggleFacebookLogin,
@@ -56,19 +53,7 @@ const FormLogin = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const handleShowPassword = () => setShowPassword(!showPassword)
 
-  const SignUpSchema = yup
-    .object({
-      _email: yup.string().required(),
-      _password: yup.string().required()
-    })
-    .required()
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors }
-  } = useForm<ISignIn>({
-    resolver: yupResolver(SignUpSchema),
+  const { register, handleSubmit } = useForm({
     defaultValues: {
       _email: "",
       _password: ""
@@ -77,19 +62,21 @@ const FormLogin = () => {
 
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmitLogin)}>
+      <form onSubmit={handleSubmit(onSubmitLogin, onError)}>
         <Box component="div">
           <Typography className="mb-2 font-neue-machina text-sm uppercase  text-neutral-500">
             {t("email_address")}
           </Typography>
           <TextField
             className="w-full"
+            required
             type="email"
             sx={{
               "& .MuiOutlinedInput-root": {
                 width: "100%"
               }
             }}
+            {...register("_email")}
             id="email-login"
             placeholder={`${t("email")}`}
             size="medium"
@@ -101,29 +88,13 @@ const FormLogin = () => {
                 </InputAdornment>
               )
             }}
-            {...register("_email")}
           />
-          {errors._email && (
-            <motion.div
-              initial={{ opacity: 0, marginBottom: 0 }}
-              animate={{
-                opacity: 1,
-                marginTop: 10
-              }}
-            >
-              <Alert
-                severity="warning"
-                className="rounded-lg"
-              >
-                Email is a required field
-              </Alert>
-            </motion.div>
-          )}
         </Box>
         <Box component="div">
           <Typography className="mb-2 mt-5 font-neue-machina text-sm uppercase text-neutral-500">
             {t("password")}
           </Typography>
+
           <TextField
             className="w-full"
             sx={{
@@ -133,9 +104,11 @@ const FormLogin = () => {
             }}
             id="password-login"
             size="medium"
+            {...register("_password")}
             type={showPassword ? "text" : "password"}
             placeholder={`${t("password")}`}
-            helperText={errors._email ? t("helperText_login") : ""}
+            helperText={t("helperText_login")}
+            required
             autoComplete="current-password"
             InputProps={{
               startAdornment: (
@@ -160,24 +133,7 @@ const FormLogin = () => {
                 </InputAdornment>
               )
             }}
-            {...register("_password")}
           />
-          {errors._password && (
-            <motion.div
-              initial={{ opacity: 0, marginBottom: 0 }}
-              animate={{
-                opacity: 1,
-                marginTop: 10
-              }}
-            >
-              <Alert
-                severity="warning"
-                className="rounded-lg"
-              >
-                Password is a required field
-              </Alert>
-            </motion.div>
-          )}
         </Box>
 
         <ButtonGroup className="mt-10 w-full gap-3 md:w-auto">
@@ -263,12 +219,12 @@ const FormLogin = () => {
             icon={
               toggleFacebookLogin ? (
                 <FacebookLogin
-                  appId={`${CONFIGS.FACEBOOK_APP_ID}`}
+                  appId={`${process.env.NEXT_PUBLIC_FACEBOOK_APPID}`}
                   autoLoad
                   fields="name,email,picture"
                   callback={facebookLogin}
                   cssClass="my-facebook-button-class"
-                  textButton=""
+                  textButton={null}
                   icon={<FacebookIcon />}
                 />
               ) : (

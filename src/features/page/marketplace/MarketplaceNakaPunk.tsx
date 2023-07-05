@@ -51,7 +51,7 @@ const MarketplaceNakaPunk = () => {
           successToast("Mint success")
         })
         .catch((_error) => {
-          errorToast("Transaction fail")
+          errorToast("Transection fail")
         })
         .finally(() => setClose())
     }

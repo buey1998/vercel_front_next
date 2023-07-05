@@ -47,9 +47,6 @@ export interface IProfile extends IProfileMain {
   level: number
   message?: string
   gold?: number
-  telegram_id: string
-  facebook_id: string
-  discord_id: string
 }
 
 export interface IProfileSubmit {
@@ -380,28 +377,4 @@ export interface IGeoProfile {
   country_population: number
   asn: string
   org: string
-}
-
-export interface IDataFaceBook {
-  height: number
-  is_silhouette: boolean
-  url: string
-  width: number
-}
-
-export interface IPictureFaceBook {
-  data: IDataFaceBook
-}
-
-export interface IProfileFaceBook {
-  name: string
-  email: string
-  picture: IPictureFaceBook
-  id: string
-  accessToken: string
-  userID: string
-  expiresIn: number
-  signedRequest: string
-  graphDomain: string
-  data_access_expiration_time: number
 }

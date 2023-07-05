@@ -14,29 +14,29 @@ export const GAME_MENU_MOBILE: ISlideList[] = [
     label: "Free To Play",
     type: "free-to-play"
   },
-  // {
-  //   id: "free-to-earn",
-  //   label: "Free To Earn",
-  //   type: "free-to-earn"
-  // },
+  {
+    id: "free-to-earn",
+    label: "Free To Earn",
+    type: "free-to-earn"
+  },
   {
     id: "story-mode",
     label: "Story Mode",
     type: "story-mode"
+  },
+  {
+    id: "play-to-earn",
+    label: "Play To Earn",
+    type: "play-to-earn"
+  },
+  {
+    id: "arcade-emporium",
+    label: "Arcade Emporium",
+    type: "arcade-emporium"
   }
-  // {
-  //   id: "play-to-earn",
-  //   label: "Play To Earn",
-  //   type: "play-to-earn"
-  // },
-  // {
-  //   id: "arcade-emporium",
-  //   label: "Arcade Emporium",
-  //   type: "arcade-emporium"
-  // }
 ]
 
-export type TGameMenuMobile = "home" | "wishlist" | "rewards" | "settings"
+export type TGameMenuMobile = "home" | "wishlist" | "reward" | "settings"
 
 export const MAIN_MENU_MOBILE: {
   name: string
@@ -59,8 +59,8 @@ export const MAIN_MENU_MOBILE: {
     iconActive: <HeartFilledIconMobile />
   },
   {
-    id: "rewards",
-    name: "Rewards",
+    id: "reward",
+    name: "Reward",
     icon: <RewardIconMobile />,
     iconActive: <RewardFilledIconMobile />
   },

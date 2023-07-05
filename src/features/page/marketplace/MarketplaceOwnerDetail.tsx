@@ -17,12 +17,8 @@ const MarketplaceButton = dynamic(
 )
 const MarketplaceOwnerDetail = () => {
   const { profile } = useProfileStore()
-  const { invenItemData, isLoading, invAmount, invPeriod, setInvPeriod } =
+  const { invenItemData, isLoading, invAmount, invPeriod } =
     useInventoryProvider()
-
-  const onInvPeriodChange = (_value: number) => {
-    if (setInvPeriod) setInvPeriod(_value)
-  }
 
   return invenItemData && !isLoading ? (
     <div className="flex flex-col pb-4">
@@ -41,8 +37,7 @@ const MarketplaceOwnerDetail = () => {
               profile.data.address &&
               invenItemData.wallet_address &&
               profile.data.address === invenItemData.wallet_address &&
-              !invenItemData.marketplaces_data &&
-              invenItemData.type !== "nft_avatar" && (
+              !invenItemData.marketplaces_data && (
                 <div className="px-8">
                   <TransferBox
                     _tokenId={invenItemData.id}
@@ -80,8 +75,7 @@ const MarketplaceOwnerDetail = () => {
               profile.data.address &&
               invenItemData.wallet_address &&
               profile.data.address === invenItemData.wallet_address &&
-              !invenItemData.marketplaces_data &&
-              invenItemData.type !== "nft_avatar" && (
+              !invenItemData.marketplaces_data && (
                 <div className="px-8">
                   <TransferBox
                     _tokenId={invenItemData.id}
@@ -92,10 +86,8 @@ const MarketplaceOwnerDetail = () => {
               )
             }
           >
-            {profile.data &&
-            !invenItemData.installments_data &&
-            (invenItemData.owner_id === profile.data.id ||
-              invenItemData.owner_id === profile.data.address) &&
+            {!invenItemData.installments_data &&
+            invenItemData.owner_id === invenItemData.player_id &&
             invenItemData.type !== "nft_avatar" ? (
               <div className="flex w-full items-center justify-between gap-x-2">
                 <MarketplaceButton
@@ -108,16 +100,13 @@ const MarketplaceOwnerDetail = () => {
                   amount={invAmount || 1}
                   maxAmount={invenItemData.totalAmount}
                   period={invPeriod}
-                  setPeriod={onInvPeriodChange}
+                  maxPeriod={365}
                   marketplaces_data={invenItemData.marketplaces_data}
                   showRentBtn={
                     !invenItemData.marketplaces_data &&
                     (invenItemData.type === "nft_land" ||
-                      invenItemData.type === "nft_building") &&
-                    invenItemData.owner_id === profile.data.id &&
-                    !invenItemData.rentals_data
+                      invenItemData.type === "nft_building")
                   }
-                  isRenting={!!invenItemData.rentals_data}
                 />
               </div>
             ) : null}
@@ -135,7 +124,6 @@ const MarketplaceOwnerDetail = () => {
             invenItemData.rentals_data ? invenItemData.rentals_data : undefined
           }
           history={invenItemData.history || []}
-          type={invenItemData.type}
         />
       ) : null}
     </div>

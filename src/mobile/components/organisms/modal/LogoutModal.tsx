@@ -42,7 +42,7 @@ const LogoutModal = ({ open, setOpen }: ICategoriesModalProps) => {
         }}
       >
         <h2 className="py-[30px] text-center font-urbanist text-[24px] font-bold text-warning-100">
-          Log out
+          Logout
         </h2>
         <Box
           component="div"
@@ -82,7 +82,7 @@ const LogoutModal = ({ open, setOpen }: ICategoriesModalProps) => {
               }}
             >
               <div className="flex items-center font-urbanist text-base font-bold">
-                Yes, log out
+                Yes, Logout
               </div>
             </Button>
           </Box>
