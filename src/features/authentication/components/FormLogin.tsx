@@ -25,7 +25,8 @@ import FacebookLogin from "react-facebook-login"
 import useLoginTypeStore from "@stores/loginTypes"
 import { useTranslation } from "react-i18next"
 import { isMobile } from "@hooks/useGlobal"
-import { signIn, signOut, useSession } from "next-auth/react"
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { signIn, useSession } from "next-auth/react"
 import FromForgotPassword from "./FromForgotPassword"
 import useFormLoginController from "../containers/hooks/useFormLoginController"
 

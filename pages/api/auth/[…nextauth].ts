@@ -1,55 +1,4 @@
-// import { NextApiRequest, NextApiResponse } from "next"
-// import NextAuth from "next-auth"
-// import DiscordProvider from "next-auth/providers/discord"
-// import Providers from "next-auth/providers"
-
-// const options = {
-//   providers: [
-//     DiscordProvider({
-//       clientId: process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID,
-//       clientSecret: process.env.NEXT_PUBLIC_DISCORD_CLIENT_SECRET
-//     })
-//   ],
-//   callbacks: {
-//     async signIn(user, account, profile) {
-//       // Custom logic upon successful sign-in
-//       console.log("User signed in:", user)
-//       // Return `true` to allow the sign-in
-//       return true
-//     },
-//     async redirect(url: string, baseUrl: string) {
-//       // Custom logic for redirect URL
-//       console.log("Redirect URL:", url)
-//       // Check if the URL starts with the base URL
-//       if (url.startsWith(baseUrl)) {
-//         return url
-//       }
-//       // Redirect to the base URL if it doesn't match
-//       return baseUrl
-//     }
-//   }
-// }
-
-// export default (req: NextApiRequest, res: NextApiResponse) =>
-//   NextAuth(req, res, options)
-
-// import NextAuth from "next-auth"
-// import DiscordProvider from "next-auth/providers/discord"
-
-// export const authOptions = {
-//   // Configure one or more authentication providers
-//   providers: [
-//     DiscordProvider({
-//       clientId: process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID,
-//       clientSecret: process.env.NEXT_PUBLIC_DISCORD_CLIENT_SECRET
-//     })
-//     // ...add more providers here
-//   ]
-// }
-// export default NextAuth(authOptions)
-
 import NextAuth from "next-auth"
-import Providers from "next-auth/providers"
 import DiscordProvider from "next-auth/providers/discord"
 
 const scopes = ["identify"].join(" ")
@@ -161,3 +110,53 @@ export default NextAuth({
 // }
 // }
 // export default (req: any, res: any) => NextAuth(req, res, options)
+
+// import { NextApiRequest, NextApiResponse } from "next"
+// import NextAuth from "next-auth"
+// import DiscordProvider from "next-auth/providers/discord"
+// import Providers from "next-auth/providers"
+
+// const options = {
+//   providers: [
+//     DiscordProvider({
+//       clientId: process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID,
+//       clientSecret: process.env.NEXT_PUBLIC_DISCORD_CLIENT_SECRET
+//     })
+//   ],
+//   callbacks: {
+//     async signIn(user, account, profile) {
+//       // Custom logic upon successful sign-in
+//       console.log("User signed in:", user)
+//       // Return `true` to allow the sign-in
+//       return true
+//     },
+//     async redirect(url: string, baseUrl: string) {
+//       // Custom logic for redirect URL
+//       console.log("Redirect URL:", url)
+//       // Check if the URL starts with the base URL
+//       if (url.startsWith(baseUrl)) {
+//         return url
+//       }
+//       // Redirect to the base URL if it doesn't match
+//       return baseUrl
+//     }
+//   }
+// }
+
+// export default (req: NextApiRequest, res: NextApiResponse) =>
+//   NextAuth(req, res, options)
+
+// import NextAuth from "next-auth"
+// import DiscordProvider from "next-auth/providers/discord"
+
+// export const authOptions = {
+//   // Configure one or more authentication providers
+//   providers: [
+//     DiscordProvider({
+//       clientId: process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID,
+//       clientSecret: process.env.NEXT_PUBLIC_DISCORD_CLIENT_SECRET
+//     })
+//     // ...add more providers here
+//   ]
+// }
+// export default NextAuth(authOptions)
